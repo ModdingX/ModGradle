@@ -144,9 +144,9 @@ public class RemapSrgSourcesTask extends DefaultTask {
         for (String srcline = reader.readLine(); srcline != null; srcline = reader.readLine()) {
             String line = srcline;
             Matcher fieldMatcher = FIELD_PATTERN.matcher(line);
-            line = fieldMatcher.replaceAll(match -> remapper.remapSrg(match.group()).orElse(match.group()));
+            line = fieldMatcher.replaceAll(match -> Matcher.quoteReplacement(remapper.remapSrg(match.group()).orElse(match.group())));
             Matcher methodMatcher = METHOD_PATTERN.matcher(line);
-            line = methodMatcher.replaceAll(match -> remapper.remapSrg(match.group()).orElse(match.group()));
+            line = methodMatcher.replaceAll(match -> Matcher.quoteReplacement(remapper.remapSrg(match.group()).orElse(match.group())));
             if (path.getFileName().toString().equalsIgnoreCase("accesstransformer.cfg")) {
                 Matcher classMatcher = AT_LINE_FUNC_PATTERN.matcher(line);
                 if (classMatcher.matches()) {
@@ -158,9 +158,9 @@ public class RemapSrgSourcesTask extends DefaultTask {
                     }
                 }
             } else if (path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".js")) {
-                line = COREMOD_SOURCE_PATTERN.matcher(line).replaceAll(r -> transformLiteral(r.group(), true, remapper::reverseClassName));
-                line = COREMOD_CLASS_PATTERN.matcher(line).replaceAll(r -> transformLiteral(r.group(), false, remapper::reverseClassName));
-                line = COREMOD_FUNC_PATTERN.matcher(line).replaceAll(r -> transformLiteral(r.group(), false, remapper::reverseMethodSignature));
+                line = COREMOD_SOURCE_PATTERN.matcher(line).replaceAll(r -> Matcher.quoteReplacement(transformLiteral(r.group(), true, remapper::reverseClassName)));
+                line = COREMOD_CLASS_PATTERN.matcher(line).replaceAll(r -> Matcher.quoteReplacement(transformLiteral(r.group(), false, remapper::reverseClassName)));
+                line = COREMOD_FUNC_PATTERN.matcher(line).replaceAll(r -> Matcher.quoteReplacement(transformLiteral(r.group(), false, remapper::reverseMethodSignature)));
             }
             writer.write(line + "\n");
             if (!line.equals(srcline) && !hasLogged) {

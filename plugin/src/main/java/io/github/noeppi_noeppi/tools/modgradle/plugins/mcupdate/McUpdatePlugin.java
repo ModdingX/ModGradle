@@ -76,7 +76,7 @@ public class McUpdatePlugin implements Plugin<Project> {
             extractInheritance.setOutput(() -> project.file("build").toPath().resolve(remapNamed.getName()).resolve("inheritance.txt").toFile());
 
             try {
-                downloadTransformer.setURL(new URL("file:///home/tux/dev/util/MinecraftUtilities/mcupdate/1.17/transformer.json"));
+                downloadTransformer.setURL(new URL("https://noeppi-noeppi.github.io/MinecraftUtilities/mcupdate/1.17/transformer.json"));
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }

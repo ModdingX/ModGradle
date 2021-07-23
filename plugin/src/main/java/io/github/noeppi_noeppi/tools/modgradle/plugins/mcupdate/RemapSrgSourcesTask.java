@@ -19,10 +19,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,9 +30,9 @@ public class RemapSrgSourcesTask extends DefaultTask {
     public static final Pattern METHOD_PATTERN = Pattern.compile("func_(\\d+)_\\w+");
     private static final Pattern AT_LINE_FUNC_PATTERN = Pattern.compile("^(\\s*(?:public|private|protected|default)\\s*(?:[+-]f)?\\s*)(\\S+)(\\s+\\w+\\s*)(\\((?:\\[*(?:[ZBCSIJDF]|L.*?;))*\\)\\[*(?:[ZBCSIJDFV]|L.*?;))(.*)$");
     private static final Pattern AT_LINE_PATTERN = Pattern.compile("^(\\s*(?:public|private|protected|default)\\s*(?:[+-]f)?\\s*)(\\S+)(.*)$");
-    private static final Pattern COREMOD_SOURCE_PATTERN = Pattern.compile("(['\"])((?:\\w+\\.)*\\w+)(['\"])");
-    private static final Pattern COREMOD_CLASS_PATTERN = Pattern.compile("(['\"])((?:\\w+/)*\\w+)(['\"])");
-    private static final Pattern COREMOD_FUNC_PATTERN = Pattern.compile("(['\"])(\\((?:\\[*(?:[ZBCSIJDF]|L.*?;))*\\)\\[*(?:[ZBCSIJDFV]|L.*?;))(['\"])");
+    private static final Pattern COREMOD_SOURCE_PATTERN = Pattern.compile("['\"](?:\\w+\\.)*\\w+['\"]");
+    private static final Pattern COREMOD_CLASS_PATTERN = Pattern.compile("['\"](?:\\w+/)*\\w+['\"]");
+    private static final Pattern COREMOD_FUNC_PATTERN = Pattern.compile("['\"]\\((?:\\[*(?:[ZBCSIJDF]|L.*?;))*\\)\\[*(?:[ZBCSIJDFV]|L.*?;)['\"]");
 
     private final Property<FileCollection> files = this.getProject().getObjects().property(FileCollection.class);
     private final Property<URL> source = this.getProject().getObjects().property(URL.class);
@@ -160,15 +158,28 @@ public class RemapSrgSourcesTask extends DefaultTask {
                     }
                 }
             } else if (path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".js")) {
-                line = COREMOD_SOURCE_PATTERN.matcher(line).replaceAll(r -> r.group(1) + remapper.reverseClassName(r.group(2).replace('.', '/')).map(n -> n.replace('/', '.')).orElse(r.group(2)) + r.group(3));
-                line = COREMOD_CLASS_PATTERN.matcher(line).replaceAll(r -> r.group(1) + remapper.reverseClassName(r.group(2)).orElse(r.group(2)) + r.group(3));
-                line = COREMOD_FUNC_PATTERN.matcher(line).replaceAll(r -> r.group(1) + remapper.reverseMethodSignature(r.group(2)).orElse(r.group(2)) + r.group(3));
+                line = COREMOD_SOURCE_PATTERN.matcher(line).replaceAll(r -> transformLiteral(r.group(), true, remapper::reverseClassName));
+                line = COREMOD_CLASS_PATTERN.matcher(line).replaceAll(r -> transformLiteral(r.group(), false, remapper::reverseClassName));
+                line = COREMOD_FUNC_PATTERN.matcher(line).replaceAll(r -> transformLiteral(r.group(), false, remapper::reverseMethodSignature));
             }
             writer.write(line + "\n");
             if (!line.equals(srcline) && !hasLogged) {
                 hasLogged = true;
                 System.out.println("Remapping old to new SRG in " + path.toAbsolutePath().normalize().toString());
             }
+        }
+    }
+
+    private static String transformLiteral(String literal, boolean sourceForm, Function<String, Optional<String>> action) {
+        String toTransform = literal.substring(1, literal.length() - 1);
+        if (sourceForm) toTransform = toTransform.replace('.', '/');
+        Optional<String> result = action.apply(toTransform);
+        if (result.isPresent()) {
+            String resultStr = result.get();
+            if (sourceForm) resultStr = resultStr.replace('/', '.');
+            return literal.charAt(0) + resultStr + literal.charAt(literal.length() - 1);
+        } else {
+            return literal;
         }
     }
 }

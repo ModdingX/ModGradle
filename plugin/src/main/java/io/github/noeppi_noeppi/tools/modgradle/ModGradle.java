@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 public class ModGradle {
 
-    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:1.0.0:fatjar";
+    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:1.0.1:fatjar";
 
     // Target minecraft version. Acts as default
     // ModGradle can still be used with other minecraft versions

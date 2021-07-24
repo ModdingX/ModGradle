@@ -36,7 +36,7 @@ public class JavadocPlugin implements Plugin<Project> {
                     throw new RuntimeException("Failed to configure javadoc theme download task", e);
                 }
             }
-            jd.dependsOn(cssTask);
+            jd.dependsOn(cssTask.get());
             project.afterEvaluate(p -> jd.options(o -> {
                 //noinspection Convert2Lambda
                 jd.doFirst(new Action<>() {

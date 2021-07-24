@@ -61,7 +61,14 @@ public class JavadocConfigureTask extends DefaultTask {
     }
     
     public void exclude(String exclude) {
-        this.excludes.add(exclude);
+        try {
+            this.excludes.add(exclude);
+        } catch (UnsupportedOperationException e) {
+            // add seems to randomly fail sometimes
+            ArrayList<String> list = new ArrayList<>(this.excludes.get());
+            list.add(exclude);
+            this.excludes.set(list);
+        }
     }
 
     @Input
@@ -74,7 +81,14 @@ public class JavadocConfigureTask extends DefaultTask {
     }
     
     public void include(String include) {
-        this.includes.add(include);
+        try {
+            this.includes.add(include);
+        } catch (UnsupportedOperationException e) {
+            // add seems to randomly fail sometimes
+            ArrayList<String> list = new ArrayList<>(this.excludes.get());
+            list.add(include);
+            this.includes.set(list);
+        }
     }
     
     @OutputFile

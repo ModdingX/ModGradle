@@ -28,7 +28,7 @@ public record PackageMatcher(List<String> packages, List<String> but) {
                 .map(part -> switch (part) {
                     case "**" -> "\\..+";
                     case "*" -> "\\.[^\\.]+";
-                    case "*?" -> ".?*";
+                    case "*?" -> "\\.?.*";
                     default -> Pattern.quote("." + part);
                 })
                 .collect(Collectors.joining(""));

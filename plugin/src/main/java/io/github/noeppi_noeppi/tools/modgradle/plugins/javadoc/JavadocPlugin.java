@@ -1,13 +1,17 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.javadoc;
 
 import io.github.noeppi_noeppi.tools.modgradle.util.task.DownloadTask;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.gradle.jvm.toolchain.JavadocTool;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,9 +36,19 @@ public class JavadocPlugin implements Plugin<Project> {
                     throw new RuntimeException("Failed to configure javadoc theme download task", e);
                 }
             }
-            jd.dependsOn(cssTask.get());
             project.afterEvaluate(p -> jd.options(o -> {
-                o.optionFiles(configureTask.getOutput().getAsFile());
+                //noinspection Convert2Lambda
+                jd.doFirst(new Action<Task>() {
+                    @Override
+                    public void execute(@Nonnull Task t) {
+                        FileCollection fc = project.files(configureTask.getSources().getFiles().stream()
+                                .map(File::toPath)
+                                .map(path -> path.toAbsolutePath().normalize())
+                                .map(configureTask::getDirs)
+                                .toArray());
+                        jd.setSource(fc);
+                    }
+                });
                 o.optionFiles(linkTask.getOutput().getAsFile());
                 JavadocTool tool = jd.getJavadocTool().getOrNull();
                 if (tool != null && tool.getMetadata().getLanguageVersion().asInt() < 11) {

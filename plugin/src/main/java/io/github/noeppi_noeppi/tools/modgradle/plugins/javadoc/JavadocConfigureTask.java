@@ -61,7 +61,7 @@ public class JavadocConfigureTask extends DefaultTask {
     }
     
     public void exclude(String exclude) {
-        this.includes.get().add(exclude);
+        this.excludes.add(exclude);
     }
 
     @Input
@@ -74,7 +74,7 @@ public class JavadocConfigureTask extends DefaultTask {
     }
     
     public void include(String include) {
-        this.includes.get().add(include);
+        this.includes.add(include);
     }
     
     @OutputFile

@@ -8,10 +8,7 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.provider.DefaultProvider;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.work.InputChanges;
 
 import java.io.File;
@@ -24,9 +21,11 @@ public class MergeMappingsTask extends DefaultTask {
     private final RegularFileProperty primary = this.getProject().getObjects().fileProperty();
     private final Property<FileCollection> mappings = this.getProject().getObjects().property(FileCollection.class);
     private final RegularFileProperty output = this.getProject().getObjects().fileProperty();
+    private final Property<Boolean> noparam = this.getProject().getObjects().property(Boolean.class);
 
     public MergeMappingsTask() {
         this.mappings.convention(new DefaultProvider<>(() -> this.getProject().files()));
+        this.noparam.convention(new DefaultProvider<>(() -> false));
     }
 
     @InputFile
@@ -56,6 +55,15 @@ public class MergeMappingsTask extends DefaultTask {
         this.output.set(output);
     }
     
+    @Input
+    public boolean isNoParam() {
+        return this.noparam.get();
+    }
+
+    public void setNoParam(boolean noparam) {
+        this.noparam.set(noparam);
+    }
+    
     @TaskAction
     protected void mergeMappings(InputChanges inputs) throws IOException {
         IMappingFile primary = IMappingFile.load(this.getPrimary().getAsFile());
@@ -63,7 +71,7 @@ public class MergeMappingsTask extends DefaultTask {
         for (File file : this.getMappings()) {
             mappings.add(IMappingFile.load(file));
         }
-        IMappingFile merged = MappingMerger.mergeMappings(primary, mappings);
+        IMappingFile merged = MappingMerger.mergeMappings(primary, mappings, this.isNoParam());
         merged.write(this.getOutput().getAsFile().toPath(), IMappingFile.Format.TSRG2, false);
     }
 }

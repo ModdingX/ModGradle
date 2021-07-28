@@ -174,7 +174,7 @@ public class BuildReMappingsTask extends DefaultTask {
                     System.out.println("Failed to load additional SRG: " + url);
                 }
             }
-            target = MappingMerger.mergeMappings(target, additionalMappings);
+            target = MappingMerger.mergeMappings(target, additionalMappings, false);
         }
 
         Files.createDirectories(this.getOutput().getAsFile().toPath().getParent());

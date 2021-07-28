@@ -91,6 +91,7 @@ public class SourceJarPlugin implements Plugin<Project> {
             mergeSourceMappings.setPrimary(generateMappings.getOutput().get());
             mergeSourceMappings.setMappings(project.files(createSourceMappings.getOutput()));
             mergeSourceMappings.setOutput(() -> project.file("build").toPath().resolve(mergeSourceMappings.getName()).resolve("source_mappings.tsrg").toFile());
+            mergeSourceMappings.setNoParam(true);
 
             sources.forEach(createRangeMap.getSources()::from);
             createRangeMap.getDependencies().from(classpath);

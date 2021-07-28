@@ -10,7 +10,7 @@ public class MappingMerger {
 
     // Merges by original.
     // To merge by mapped, reverse before merging and then reverse the merged mappings again.
-    public static IMappingFile mergeMappings(IMappingFile main, List<IMappingFile> others) {
+    public static IMappingFile mergeMappings(IMappingFile main, List<IMappingFile> others, boolean noparam) {
         List<IMappingFile> mappings = new ArrayList<>(Collections.singleton(main));
         mappings.addAll(others);
         IMappingBuilder builder = IMappingBuilder.create("from", "to");
@@ -24,12 +24,12 @@ public class MappingMerger {
             classes.addAll(mf.getClasses().stream().map(IMappingFile.IClass::getOriginal).collect(Collectors.toSet()));
         }
         for (String cls : classes) {
-            addClassValues(builder, cls, mappings);
+            addClassValues(builder, cls, mappings, noparam);
         }
         return builder.build().getMap("from", "to");
     }
 
-    private static void addClassValues(IMappingBuilder builder, String name, List<IMappingFile> mappings) {
+    private static void addClassValues(IMappingBuilder builder, String name, List<IMappingFile> mappings, boolean noparam) {
         IMappingBuilder.IClass clsResult = null;
         for (IMappingFile mf : mappings) {
             IMappingFile.IClass result = mf.getClass(name);
@@ -57,8 +57,10 @@ public class MappingMerger {
                         if (!methods.contains(methodId)) {
                             methods.add(methodId);
                             IMappingBuilder.IMethod methodBuilder = cls.method(method.getDescriptor(), method.getOriginal(), method.getMapped());
-                            for (IMappingFile.IParameter param : method.getParameters()) {
-                                methodBuilder.parameter(param.getIndex(), param.getOriginal(), param.getMapped());
+                            if (!noparam) {
+                                for (IMappingFile.IParameter param : method.getParameters()) {
+                                    methodBuilder.parameter(param.getIndex(), param.getOriginal(), param.getMapped());
+                                }
                             }
                         }
                     });

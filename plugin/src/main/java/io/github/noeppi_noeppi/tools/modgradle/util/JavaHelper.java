@@ -1,6 +1,9 @@
 package io.github.noeppi_noeppi.tools.modgradle.util;
 
 import com.google.common.collect.ImmutableSet;
+import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -58,5 +61,18 @@ public class JavaHelper {
         }
         
         return Collections.unmodifiableSet(packages);
+    }
+
+    public static void addBuiltinLibraries(Project project, Path javaHome, ConfigurableFileCollection libraryPath) {
+        ConfigurableFileTree cpTreeJre = project.fileTree(javaHome.resolve("jre").resolve("lib"));
+        cpTreeJre.include("*.jar");
+
+        ConfigurableFileTree cpTreeJdk = project.fileTree(javaHome.resolve("lib"));
+        cpTreeJdk.include("*.jar");
+
+        ConfigurableFileTree mpTree = project.fileTree(javaHome.resolve("jmods"));
+        mpTree.include("*.jmod");
+
+        libraryPath.from(cpTreeJre, cpTreeJdk, mpTree);
     }
 }

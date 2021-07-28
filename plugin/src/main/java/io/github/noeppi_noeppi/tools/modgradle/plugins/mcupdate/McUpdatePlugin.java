@@ -1,6 +1,8 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate;
 
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
+import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
+import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.task.*;
 import net.minecraftforge.gradle.common.tasks.ApplyRangeMap;
 import net.minecraftforge.gradle.common.tasks.ExtractRangeMap;
@@ -27,7 +29,7 @@ public class McUpdatePlugin implements Plugin<Project> {
 
     @Override
     public void apply(@Nonnull Project project) {
-        JavaCompile compileTask = project.getTasks().getByName("compileJava") instanceof JavaCompile jc ? jc : null;
+        JavaCompile compileTask = TaskUtil.getOrNull(project, "compileJava", JavaCompile.class);
         if (compileTask == null) {
             System.out.println("The mcupdate plugin was not able to find the `compileJava` task. You might need to configure stuff manually.");
         }
@@ -65,9 +67,9 @@ public class McUpdatePlugin implements Plugin<Project> {
             libraryPath.from(classpath);
             if (compileTask != null) {
                 if (compileTask.getJavaCompiler().getOrNull() != null) {
-                    this.addBuiltinLibraries(project, compileTask.getJavaCompiler().get().getMetadata().getInstallationPath().getAsFile().toPath(), libraryPath);
+                    JavaHelper.addBuiltinLibraries(project, compileTask.getJavaCompiler().get().getMetadata().getInstallationPath().getAsFile().toPath(), libraryPath);
                 } else {
-                    this.addBuiltinLibraries(project, Paths.get(System.getProperty("java.home")), libraryPath);
+                    JavaHelper.addBuiltinLibraries(project, Paths.get(System.getProperty("java.home")), libraryPath);
                 }
             }
 
@@ -120,19 +122,5 @@ public class McUpdatePlugin implements Plugin<Project> {
             
             applyLocal.setSources(stageLocal.getSources());
         });
-    }
-    
-    private void addBuiltinLibraries(Project project, Path javaHome, ConfigurableFileCollection libraryPath) {
-        
-        ConfigurableFileTree cpTreeJre = project.fileTree(javaHome.resolve("jre").resolve("lib"));
-        cpTreeJre.include("*.jar");
-        
-        ConfigurableFileTree cpTreeJdk = project.fileTree(javaHome.resolve("lib"));
-        cpTreeJdk.include("*.jar");
-        
-        ConfigurableFileTree mpTree = project.fileTree(javaHome.resolve("jmods"));
-        mpTree.include("*.jmod");
-        
-        libraryPath.from(cpTreeJre, cpTreeJdk, mpTree);
     }
 }

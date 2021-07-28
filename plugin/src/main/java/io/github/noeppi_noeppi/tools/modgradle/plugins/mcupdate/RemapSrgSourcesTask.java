@@ -28,7 +28,7 @@ public class RemapSrgSourcesTask extends DefaultTask {
 
     public static final Pattern FIELD_PATTERN = Pattern.compile("field_\\d+_\\w+");
     public static final Pattern METHOD_PATTERN = Pattern.compile("func_(\\d+)_\\w+");
-    private static final Pattern AT_LINE_FUNC_PATTERN = Pattern.compile("^(\\s*(?:public|private|protected|default)\\s*(?:[+-]f)?\\s*)(\\S+)(\\s+\\w+\\s*)(\\((?:\\[*(?:[ZBCSIJDF]|L.*?;))*\\)\\[*(?:[ZBCSIJDFV]|L.*?;))(.*)$");
+    private static final Pattern AT_LINE_FUNC_PATTERN = Pattern.compile("^(\\s*(?:public|private|protected|default)\\s*(?:[+-]f)?\\s*)(\\S+)(\\s+(?:\\w+|<init>)\\s*)(\\((?:\\[*(?:[ZBCSIJDF]|L.*?;))*\\)\\[*(?:[ZBCSIJDFV]|L.*?;))(.*)$");
     private static final Pattern AT_LINE_PATTERN = Pattern.compile("^(\\s*(?:public|private|protected|default)\\s*(?:[+-]f)?\\s*)(\\S+)(.*)$");
     private static final Pattern COREMOD_SOURCE_PATTERN = Pattern.compile("['\"](?:\\w+\\.)*\\w+['\"]");
     private static final Pattern COREMOD_CLASS_PATTERN = Pattern.compile("['\"](?:\\w+/)*\\w+['\"]");

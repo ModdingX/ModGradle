@@ -27,7 +27,6 @@ public class MergeJarWithSourcesTask extends AbstractArchiveTask {
     
     private final Property<RegularFile> base = this.getProject().getObjects().fileProperty();
     private final Property<RegularFile> sources = this.getProject().getObjects().fileProperty();
-    private final Property<RegularFile> output = this.getProject().getObjects().fileProperty();
 
     public MergeJarWithSourcesTask() {
         this.getArchiveBaseName().convention(new DefaultProvider<>(this.getProject()::getName));

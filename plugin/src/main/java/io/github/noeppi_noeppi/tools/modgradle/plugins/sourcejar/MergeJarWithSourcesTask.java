@@ -2,14 +2,16 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.sourcejar;
 
 import io.github.noeppi_noeppi.tools.modgradle.util.StringUtil;
 import org.apache.commons.io.IOUtils;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.internal.file.copy.CopyAction;
+import org.gradle.api.internal.provider.DefaultProvider;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.work.InputChanges;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,12 +23,22 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class MergeJarWithSourcesTask extends DefaultTask {
+public class MergeJarWithSourcesTask extends AbstractArchiveTask {
     
     private final Property<RegularFile> base = this.getProject().getObjects().fileProperty();
     private final Property<RegularFile> sources = this.getProject().getObjects().fileProperty();
     private final Property<RegularFile> output = this.getProject().getObjects().fileProperty();
 
+    public MergeJarWithSourcesTask() {
+        this.getArchiveBaseName().convention(new DefaultProvider<>(this.getProject()::getName));
+        this.getArchiveVersion().convention(new DefaultProvider<>(() -> this.getProject().getVersion().toString()));
+        this.getArchiveClassifier().convention(new DefaultProvider<>(() -> "sources"));
+        this.getArchiveExtension().convention(new DefaultProvider<>(() -> "jar"));
+        this.getOutputs().upToDateWhen(t -> false);
+        // We need dummy sources or it will always skip with NO-SOURCE
+        this.from(this.base, this.sources);
+    }
+    
     @InputFile
     public RegularFile getBase() {
         return this.base.get();
@@ -45,18 +57,17 @@ public class MergeJarWithSourcesTask extends DefaultTask {
         this.sources.set(sources);
     }
 
-    @OutputFile
-    public RegularFile getOutput() {
-        return this.output.get();
-    }
-
-    public void setOutput(RegularFile output) {
-        this.output.set(output);
+    @Nonnull
+    @Override
+    protected CopyAction createCopyAction() {
+        // Just do nothing
+        return copy -> () -> true;
     }
 
     @TaskAction
     protected void mergeJars(InputChanges inputs) throws IOException {
-        ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(this.getOutput().getAsFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
+        System.err.println(this.getArchiveFile().get().getAsFile().toPath().toAbsolutePath().normalize());
+        ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(this.getArchiveFile().get().getAsFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
         Set<String> dirs = new HashSet<>();
         this.processJar(out, this.getBase().getAsFile().toPath(), dirs, false);
         this.processJar(out, this.getSources().getAsFile().toPath(), dirs, true);

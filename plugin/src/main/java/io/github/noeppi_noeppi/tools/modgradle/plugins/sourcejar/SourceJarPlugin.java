@@ -11,16 +11,13 @@ import io.github.noeppi_noeppi.tools.modgradle.util.task.SourceMappingsTask;
 import net.minecraftforge.gradle.common.tasks.ApplyRangeMap;
 import net.minecraftforge.gradle.common.tasks.ExtractRangeMap;
 import net.minecraftforge.gradle.mcp.tasks.GenerateSRG;
-import net.minecraftforge.gradle.userdev.UserDevPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.UnknownTaskException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
-import org.gradle.util.internal.GUtil;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -111,19 +108,14 @@ public class SourceJarPlugin implements Plugin<Project> {
             
             if (jarTask != null) {
                 mergeJars.setBase(jarTask.getArchiveFile().get());
-                StringBuilder fname = new StringBuilder();
-                fname.append(jarTask.getArchiveBaseName().getOrNull() == null ? "project" : jarTask.getArchiveBaseName().get());
-                if (jarTask.getArchiveAppendix().getOrNull() != null) {
-                    fname.append("-").append(jarTask.getArchiveAppendix().get());
-                }
-                if (jarTask.getArchiveVersion().getOrNull() != null) {
-                    fname.append("-").append(jarTask.getArchiveVersion().get());
-                }
-                fname.append("-sources.");
-                fname.append(jarTask.getArchiveExtension().getOrNull() == null ? "jar" : jarTask.getArchiveExtension().get());
-                mergeJars.setOutput(() -> jarTask.getDestinationDirectory().get().getAsFile().toPath().resolve(fname.toString()).toFile());
+                mergeJars.getDestinationDirectory().set(jarTask.getDestinationDirectory());
+                mergeJars.getArchiveBaseName().set(jarTask.getArchiveBaseName());
+                mergeJars.getArchiveAppendix().set(jarTask.getArchiveAppendix());
+                mergeJars.getArchiveVersion().set(jarTask.getArchiveVersion());
+                mergeJars.getArchiveExtension().set(jarTask.getArchiveExtension());
+                mergeJars.getArchiveClassifier().set("sources");
             } else {
-                mergeJars.setOutput(() -> project.file("build").toPath().resolve("libs").resolve("sources.jar").toFile());
+                mergeJars.getDestinationDirectory().set(project.file("build").toPath().resolve("libs").toFile());
             }
             mergeJars.setSources(applyRangeMap.getOutput().get());
         });

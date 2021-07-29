@@ -65,7 +65,6 @@ public class MergeJarWithSourcesTask extends AbstractArchiveTask {
 
     @TaskAction
     protected void mergeJars(InputChanges inputs) throws IOException {
-        System.err.println(this.getArchiveFile().get().getAsFile().toPath().toAbsolutePath().normalize());
         ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(this.getArchiveFile().get().getAsFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
         Set<String> dirs = new HashSet<>();
         this.processJar(out, this.getBase().getAsFile().toPath(), dirs, false);

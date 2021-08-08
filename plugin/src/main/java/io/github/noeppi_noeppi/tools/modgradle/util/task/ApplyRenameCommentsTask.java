@@ -7,6 +7,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.tasks.InputDirectory;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -36,5 +37,9 @@ public abstract class ApplyRenameCommentsTask extends JarExec {
 
     public void setSources(Directory classes) {
         this.sources.set(classes);
+    }
+
+    public void setSources(File classDir) {
+        this.sources.set(classDir);
     }
 }

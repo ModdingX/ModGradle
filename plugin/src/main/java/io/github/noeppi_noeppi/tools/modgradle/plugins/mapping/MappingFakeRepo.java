@@ -67,19 +67,23 @@ public class MappingFakeRepo extends BaseRepo {
     protected File findFile(ArtifactIdentifier artifact) throws IOException {
         if ("net.minecraft".equals(artifact.getGroup()) && artifact.getName().startsWith("mappings_")) {
             String channel = artifact.getName().substring(9);
-            if (channel.equals("unofficial")) {
-                return this.generate("unofficial", "zip", artifact, (version, path) -> {
+            return switch (channel) {
+                case "none" -> this.generate(channel, "zip", artifact, (version, path) -> {
+                    OutputStream out = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                    McpExporter.writeMcpZip(out, BaseNames.EMPTY, BaseNames.EMPTY);
+                });
+                case "unofficial" -> this.generate("unofficial", "zip", artifact, (version, path) -> {
                     URL url = new URL("https://noeppi-noeppi.github.io/MappingUtilities/mcp_unofficial/" + version + ".zip");
                     BaseNames names = OldMappingReader.readOldMappings(url.openStream(), false, true);
                     BaseNames doc = OldMappingReader.readOldMappings(url.openStream(), true, true);
                     OutputStream out = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
                     McpExporter.writeMcpZip(out, names, doc);
                 });
-            } else if (channel.equals("stable2") || channel.equals("snapshot2") ||channel.equals("unofficial2")) {
-                // Old names that need to be remapped to new SRG names
-                return this.generate(channel, "zip", artifact, (version, path) -> {
+                case "stable2", "snapshot2", "unofficial2" -> this.generate(channel, "zip", artifact, (version, path) -> {
+                    // Old names that need to be remapped to new SRG names    
                     File base = MavenArtifactDownloader.generate(this.project, MCPRepo.getMappingDep(channel.substring(0, channel.length() - 1), version), false);
-                    if (base == null) throw new IllegalStateException("Failed to SRG-remap mappings: base names not found: " + MCPRepo.getMappingDep(channel.substring(0, channel.length() - 1), version));
+                    if (base == null)
+                        throw new IllegalStateException("Failed to SRG-remap mappings: base names not found: " + MCPRepo.getMappingDep(channel.substring(0, channel.length() - 1), version));
                     BaseNames names = OldMappingReader.readOldMappings(Files.newInputStream(base.toPath()), false, channel.equals("unofficial2"));
                     BaseNames doc = OldMappingReader.readOldMappings(Files.newInputStream(base.toPath()), true, channel.equals("unofficial2"));
                     SrgRemapper remapper = SrgRemapper.create(SRG_REMAP_SOURCE_CONFIG.openStream(), SRG_REMAP_TARGET_CONFIG.openStream(), null, false);
@@ -88,7 +92,8 @@ public class MappingFakeRepo extends BaseRepo {
                     OutputStream out = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
                     McpExporter.writeMcpZip(out, remappedNames, remappedDoc);
                 });
-            }
+                default -> null;
+            };
         }
         return null;
     }

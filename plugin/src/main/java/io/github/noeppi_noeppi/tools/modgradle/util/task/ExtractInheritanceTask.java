@@ -10,6 +10,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,10 @@ public abstract class ExtractInheritanceTask extends JarExec {
 
     public void setClasses(Directory classes) {
         this.classes.set(classes);
+    }
+
+    public void setClasses(File classDir) {
+        this.classes.set(classDir);
     }
 
     @InputFiles

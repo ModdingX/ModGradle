@@ -53,6 +53,10 @@ gradlePlugin {
             id = 'io.github.noeppi_noeppi.tools.modgradle.sourcejar'
             implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.sourcejar.SourceJarPlugin'
         }
+        cursedep {
+            id = 'io.github.noeppi_noeppi.tools.modgradle.cursedep'
+            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep.CurseDepPlugin'
+        }
     }
 }
 

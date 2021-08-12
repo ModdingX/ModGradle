@@ -68,4 +68,8 @@ public abstract class ExtractInheritanceTask extends JarExec {
     public void setOutput(RegularFile output) {
         this.output.set(output);
     }
+    
+    public void setOutput(File output) {
+        this.output.set(output);
+    }
 }

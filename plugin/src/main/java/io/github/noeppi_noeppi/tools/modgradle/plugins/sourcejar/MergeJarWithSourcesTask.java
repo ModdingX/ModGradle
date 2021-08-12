@@ -12,6 +12,7 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.work.InputChanges;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +35,7 @@ public class MergeJarWithSourcesTask extends AbstractArchiveTask {
         this.getArchiveClassifier().convention(new DefaultProvider<>(() -> "sources"));
         this.getArchiveExtension().convention(new DefaultProvider<>(() -> "jar"));
         this.getOutputs().upToDateWhen(t -> false);
-        // We need dummy sources or it will always skip with NO-SOURCE
+        // We need dummy sources, or it will always skip with NO-SOURCE
         this.from(this.base, this.sources);
     }
     
@@ -46,6 +47,10 @@ public class MergeJarWithSourcesTask extends AbstractArchiveTask {
     public void setBase(RegularFile base) {
         this.base.set(base);
     }
+    
+    public void setBase(File base) {
+        this.base.set(() -> base);
+    }
 
     @InputFile
     public RegularFile getSources() {
@@ -54,6 +59,10 @@ public class MergeJarWithSourcesTask extends AbstractArchiveTask {
 
     public void setSources(RegularFile sources) {
         this.sources.set(sources);
+    }
+    
+    public void setSources(File sources) {
+        this.sources.set(() -> sources);
     }
 
     @Nonnull

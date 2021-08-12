@@ -10,6 +10,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,10 @@ public abstract class ExtractLocalRenameMapTask extends JarExec {
 
     public void setSources(Directory classes) {
         this.sources.set(classes);
+    }
+    
+    public void setSources(File classesDir) {
+        this.sources.set(classesDir);
     }
 
     @InputFile

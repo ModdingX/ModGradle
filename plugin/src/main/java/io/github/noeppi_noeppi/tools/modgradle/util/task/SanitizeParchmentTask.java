@@ -24,7 +24,7 @@ public abstract class SanitizeParchmentTask extends JarExec {
 
     public SanitizeParchmentTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
-        this.getArgs().addAll("sanitize", "--inheritance", "{inheritance}", "--input", "{input}", "--output", "{output}", "--classpath", "{classpath}", "--sources", "{sources}", "--quiet", "--ignore", "{ignored}");
+        this.getArgs().addAll("sanitize", "--inheritance", "{inheritance}", "--input", "{input}", "--output", "{output}", "--classpath", "{classpath}", "--sources", "{sources}", "--ignore", "{ignored}");
         this.setRuntimeJavaVersion(ModGradle.TARGET_JAVA);
     }
     

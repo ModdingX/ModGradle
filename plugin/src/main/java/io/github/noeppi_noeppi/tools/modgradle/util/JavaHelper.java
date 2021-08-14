@@ -72,7 +72,13 @@ public class JavaHelper {
 
         ConfigurableFileTree mpTree = project.fileTree(javaHome.resolve("jmods"));
         mpTree.include("*.jmod");
-
-        libraryPath.from(cpTreeJre, cpTreeJdk, mpTree);
+        
+        if (mpTree.isEmpty()) {
+            libraryPath.from(cpTreeJre, cpTreeJdk);
+        } else {
+            // Exclude jars when modules are found as JDT will fail
+            // when adding these together with jmods.
+            libraryPath.from(cpTreeJre, mpTree);
+        }
     }
 }

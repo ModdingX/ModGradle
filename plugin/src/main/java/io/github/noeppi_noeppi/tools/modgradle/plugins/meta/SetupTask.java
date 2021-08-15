@@ -14,9 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 
 public class SetupTask extends DefaultTask {
@@ -133,14 +132,24 @@ public class SetupTask extends DefaultTask {
             throw new IllegalStateException("Failed to clone repository: " + this.getRepo());
         }
 
+        Map<String, String> replaces = Map.of(
+                "name", this.getProject().getName(),
+                "modid", this.getModid(),
+                "minecraft", this.getMinecraftVersion(),
+                "forge", this.getForgeVersion(),
+                "license", this.getLicense(),
+                "jdk", Integer.toString(Versioning.getJavaVersion(this.getMinecraftVersion())),
+                "resource", Integer.toString(Versioning.getResourceVersion(this.getMinecraftVersion()))
+        );
+        
         this.copyDir(clone, "runClient");
         this.copyDir(clone, "runServer");
         this.copyDir(clone, "runData");
+        this.copyDir(clone, "mod.github", ".github", replaces);
 
         this.copyFile(clone, "mod.gitignore", ".gitignore");
-        this.copyFile(clone, "Jenkinsfile", Map.of(
-                "jdk", Integer.toString(Versioning.getJavaVersion(this.getMinecraftVersion()))
-        ));
+        this.copyFile(clone, "Jenkinsfile", replaces);
+        
 
         Files.createDirectories(this.getProject().file("src/main/java").toPath()
                 .resolve(this.getProject().getGroup().toString().replace('.', '/'))
@@ -188,7 +197,7 @@ public class SetupTask extends DefaultTask {
             Files.copy(clone.resolve(fromFile), this.getProject().file(toFile).toPath());
         }
     }
-    
+
     private void copyFile(Path clone, @SuppressWarnings("SameParameterValue") String file, Map<String, String> replace) throws IOException {
         this.copyFile(clone, file, file, replace);
     }
@@ -210,11 +219,54 @@ public class SetupTask extends DefaultTask {
 
     private void copyDir(Path clone, String fromDir, String toDir) throws IOException {
         if (!Files.exists(this.getProject().file(toDir).toPath())
-                || Files.list(this.getProject().file(toDir).toPath()).count() == 0) {
+                || Files.list(this.getProject().file(toDir).toPath()).findAny().isEmpty()) {
             Files.createDirectories(this.getProject().file(toDir).toPath());
             if (Files.isDirectory(clone.resolve(fromDir))) {
                 PathUtils.copyDirectory(clone.resolve(fromDir), this.getProject().file(toDir).toPath());
             }
+        }
+    }
+
+    private void copyDir(Path clone, String dir, Map<String, String> replace) throws IOException {
+        this.copyDir(clone, dir, dir, replace);
+    }
+
+    private void copyDir(Path clone, String fromDir, String toDir, Map<String, String> replace) throws IOException {
+        if (!Files.exists(this.getProject().file(toDir).toPath())
+                || Files.list(this.getProject().file(toDir).toPath()).findAny().isEmpty()) {
+            Files.createDirectories(this.getProject().file(toDir).toPath());
+            Files.walkFileTree(clone.resolve(fromDir), new FileVisitor<>() {
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    Files.createDirectories(SetupTask.this.getProject().file(toDir).toPath().relativize(clone.relativize(dir)));
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Path target = SetupTask.this.getProject().file(toDir).toPath().relativize(clone.relativize(file));
+                    if (Files.isRegularFile(file) && !Files.exists(target)) {
+                        String content = Files.readString(file);
+                        for (String replaceKey : replace.keySet().stream().sorted().toList()) {
+                            content = content.replace("${" + replaceKey + "}", replace.get(replaceKey));
+                        }
+                        content = content.replace("$$", "$");
+                        Files.writeString(target, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    throw new IOException("Failed to copy file: " + file.toAbsolutePath().normalize());
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
     }
 }

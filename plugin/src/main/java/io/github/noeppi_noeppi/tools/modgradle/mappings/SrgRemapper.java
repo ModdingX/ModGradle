@@ -66,8 +66,8 @@ public class SrgRemapper {
     }
 
     public BaseNames remapNames(BaseNames names) {
-        // Should not happen but sometimes a parameter is mapped twice. (Seems like theres an issue with
-        // converting the old parameter format to a method and a an index)
+        // Should not happen but sometimes a parameter is mapped twice. (Seems like there's an issue with
+        // converting the old parameter format to a method and an index)
         // That means names may be inconsistent but that does not really matter as it does not break
         // anything. But we need to do it like this here because ImmutableMap#toImmutableMap would fail.
         Map<String, String> params = new HashMap<>();

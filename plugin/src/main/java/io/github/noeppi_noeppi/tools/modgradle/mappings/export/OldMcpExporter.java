@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class McpExporter {
+public class OldMcpExporter {
 
     // SRG is required for params
     public static void writeMcpZip(@WillClose OutputStream out, INamedMappingFile srg, Names names, Names doc) throws IOException {

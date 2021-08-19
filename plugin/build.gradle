@@ -12,7 +12,7 @@ repositories {
 dependencies {
     implementation ('com.google.code.findbugs:jsr305') { version { strictly '[3.0.1,)';  prefer '3.0.1' } }
     implementation ('net.minecraftforge:srgutils') { version { strictly '[0.4.3,)';  prefer '0.4.3' } }
-    implementation ('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.14,5.2)";  prefer '5.1.14' } }
+    implementation ('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.20,5.2)";  prefer '5.1.20' } }
     implementation ('net.minecraftforge:artifactural') { version { strictly "[3.0.8,)";  prefer '3.0.8' } }
     implementation ('de.siegmar:fastcsv') { version { strictly '[2.0.0,)';  prefer '2.0.0' } }
     implementation ('com.google.code.gson:gson') { version { strictly '[2.8.7,)';  prefer '2.8.7' } }
@@ -56,6 +56,10 @@ gradlePlugin {
         cursedep {
             id = 'io.github.noeppi_noeppi.tools.modgradle.cursedep'
             implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep.CurseDepPlugin'
+        }
+        packdev {
+            id = 'io.github.noeppi_noeppi.tools.modgradle.packdev'
+            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackDevPlugin'
         }
     }
 }

@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -35,7 +34,7 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
     }
 
     public Dependency mod(int projectId, int fileId) {
-        return this.createDependency(curseArtifact(getSlug(projectId), projectId, fileId));
+        return this.createDependency(CurseDepPlugin.curseArtifact(projectId, fileId));
     }
 
     public Dependency pack(int projectId, int fileId) {
@@ -61,7 +60,7 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
         } else {
             // Don't need a real slug here as it won't be visible anywhere
             // Saves us one call to the API
-            File file = MavenArtifactDownloader.download(this.project, curseArtifact("cursepack", projectId, fileId), false);
+            File file = MavenArtifactDownloader.download(this.project, CurseDepPlugin.curseArtifact("cursepack", projectId, fileId), false);
             if (file == null) {
                 throw new IllegalStateException("Can't create curse ModPack dependency: Failed to download manifest");
             } else try {
@@ -78,9 +77,9 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
                     int p = fileJson.getAsJsonObject().get("projectID").getAsInt();
                     if (!idExcludes.contains(p)) {
                         int f = fileJson.getAsJsonObject().get("fileID").getAsInt();
-                        String s = getSlug(p);
+                        String s = CurseDepPlugin.getSlug(p);
                         if (!slugExcludes.contains(s)) {
-                            configuration.getDependencies().add(this.createDependency(curseArtifact(s, p, f)));
+                            configuration.getDependencies().add(this.createDependency(CurseDepPlugin.curseArtifact(s, p, f)));
                         }
                     }
                 }
@@ -96,21 +95,6 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
             return this.project.getDependencies().create(obj);
         } else {
             return this.ext.deobf(obj);
-        }
-    }
-    
-    private static String curseArtifact(String slug, int projectId, int fileId) {
-        return "curse.maven:" + slug + "-" + projectId + ":" + fileId;
-    }
-
-    private static String getSlug(int projectId) {
-        try {
-            Reader reader = new InputStreamReader(new URL("https://addons-ecs.forgesvc.net/api/v2/addon/" + projectId).openStream());
-            JsonElement json = ModGradle.INTERNAL.fromJson(reader, JsonElement.class);
-            reader.close();
-            return json.getAsJsonObject().get("slug").getAsString();
-        } catch (Exception e) {
-            return "unknown";
         }
     }
 }

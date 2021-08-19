@@ -30,6 +30,9 @@ public class McEnv {
         if (version.contains("_mapped_")) {
             version = version.substring(0, version.indexOf("_mapped_"));
         }
+        if (version.contains("_at_")) {
+            version = version.substring(0, version.indexOf("_at_"));
+        }
         return version;
     }
 

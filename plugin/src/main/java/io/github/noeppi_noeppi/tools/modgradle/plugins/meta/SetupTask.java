@@ -239,13 +239,13 @@ public class SetupTask extends DefaultTask {
 
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    Files.createDirectories(SetupTask.this.getProject().file(toDir).toPath().resolve(clone.resolve(fromDir).relativize(dir)));
+                    Files.createDirectories(SetupTask.this.getProject().file(toDir).toPath().toAbsolutePath().resolve(clone.resolve(fromDir).toAbsolutePath().relativize(dir.toAbsolutePath())));
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Path target = SetupTask.this.getProject().file(toDir).toPath().resolve(clone.resolve(fromDir).relativize(file));
+                    Path target = SetupTask.this.getProject().file(toDir).toPath().toAbsolutePath().resolve(clone.resolve(fromDir).toAbsolutePath().relativize(file.toAbsolutePath()));
                     if (Files.isRegularFile(file) && !Files.exists(target)) {
                         String content = Files.readString(file);
                         for (String replaceKey : replace.keySet().stream().sorted().toList()) {

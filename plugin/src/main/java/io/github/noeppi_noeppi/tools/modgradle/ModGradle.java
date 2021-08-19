@@ -21,17 +21,17 @@ public class ModGradle {
 
     @SuppressWarnings("TrivialFunctionalExpressionUsage")
     public static final Gson GSON = ((Supplier<Gson>) () -> {
-        GsonBuilder gsonbuilder = new GsonBuilder();
-        gsonbuilder.disableHtmlEscaping();
-        gsonbuilder.setLenient();
-        gsonbuilder.setPrettyPrinting();
-        return gsonbuilder.create();
+        GsonBuilder builder = new GsonBuilder();
+        builder.disableHtmlEscaping();
+        builder.setLenient();
+        builder.setPrettyPrinting();
+        return builder.create();
     }).get();
 
     @SuppressWarnings("TrivialFunctionalExpressionUsage")
     public static final Gson INTERNAL = ((Supplier<Gson>) () -> {
-        GsonBuilder gsonbuilder = new GsonBuilder();
-        gsonbuilder.disableHtmlEscaping();
-        return gsonbuilder.create();
+        GsonBuilder builder = new GsonBuilder();
+        builder.disableHtmlEscaping();
+        return builder.create();
     }).get();
 }

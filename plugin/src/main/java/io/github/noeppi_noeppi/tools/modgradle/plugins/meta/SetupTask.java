@@ -1,6 +1,7 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.meta;
 
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
+import io.github.noeppi_noeppi.tools.modgradle.util.CopyUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.DefaultTask;
@@ -203,14 +204,7 @@ public class SetupTask extends DefaultTask {
     }
 
     private void copyFile(Path clone, String fromFile, String toFile, Map<String, String> replace) throws IOException {
-        if (Files.isRegularFile(clone.resolve(fromFile)) && !Files.exists(this.getProject().file(toFile).toPath())) {
-            String content = Files.readString(clone.resolve(fromFile));
-            for (String replaceKey : replace.keySet().stream().sorted().toList()) {
-                content = content.replace("${" + replaceKey + "}", replace.get(replaceKey));
-            }
-            content = content.replace("$$", "$");
-            Files.writeString(this.getProject().file(toFile).toPath(), content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        }
+        CopyUtil.copyFile(clone.resolve(fromFile), this.getProject().file(toFile).toPath(), replace, false);
     }
 
     private void copyDir(Path clone, String dir) throws IOException {
@@ -246,14 +240,7 @@ public class SetupTask extends DefaultTask {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Path target = SetupTask.this.getProject().file(toDir).toPath().toAbsolutePath().resolve(clone.resolve(fromDir).toAbsolutePath().relativize(file.toAbsolutePath()));
-                    if (Files.isRegularFile(file) && !Files.exists(target)) {
-                        String content = Files.readString(file);
-                        for (String replaceKey : replace.keySet().stream().sorted().toList()) {
-                            content = content.replace("${" + replaceKey + "}", replace.get(replaceKey));
-                        }
-                        content = content.replace("$$", "$");
-                        Files.writeString(target, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                    }
+                    CopyUtil.copyFile(file, target, replace, false);
                     return FileVisitResult.CONTINUE;
                 }
 

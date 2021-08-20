@@ -23,9 +23,7 @@ public abstract class MappingsProvider implements ChannelProvider {
     @Override
     public File getMappingsFile(@Nonnull MCPRepo mcpRepo, @Nonnull Project project, @Nonnull String channel, @Nonnull String version) throws IOException {
         String hash = Long.toHexString(this.hash(project, channel, version));
-        Path path = project.file("build").toPath().resolve("modgradle_mappings").resolve("v" + SYSTEM_VERSION)
-                .resolve(channel.replace('/', '_')).resolve(version.replace('/', '_'))
-                .resolve(hash).resolve("mappings-" + channel + "-" + version + "-" + hash + ".zip");
+        Path path = getCacheFile(project, channel, version, hash, "zip");
         if (!Files.exists(path) || Files.size(path) <= 0) {
             if (!Files.exists(path.getParent())) {
                 Files.createDirectories(path.getParent());
@@ -42,4 +40,14 @@ public abstract class MappingsProvider implements ChannelProvider {
     }
     
     protected abstract void generate(OutputStream out, Project project, String channel, String version) throws IOException;
+    
+    public static Path getBasePath(Project project, String channel) {
+        return project.file("build").toPath().resolve("modgradle_mappings").resolve("v" + SYSTEM_VERSION)
+                .resolve(channel.replace('/', '_'));
+    }
+    
+    public static Path getCacheFile(Project project, String channel, String version, String hash, String ext) {
+        return getBasePath(project, channel).resolve(version.replace('/', '_'))
+                .resolve(hash).resolve("mappings-" + channel.replace('/', '_') + "-" + version.replace('/', '_') + "-" + hash.replace('/', '_') + "." + ext);
+    }
 }

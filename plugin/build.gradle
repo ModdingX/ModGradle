@@ -6,7 +6,8 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://maven.minecraftforge.net' }
+    maven { url = 'https://maven.parchmentmc.org' }
 }
 
 dependencies {
@@ -14,6 +15,7 @@ dependencies {
     implementation ('net.minecraftforge:srgutils') { version { strictly '[0.4.3,)';  prefer '0.4.3' } }
     implementation ('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.20,5.2)";  prefer '5.1.20' } }
     implementation ('net.minecraftforge:artifactural') { version { strictly "[3.0.8,)";  prefer '3.0.8' } }
+    implementation ('org.parchmentmc:librarian') { version { strictly "[1.1.2,)";  prefer '1.1.2' } }
     implementation ('de.siegmar:fastcsv') { version { strictly '[2.0.0,)';  prefer '2.0.0' } }
     implementation ('com.google.code.gson:gson') { version { strictly '[2.8.7,)';  prefer '2.8.7' } }
     implementation ('com.google.guava:guava') { version { strictly '[30.1.1-jre,)';  prefer '30.1.1-jre' } }

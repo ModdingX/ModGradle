@@ -1,8 +1,10 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task;
 
+import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.CurseFile;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackDevPlugin;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
+import io.github.noeppi_noeppi.tools.modgradle.util.CopyUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import org.apache.commons.io.file.PathUtils;
 
@@ -29,10 +31,19 @@ public class BuildServerPackTask extends BuildTargetTask {
         ));
         if (Files.exists(this.getProject().file("data/" + Side.COMMON.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.COMMON.id).toPath(), fs.getPath(""));
         if (Files.exists(this.getProject().file("data/" + Side.SERVER.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.SERVER.id).toPath(), fs.getPath(""));
+        
         InputStream installScript = PackDevPlugin.class.getResourceAsStream("/" + PackDevPlugin.class.getPackage().getName().replace('.', '/') + "/install_server.py");
         if (installScript == null) throw new IllegalStateException("Can't build server pack: Install script not found in ModGradle.");
         Files.copy(installScript, fs.getPath("install.py"));
         installScript.close();
+        
+        InputStream dockerFile = PackDevPlugin.class.getResourceAsStream("/" + PackDevPlugin.class.getPackage().getName().replace('.', '/') + "/Dockerfile");
+        if (dockerFile == null) throw new IllegalStateException("Can't build server pack: Dockerfile not found in ModGradle.");
+        CopyUtil.copyFile(dockerFile, fs.getPath("Dockerfile"), Map.of(
+                "jdk", Integer.toString(Versioning.getJavaVersion(this.settings.minecraft()))
+        ), true);
+        dockerFile.close();
+        
         this.generateServerInfo(fs.getPath("server.txt"));
         fs.close();
     }

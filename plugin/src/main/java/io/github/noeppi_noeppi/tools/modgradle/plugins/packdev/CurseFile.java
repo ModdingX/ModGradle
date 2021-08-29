@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public record CurseFile(int projectId, int fileId, Side side) {
@@ -18,7 +20,8 @@ public record CurseFile(int projectId, int fileId, Side side) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(urlQuery.openStream()));
         String downloadUrl = reader.readLine();
         reader.close();
-        return new URL(downloadUrl);
+        URL base = new URL(downloadUrl);
+        return new URL(base.getProtocol(), base.getHost(), base.getPort(), URLEncoder.encode(base.getFile(), StandardCharsets.UTF_8));
     }
     
     public static CurseFile parse(JsonObject json) {

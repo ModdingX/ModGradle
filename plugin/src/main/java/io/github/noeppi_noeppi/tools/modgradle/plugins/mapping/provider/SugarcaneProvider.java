@@ -10,7 +10,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Set;
 
-// Waiting for https://github.com/ParchmentMC/Librarian/pull/1
+// Waiting for https://github.com/ParchmentMC/Librarian/pull/2
 public class SugarcaneProvider extends ParchmentChannelProvider {
 
     public static final SugarcaneProvider INSTANCE = new SugarcaneProvider();
@@ -25,17 +25,17 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
         return Set.of("sugarcane");
     }
     
-//    @Nonnull
-//    @Override
-//    protected Path getCacheBase(Project project) {
-//        return MappingsProvider.getBasePath(project, "sugarcane");
-//    }
-//
-//    @Nonnull
-//    @Override
-//    protected File cacheParchment(Project project, String mcpVersion, String mappingsVersion, String ext) {
-//        return MappingsProvider.getCacheFile(project, "sugarcane", mappingsVersion, mcpVersion, ext)
-//    }
+    @Nonnull
+    @Override
+    protected Path getCacheBase(Project project) {
+        return MappingsProvider.getBasePath(project, "sugarcane");
+    }
+
+    @Nonnull
+    @Override
+    protected File cacheParchment(Project project, String mcpVersion, String mappingsVersion, String ext) {
+        return MappingsProvider.getCacheFile(project, "sugarcane", mappingsVersion, mcpVersion, ext).toFile();
+    }
 
     @Override
     protected File getParchmentZip(Project project, ParchmentMappingVersion version) {

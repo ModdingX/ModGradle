@@ -31,19 +31,36 @@ def download_mods():
     except FileNotFoundError:
         pass
 
-    try:
-        print('Renaming installer output')
-        os.rename(f'forge-{mcv}-{mlv}.jar', 'forge.jar')
-        os.rename(f'minecraft_server.{mcv}.jar', 'minecraft.jar')
-        os.rename(f'{mcv}.json', 'minecraft.json')
+    if os.path.exists('run.sh'):
+        # New installer format 1.17 onwards
+        with open('run.sh') as file:
+            content = file.read().rstrip()
+        if '--nogui' not in content:
+            with open('run.sh', mode='w') as file:
+                file.write(content + ' --nogui\n\n')
+    else:
+        # Old installer format before 1.17
+        try:
+            print('Renaming installer output')
+            os.rename(f'forge-{mcv}-{mlv}.jar', 'forge.jar')
+            os.rename(f'minecraft_server.{mcv}.jar', 'minecraft.jar')
+            if os.path.exists(f'{mcv}.json'):
+                os.rename(f'{mcv}.json', 'minecraft.json')
+                with open('minecraft.json') as file:
+                    minecraft_json = json.loads(file.read())
+                os.remove('minecraft.json')
+                with open('minecraft.json', mode='w') as file:
+                    file.write(json.dumps(minecraft_json, indent=4))
+        except FileNotFoundError:
+            print('Failed to rename forge installer output. Forge seems to have changed their installer.')
 
-        with open('minecraft.json') as file:
-            minecraft_json = json.loads(file.read())
-        os.remove('minecraft.json')
-        with open('minecraft.json', mode='w') as file:
-            file.write(json.dumps(minecraft_json, indent=4))
-    except FileNotFoundError:
-        print('Failed to rename forge installer output. Forge seems to have changed their installer.')
+        with open('run.sh', mode='w') as file:
+            file.write('#!/usr/bin/env sh\n')
+            file.write('java -jar forge.jar --nogui\n')
+
+        with open('run.bat', mode='w') as file:
+            file.write('java -jar forge.jar --nogui\n')
+            file.write('pause\n')
 
     print('Downloading Mods')
     if not os.path.isdir('mods'):

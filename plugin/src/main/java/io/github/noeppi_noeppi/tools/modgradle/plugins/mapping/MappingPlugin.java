@@ -12,8 +12,6 @@ import javax.annotation.Nonnull;
 // Inject custom mappings and documentation into ForgeGradle
 public class MappingPlugin implements Plugin<Project> {
 
-    public static final int MAPPING_VERSION = 1;
-
     @Override
     public void apply(@Nonnull Project project) {
         // Maven for SugarCane

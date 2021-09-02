@@ -6,5 +6,6 @@ COPY . /data
 WORKDIR /data
 RUN python3 install.py
 RUN echo "eula=true" > /data/eula.txt
+RUN chmod +x /data/run.sh
 WORKDIR /data
-ENTRYPOINT [ "java", "-jar", "forge.jar" ]
+ENTRYPOINT [ "sh", "run.sh" ]

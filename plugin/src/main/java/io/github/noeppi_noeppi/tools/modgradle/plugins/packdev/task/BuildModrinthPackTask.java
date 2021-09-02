@@ -53,9 +53,8 @@ public class BuildModrinthPackTask extends BuildTargetTask {
         JsonArray fileArray = new JsonArray();
         for (CurseFile file : this.files) {
             URL url = file.downloadUrl();
-            String fileName = url.getPath().contains("/") ? url.getPath().substring(url.getPath().lastIndexOf('/') + 1) : url.getPath();
             JsonObject fileObj = new JsonObject();
-            fileObj.addProperty("path", "mods/" + fileName);
+            fileObj.addProperty("path", "mods/" + file.fileName());
             
             JsonArray downloadArray = new JsonArray();
             downloadArray.add(url.toString());

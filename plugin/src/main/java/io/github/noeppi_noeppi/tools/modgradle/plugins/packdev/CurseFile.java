@@ -9,19 +9,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public record CurseFile(int projectId, int fileId, Side side) {
     
     public URL downloadUrl() throws IOException {
+        return new URL("http://www.cursemaven.com/curse/maven/" + "O-" + this.projectId + "/" + this.fileId + "/O-" + this.projectId + "-" + this.fileId + ".jar");
+    }
+    
+    public String fileName() throws IOException {
         URL urlQuery = new URL("https://addons-ecs.forgesvc.net/api/v2/addon/" + this.projectId + "/file/" + this.fileId + "/download-url");
         BufferedReader reader = new BufferedReader(new InputStreamReader(urlQuery.openStream()));
-        String downloadUrl = reader.readLine();
+        String downloadUrl = reader.readLine().trim();
         reader.close();
         URL base = new URL(downloadUrl);
-        return new URL(base.getProtocol(), base.getHost(), base.getPort(), URLEncoder.encode(base.getFile(), StandardCharsets.UTF_8));
+        return base.getFile().contains("/") ? base.getFile().substring(base.getFile().lastIndexOf('/') + 1) : base.getFile();
     }
     
     public static CurseFile parse(JsonObject json) {

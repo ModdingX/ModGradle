@@ -2,7 +2,6 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping;
 
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.NewSrgProvider;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.NoneProvider;
-import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.SugarcaneProvider;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.UnofficialProvider;
 import net.minecraftforge.gradle.mcp.ChannelProvidersExtension;
 import org.gradle.api.Plugin;

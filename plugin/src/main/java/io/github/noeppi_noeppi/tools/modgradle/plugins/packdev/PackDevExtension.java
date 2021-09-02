@@ -4,7 +4,8 @@ import groovy.lang.GroovyObjectSupport;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
 import org.gradle.api.Project;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
 
 public class PackDevExtension extends GroovyObjectSupport {
     

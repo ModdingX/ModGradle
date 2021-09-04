@@ -2,15 +2,19 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider;
 
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader;
 import org.gradle.api.Project;
+import org.parchmentmc.feather.mapping.VersionedMappingDataContainer;
 import org.parchmentmc.librarian.forgegradle.ParchmentChannelProvider;
 import org.parchmentmc.librarian.forgegradle.ParchmentMappingVersion;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-// Waiting for https://github.com/ParchmentMC/Librarian/pull/2
 public class SugarcaneProvider extends ParchmentChannelProvider {
 
     public static final SugarcaneProvider INSTANCE = new SugarcaneProvider();
@@ -46,5 +50,15 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
     protected synchronized File getDependency(Project project, String dependencyNotation) {
         // We don't need snapshot handling as SugarCane will only build on releases
         return MavenArtifactDownloader.manual(project, dependencyNotation, false);
+    }
+
+    @Override
+    protected VersionedMappingDataContainer extractMappingData(File dep) throws IOException {
+        try (ZipFile zip = new ZipFile(dep)) {
+            ZipEntry entry = zip.getEntry("sugarcane.json");
+            if (entry == null) throw new IllegalStateException("'sugarcane.json' missing in SugarCane build");
+
+            return GSON.fromJson(new InputStreamReader(zip.getInputStream(entry)), VersionedMappingDataContainer.class);
+        }
     }
 }

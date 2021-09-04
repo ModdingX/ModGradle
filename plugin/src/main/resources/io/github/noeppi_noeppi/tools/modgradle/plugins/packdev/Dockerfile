@@ -8,4 +8,4 @@ RUN python3 install.py
 RUN echo "eula=true" > /data/eula.txt
 RUN chmod +x /data/run.sh
 WORKDIR /data
-ENTRYPOINT [ "sh", "run.sh" ]
+ENTRYPOINT [ "sh", "run.sh", "--nogui" ]

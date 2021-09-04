@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# ModGradle server install script
+# https://github.com/noeppi-noeppi/ModGradle
+
 import json
 import os
 import subprocess
@@ -7,12 +10,18 @@ import urllib.parse
 from urllib.request import Request, urlopen
 
 
-def download_mods():
+def setup_server():
     mods = []
     with open('server.txt') as file:
         for entry in file.read().split('\n'):
             if not entry.strip() == '':
                 mods.append([x.strip() for x in entry.split('/')])
+
+    try:
+        os.remove('run.sh')
+        os.remove('run.bat')
+    except FileNotFoundError:
+        pass
 
     print('Installing Forge')
     mcv = mods[0][0]
@@ -33,33 +42,33 @@ def download_mods():
 
     if os.path.exists('run.sh'):
         # New installer format 1.17 onwards
+
+        # Temporarily, until https://github.com/MinecraftForge/MinecraftForge/pull/8060 is merged
+        # Add "$@" so arguments to the script are passed to the game
         with open('run.sh') as file:
             content = file.read().rstrip()
-        if '--nogui' not in content:
+        if '$@' not in content:
             with open('run.sh', mode='w') as file:
-                file.write(content + ' --nogui\n\n')
+                file.write(content + ' "$@"\n\n')
     else:
         # Old installer format before 1.17
         try:
-            print('Renaming installer output')
-            os.rename(f'forge-{mcv}-{mlv}.jar', 'forge.jar')
-            os.rename(f'minecraft_server.{mcv}.jar', 'minecraft.jar')
+            print('Processing installer output')
             if os.path.exists(f'{mcv}.json'):
-                os.rename(f'{mcv}.json', 'minecraft.json')
-                with open('minecraft.json') as file:
+                with open(f'{mcv}.json') as file:
                     minecraft_json = json.loads(file.read())
-                os.remove('minecraft.json')
-                with open('minecraft.json', mode='w') as file:
+                os.remove(f'{mcv}.json')
+                with open(f'{mcv}.json', mode='w') as file:
                     file.write(json.dumps(minecraft_json, indent=4))
         except FileNotFoundError:
-            print('Failed to rename forge installer output. Forge seems to have changed their installer.')
+            print('Failed to process forge installer output.')
 
         with open('run.sh', mode='w') as file:
             file.write('#!/usr/bin/env sh\n')
-            file.write('java -jar forge.jar --nogui\n')
+            file.write(f'java -jar forge-{mcv}-{mlv}.jar "$@"\n')
 
         with open('run.bat', mode='w') as file:
-            file.write('java -jar forge.jar --nogui\n')
+            file.write(f'java -jar forge-{mcv}-{mlv}.jar %*\n')
             file.write('pause\n')
 
     print('Downloading Mods')
@@ -80,4 +89,4 @@ def download_mods():
 
 
 if __name__ == '__main__':
-    download_mods()
+    setup_server()

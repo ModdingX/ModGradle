@@ -4,10 +4,10 @@ import com.google.gson.JsonElement;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep.CurseDepPlugin;
-import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildCursePackTask;
-import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildModrinthPackTask;
-import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildServerPackTask;
-import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildTargetTask;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.*;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.multimc.MergeMultiMCTask;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.multimc.SetupMultiMCTask;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.multimc.UpdateMultiMCTask;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;
@@ -122,6 +122,8 @@ public class PackDevPlugin implements Plugin<Project> {
             addBuildTask(project, "buildCursePack", BuildCursePackTask.class, "curse", settings, files);
             addBuildTask(project, "buildServerPack", BuildServerPackTask.class, "server", settings, files);
             addBuildTask(project, "buildModrinthPack", BuildModrinthPackTask.class, "modrinth", settings, files);
+
+            addMultiMcTasks(project, settings, ext.getMultiMc(), files);
         });
     }
 
@@ -164,5 +166,11 @@ public class PackDevPlugin implements Plugin<Project> {
         task.getDestinationDirectory().set(project.file("build").toPath().resolve("target").toFile());
         Task buildTask = TaskUtil.getOrNull(project, "build", Task.class);
         if (buildTask != null) buildTask.dependsOn(task);
+    }
+    
+    private static void addMultiMcTasks(Project project, PackSettings settings, MultiMCExtension ext, List<CurseFile> files) {
+        Task updateTask = project.getTasks().create("updateMultimc", UpdateMultiMCTask.class, settings, ext, files);
+        Task mergeTask = project.getTasks().create("mergeMultimc", MergeMultiMCTask.class, settings, ext, files);
+        project.getTasks().create("multimc", SetupMultiMCTask.class, settings, ext, files, updateTask, mergeTask);
     }
 }

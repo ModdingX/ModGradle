@@ -1,6 +1,8 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.packdev;
 
+import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
+import groovy.transform.Internal;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
 import org.gradle.api.Project;
 
@@ -12,12 +14,14 @@ public class PackDevExtension extends GroovyObjectSupport {
     public static final String EXTENSION_NAME = "modpack";
 
     private final Project project;
+    private final MultiMCExtension multimc;
     
     private int projectId = -1;
     private String author;
 
     public PackDevExtension(Project project) {
         this.project = project;
+        this.multimc = new MultiMCExtension();
     }
 
     public void projectId(int projectId) {
@@ -28,6 +32,11 @@ public class PackDevExtension extends GroovyObjectSupport {
         this.author = author;
     }
     
+    public void multimc(Closure<Void> multimc) {
+        multimc.rehydrate(multimc.getDelegate(), multimc.getOwner(), this.multimc).call();
+    }
+    
+    @Internal
     public PackSettings getSettings() {
         String minecraft = McEnv.findMinecraftVersion(this.project);
         String forge = McEnv.findForgeVersion(this.project);
@@ -37,5 +46,10 @@ public class PackDevExtension extends GroovyObjectSupport {
                 Objects.requireNonNull(forge, "Forge version not set."),
                 this.projectId, Optional.ofNullable(this.author)
         );
+    }
+    
+    @Internal
+    public MultiMCExtension getMultiMc() {
+        return this.multimc;
     }
 }

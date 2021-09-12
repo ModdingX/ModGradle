@@ -133,7 +133,10 @@ public class BuildReMappingsTask extends DefaultTask {
         String version = mappings.substring(mappings.indexOf('_') + 1);
         BaseNames names = switch (channel) {
             case "stable", "snapshot" -> OldMappingReader.readOldMappings(new URL("https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_" + channel + "/" + version + "/mcp_" + channel + "-" + version + ".zip").openStream(), false, false);
-            case "official" -> throw new IllegalStateException("Remapping sources from official names is not supported.");
+            case "official", "parchment" -> {
+                System.out.println("Running mcupdate on official names is discouraged.");
+                yield BaseNames.EMPTY;
+            }
             // ModUtils channels
             case "unofficial" -> OldMappingReader.readOldMappings(new URL("https://noeppi-noeppi.github.io/MappingUtilities/mcp_unofficial/" + version + ".zip").openStream(), false, true);
             case "custom" -> throw new IllegalStateException("Remapping sources from custom names is not supported.");

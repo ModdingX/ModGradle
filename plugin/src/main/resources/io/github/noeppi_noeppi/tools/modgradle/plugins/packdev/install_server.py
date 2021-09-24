@@ -42,14 +42,7 @@ def setup_server():
 
     if os.path.exists('run.sh'):
         # New installer format 1.17 onwards
-
-        # Temporarily, until https://github.com/MinecraftForge/MinecraftForge/pull/8060 is merged
-        # Add "$@" so arguments to the script are passed to the game
-        with open('run.sh') as file:
-            content = file.read().rstrip()
-        if '$@' not in content:
-            with open('run.sh', mode='w') as file:
-                file.write(content + ' "$@"\n\n')
+        pass
     else:
         # Old installer format before 1.17
         try:

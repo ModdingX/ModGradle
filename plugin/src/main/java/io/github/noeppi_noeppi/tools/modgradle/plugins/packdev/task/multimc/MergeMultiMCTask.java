@@ -23,7 +23,7 @@ public class MergeMultiMCTask extends MultiMCTask {
 
     @TaskAction
     public void updateInstance(InputChanges changes) throws IOException {
-        Path target = this.ext.getInstancePath();
+        Path target = this.ext.getInstancePath(this.getProject());
         if (!Files.isDirectory(target.resolve("minecraft"))) {
             Files.createDirectories(target.resolve("minecraft"));
         }

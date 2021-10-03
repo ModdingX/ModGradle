@@ -1,6 +1,8 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.packdev;
 
 import groovy.lang.GroovyObjectSupport;
+import groovy.transform.Internal;
+import org.gradle.api.Project;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -11,10 +13,11 @@ public class MultiMCExtension extends GroovyObjectSupport {
     private Path basePath = null;
     private String instanceName = null;
     
-    public Path getInstancePath() {
+    @Internal
+    public Path getInstancePath(Project project) {
         if (this.basePath == null) throw new IllegalStateException("Can't get MultiMC instance path: base path not set.");
-        if (this.instanceName == null) throw new IllegalStateException("Can't get MultiMC instance path: instance name not set.");
-        return this.basePath.resolve("instances").resolve(this.instanceName).normalize();
+        String instance = this.instanceName == null ? project.getName() : this.instanceName;
+        return this.basePath.resolve("instances").resolve(instance).normalize();
     }
     
     public void path(String path) {

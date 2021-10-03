@@ -15,6 +15,7 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
         json.add("dependencies", dependencies);
         
         JsonArray fileArray = new JsonArray();
-        for (CurseFile file : this.files) {
+        for (CurseFile file : this.files.stream().sorted(Comparator.comparing(CurseFile::projectId)).toList()) {
             URL url = file.downloadUrl();
             JsonObject fileObj = new JsonObject();
             fileObj.addProperty("path", "mods/" + file.fileName());

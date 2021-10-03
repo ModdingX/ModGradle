@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.file.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class BuildServerPackTask extends BuildTargetTask {
     private void generateServerInfo(Path target) throws IOException {
         Writer writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE_NEW);
         writer.write(this.settings.minecraft() + "/" + this.settings.forge() + "\n");
-        for (CurseFile file : this.files) {
+        for (CurseFile file : this.files.stream().sorted(Comparator.comparing(CurseFile::projectId)).toList()) {
             if (file.side().server) {
                 writer.write(file.projectId() + "/" + file.fileId() + "\n");
             }

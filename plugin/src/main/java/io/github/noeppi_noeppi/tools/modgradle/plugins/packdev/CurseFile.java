@@ -19,7 +19,7 @@ import java.util.Map;
 public record CurseFile(int projectId, int fileId, Side side) {
     
     public URL downloadUrl() throws IOException {
-        return new URL("https://www.cursemaven.com/curse/maven/" + "O-" + this.projectId + "/" + this.fileId + "/O-" + this.projectId + "-" + this.fileId + ".jar");
+        return new URL("https://www.cursemaven.com/curse/maven/O-" + this.projectId + "/" + this.fileId + "/O-" + this.projectId + "-" + this.fileId + ".jar");
     }
     
     public String fileName() throws IOException {

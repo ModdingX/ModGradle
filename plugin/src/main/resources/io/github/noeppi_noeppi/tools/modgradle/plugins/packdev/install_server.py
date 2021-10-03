@@ -56,12 +56,15 @@ def setup_server():
         except FileNotFoundError:
             print('Failed to process forge installer output.')
 
+        with open('user_jvm_args.txt', mode='w') as file:
+            file.write('# Add custom JVM arguments here')
+
         with open('run.sh', mode='w') as file:
             file.write('#!/usr/bin/env sh\n')
-            file.write(f'java -jar forge-{mcv}-{mlv}.jar "$@"\n')
+            file.write(f'java @user_jvm_args.txt -jar forge-{mcv}-{mlv}.jar "$@"\n')
 
         with open('run.bat', mode='w') as file:
-            file.write(f'java -jar forge-{mcv}-{mlv}.jar %*\n')
+            file.write(f'java @user_jvm_args.txt -jar forge-{mcv}-{mlv}.jar %*\n')
             file.write('pause\n')
 
     print('Downloading Mods')

@@ -37,7 +37,7 @@ public class SetupMultiMCTask extends MultiMCTask {
 
     @TaskAction
     public void generateInstance(InputChanges changes) throws IOException {
-        Path target = this.ext.getInstancePath();
+        Path target = this.ext.getInstancePath(this.getProject());
         if (!Files.isDirectory(target)) {
             Files.createDirectories(target);
         }

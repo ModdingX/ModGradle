@@ -18,6 +18,8 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,7 +68,7 @@ public class BuildCursePackTask extends BuildTargetTask {
         json.addProperty("name", this.getProject().getName());
         
         JsonArray fileArray = new JsonArray();
-        for (CurseFile file : this.files) {
+        for (CurseFile file : this.files.stream().sorted(Comparator.comparing(CurseFile::projectId)).toList()) {
             if (file.side().client) {
                 JsonObject fileObj = new JsonObject();
                 fileObj.addProperty("projectID", file.projectId());
@@ -82,9 +84,7 @@ public class BuildCursePackTask extends BuildTargetTask {
     }
     
     private void generateModList(Path target) throws IOException {
-        Writer writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE_NEW);
-        writer.write("<h2>" + this.getProject().getName() + " - " + this.getProject().getVersion() + "</h2>\n");
-        writer.write("\n");
+        Map<String, String> linesBySlug = new HashMap<>();
         for (CurseFile file : this.files) {
             URL url = new URL("https://addons-ecs.forgesvc.net/api/v2/addon/" + file.projectId());
             Reader reader = new InputStreamReader(url.openStream());
@@ -100,10 +100,16 @@ public class BuildCursePackTask extends BuildTargetTask {
                         .map(a -> "<a href=\"https://www.curseforge.com/members/" + a + "/projects\">" + a + "</a>")
                         .collect(Collectors.joining(", ", " (by ", ")"));
             }
-            
-            writer.write("<li><a href=\"https://www.curseforge.com/minecraft/mc-mods/" + slug + "\">" + name + "</a>" + author + "</li>\n");
+            linesBySlug.put(slug, "<li><a href=\"https://www.curseforge.com/projects/" + file.projectId() + "\">" + name + "</a>" + author + "</li>");
         }
+        Writer writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE_NEW);
+        writer.write("<h2>" + this.getProject().getName() + " - " + this.getProject().getVersion() + "</h2>\n");
         writer.write("\n");
+        writer.write("<ul>\n");
+        for (String line : linesBySlug.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue).toList()) {
+            writer.write(line + "\n");
+        }
+        writer.write("</ul>\n");
         writer.close();
     }
 }

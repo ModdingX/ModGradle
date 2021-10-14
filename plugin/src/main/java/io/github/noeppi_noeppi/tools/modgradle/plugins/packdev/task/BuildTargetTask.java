@@ -25,6 +25,8 @@ public abstract class BuildTargetTask extends AbstractArchiveTask {
 
     protected final PackSettings settings;
     protected final List<CurseFile> files;
+    
+    @Nullable
     protected final String edition;
 
     private final Property<FileCollection> inputData = this.getProject().getObjects().property(FileCollection.class);
@@ -33,7 +35,7 @@ public abstract class BuildTargetTask extends AbstractArchiveTask {
     public BuildTargetTask(PackSettings settings, List<CurseFile> files, String edition) {
         this.settings = settings;
         this.files = files;
-        this.edition = edition;
+        this.edition = edition.isEmpty() ? null : edition;
 
         this.getArchiveBaseName().convention(new DefaultProvider<>(this.getProject()::getName));
         this.getArchiveVersion().convention(new DefaultProvider<>(() -> this.getProject().getVersion().toString()));

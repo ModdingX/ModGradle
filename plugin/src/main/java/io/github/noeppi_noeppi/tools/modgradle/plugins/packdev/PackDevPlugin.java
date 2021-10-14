@@ -189,7 +189,7 @@ public class PackDevPlugin implements Plugin<Project> {
         String editionPrefix = edition == null ? "" : edition + "-";
         String capitalizedClassifier = classifier.substring(0, 1).toUpperCase(Locale.ROOT) + classifier.substring(1);
         String capitalizedEdition = edition == null || edition.isEmpty() ? "" : edition.substring(0, 1).toUpperCase(Locale.ROOT) + edition.substring(1);
-        BuildTargetTask task = project.getTasks().create("build" + capitalizedEdition + capitalizedClassifier + "Pack", taskCls, settings, files, edition);
+        BuildTargetTask task = project.getTasks().create("build" + capitalizedEdition + capitalizedClassifier + "Pack", taskCls, settings, files, edition == null ? "" : edition);
         task.getArchiveClassifier().convention(editionPrefix + classifier);
         task.getDestinationDirectory().set(project.file("build").toPath().resolve("target").toFile());
         Task buildTask = TaskUtil.getOrNull(project, "build", Task.class);

@@ -14,10 +14,11 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class BuildModrinthPackTask extends BuildTargetTask {
 
@@ -40,6 +41,28 @@ public class BuildModrinthPackTask extends BuildTargetTask {
     }
     
     private void generateIndex(Path target) throws IOException {
+        // First compute hashes async
+        ScheduledExecutorService service = new ScheduledThreadPoolExecutor(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+        Map<CurseFile, Map<String, String>> hashes = Collections.synchronizedMap(new HashMap<>());
+        List<Future<?>> futures = new ArrayList<>();
+        for (CurseFile file : this.files) {
+            futures.add(service.submit(() -> {
+                try {
+                    Map<String, String> map = IOUtil.commonHashes(file.downloadUrl().openStream());
+                    hashes.put(file, map);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+        }
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
         String capitalizedEdition = this.edition == null ? null : this.edition.substring(0, 1).toUpperCase(Locale.ROOT) + this.edition.substring(1);
         String editionPart = capitalizedEdition == null ? "" : " (" + capitalizedEdition + ")";
         
@@ -70,11 +93,13 @@ public class BuildModrinthPackTask extends BuildTargetTask {
             env.addProperty("server", file.side().server ? "required" : "unsupported");
             fileObj.add("env", env);
             
-            JsonObject hashes = new JsonObject();
-            for (Map.Entry<String, String> entry : IOUtil.commonHashes(url.openStream()).entrySet()) {
-                hashes.addProperty(entry.getKey(), entry.getValue());
+            JsonObject hashesObj = new JsonObject();
+            if (hashes.containsKey(file)) {
+                for (Map.Entry<String, String> entry : hashes.get(file).entrySet()) {
+                    hashesObj.addProperty(entry.getKey(), entry.getValue());
+                }
             }
-            fileObj.add("hashes", hashes);
+            fileObj.add("hashes", hashesObj);
             
             fileArray.add(fileObj);
         }

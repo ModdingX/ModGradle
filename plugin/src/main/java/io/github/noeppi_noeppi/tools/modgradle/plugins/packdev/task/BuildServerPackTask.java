@@ -21,8 +21,8 @@ import java.util.Map;
 public class BuildServerPackTask extends BuildTargetTask {
 
     @Inject
-    public BuildServerPackTask(PackSettings settings, List<CurseFile> files) {
-        super(settings, files);
+    public BuildServerPackTask(PackSettings settings, List<CurseFile> files, String edition) {
+        super(settings, files, edition);
     }
 
     @Override
@@ -30,9 +30,10 @@ public class BuildServerPackTask extends BuildTargetTask {
         FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + target.toUri()), Map.of(
                 "create", String.valueOf(!Files.exists(target))
         ));
-        if (Files.exists(this.getProject().file("data/" + Side.COMMON.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.COMMON.id).toPath(), fs.getPath(""));
-        if (Files.exists(this.getProject().file("data/" + Side.SERVER.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.SERVER.id).toPath(), fs.getPath(""));
-        
+        for (Path src : this.getOverridePaths(Side.SERVER)) {
+            PathUtils.copyDirectory(src, fs.getPath(""));
+        }
+                
         InputStream installScript = PackDevPlugin.class.getResourceAsStream("/" + PackDevPlugin.class.getPackage().getName().replace('.', '/') + "/install_server.py");
         if (installScript == null) throw new IllegalStateException("Can't build server pack: Install script not found in ModGradle.");
         Files.copy(installScript, fs.getPath("install.py"));

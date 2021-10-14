@@ -6,7 +6,6 @@ import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.CurseFile;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
-import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import org.apache.commons.io.file.PathUtils;
 
 import javax.inject.Inject;
@@ -17,13 +16,14 @@ import java.net.URL;
 import java.nio.file.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class BuildModrinthPackTask extends BuildTargetTask {
 
     @Inject
-    public BuildModrinthPackTask(PackSettings settings, List<CurseFile> files) {
-        super(settings, files);
+    public BuildModrinthPackTask(PackSettings settings, List<CurseFile> files, String edition) {
+        super(settings, files, edition);
     }
 
     @Override
@@ -32,18 +32,22 @@ public class BuildModrinthPackTask extends BuildTargetTask {
                 "create", String.valueOf(!Files.exists(target))
         ));
         Files.createDirectories(fs.getPath("overrides"));
-        if (Files.exists(this.getProject().file("data/" + Side.COMMON.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.COMMON.id).toPath(), fs.getPath("overrides"));
-        if (Files.exists(this.getProject().file("data/" + Side.CLIENT.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.CLIENT.id).toPath(), fs.getPath("overrides"));
+        for (Path src : this.getOverridePaths(null)) {
+            PathUtils.copyDirectory(src, fs.getPath("overrides"));
+        }
         this.generateIndex(fs.getPath("index.json"));
         fs.close();
     }
     
     private void generateIndex(Path target) throws IOException {
+        String capitalizedEdition = this.edition == null ? null : this.edition.substring(0, 1).toUpperCase(Locale.ROOT) + this.edition.substring(1);
+        String editionPart = capitalizedEdition == null ? "" : " (" + capitalizedEdition + ")";
+        
         JsonObject json = new JsonObject();
         
         json.addProperty("formatVersion", 1);
         json.addProperty("game", "minecraft");
-        json.addProperty("name", this.getProject().getName());
+        json.addProperty("name", this.getProject().getName() + editionPart);
         json.addProperty("versionId", this.getProject().getVersion().toString());
 
         JsonObject dependencies = new JsonObject();

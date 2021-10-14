@@ -18,17 +18,14 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BuildCursePackTask extends BuildTargetTask {
 
     @Inject
-    public BuildCursePackTask(PackSettings settings, List<CurseFile> files) {
-        super(settings, files);
+    public BuildCursePackTask(PackSettings settings, List<CurseFile> files, String edition) {
+        super(settings, files, edition);
     }
 
     @Override
@@ -37,14 +34,18 @@ public class BuildCursePackTask extends BuildTargetTask {
                 "create", String.valueOf(!Files.exists(target))
         ));
         Files.createDirectories(fs.getPath("overrides"));
-        if (Files.exists(this.getProject().file("data/" + Side.COMMON.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.COMMON.id).toPath(), fs.getPath("overrides"));
-        if (Files.exists(this.getProject().file("data/" + Side.CLIENT.id).toPath())) PathUtils.copyDirectory(this.getProject().file("data/" + Side.CLIENT.id).toPath(), fs.getPath("overrides"));
+        for (Path src : this.getOverridePaths(Side.CLIENT)) {
+            PathUtils.copyDirectory(src, fs.getPath("overrides"));
+        }
         this.generateManifest(fs.getPath("manifest.json"));
         this.generateModList(fs.getPath("modlist.html"));
         fs.close();
     }
     
     private void generateManifest(Path target) throws IOException {
+        String capitalizedEdition = this.edition == null ? null : this.edition.substring(0, 1).toUpperCase(Locale.ROOT) + this.edition.substring(1);
+        String editionPart = capitalizedEdition == null ? "" : " (" + capitalizedEdition + ")";
+        
         JsonObject json = new JsonObject();
         
         JsonObject minecraftBlock = new JsonObject();
@@ -65,7 +66,7 @@ public class BuildCursePackTask extends BuildTargetTask {
         json.addProperty("version", this.getProject().getVersion().toString());
         this.settings.author().ifPresent(author -> json.addProperty("author", author));
         json.addProperty("projectID", this.settings.projectId());
-        json.addProperty("name", this.getProject().getName());
+        json.addProperty("name", this.getProject().getName() + editionPart);
         
         JsonArray fileArray = new JsonArray();
         for (CurseFile file : this.files.stream().sorted(Comparator.comparing(CurseFile::projectId)).toList()) {

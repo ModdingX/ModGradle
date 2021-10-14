@@ -4,7 +4,10 @@ import com.google.gson.JsonElement;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep.CurseDepPlugin;
-import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.*;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildCursePackTask;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildModrinthPackTask;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildServerPackTask;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildTargetTask;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.multimc.MergeMultiMCTask;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.multimc.SetupMultiMCTask;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.multimc.UpdateMultiMCTask;
@@ -27,9 +30,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 public class PackDevPlugin implements Plugin<Project> {
     
@@ -101,6 +107,19 @@ public class PackDevPlugin implements Plugin<Project> {
             PackSettings settings = ext.getSettings();
             JavaEnv.getJavaExtension(project).getToolchain().getLanguageVersion().set(JavaLanguageVersion.of(Versioning.getJavaVersion(settings.minecraft())));
             
+            try {
+                for (Path path : Arrays.stream(Side.values()).map(side -> project.file("data/" + side.id).toPath()).filter(Files::notExists).toList()) {
+                    Files.createDirectories(path);
+                }
+                for (String edition : settings.editions()) {
+                    for (Path path : Arrays.stream(Side.values()).map(side -> project.file("data-" + edition + "/" + side.id).toPath()).filter(Files::notExists).toList()) {
+                        Files.createDirectories(path);
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to load modlist", e);
+            }
+            
             List<CurseFile> files;
             try {
                 Reader reader = Files.newBufferedReader(project.file("modlist.json").toPath());
@@ -119,10 +138,11 @@ public class PackDevPlugin implements Plugin<Project> {
                 project.getDependencies().add(cfg, CurseDepPlugin.curseArtifact(file.projectId(), file.fileId()));
             }
             
-            addBuildTask(project, "buildCursePack", BuildCursePackTask.class, "curse", settings, files);
-            addBuildTask(project, "buildServerPack", BuildServerPackTask.class, "server", settings, files);
-            addBuildTask(project, "buildModrinthPack", BuildModrinthPackTask.class, "modrinth", settings, files);
-
+            forEditions(settings, edition -> {
+                addBuildTask(project, BuildCursePackTask.class, edition, "curse", settings, files);
+                addBuildTask(project, BuildServerPackTask.class, edition, "server", settings, files);
+                addBuildTask(project, BuildModrinthPackTask.class, edition, "modrinth", settings, files);
+            });
             addMultiMcTasks(project, settings, ext.getMultiMc(), files);
         });
     }
@@ -135,6 +155,11 @@ public class PackDevPlugin implements Plugin<Project> {
         }
     }
 
+    private static void forEditions(PackSettings settings, Consumer<String> action) {
+        action.accept(null);
+        settings.editions().forEach(action);
+    }
+    
     private static void addRunConfig(Project project, UserDevExtension ext, String name, Side side, SourceSet commonMods, SourceSet additionalMods) {
         String capitalized = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
         String taskName = "run" + capitalized;
@@ -160,9 +185,12 @@ public class PackDevPlugin implements Plugin<Project> {
         });
     }
     
-    private static void addBuildTask(Project project, String name, Class<? extends BuildTargetTask> taskCls, String classifier, PackSettings settings, List<CurseFile> files) {
-        BuildTargetTask task = project.getTasks().create(name, taskCls, settings, files);
-        task.getArchiveClassifier().convention(classifier);
+    private static void addBuildTask(Project project, Class<? extends BuildTargetTask> taskCls, String edition, String classifier, PackSettings settings, List<CurseFile> files) {
+        String editionPrefix = edition == null ? "" : edition + "-";
+        String capitalizedClassifier = classifier.substring(0, 1).toUpperCase(Locale.ROOT) + classifier.substring(1);
+        String capitalizedEdition = edition == null || edition.isEmpty() ? "" : edition.substring(0, 1).toUpperCase(Locale.ROOT) + edition.substring(1);
+        BuildTargetTask task = project.getTasks().create("build" + capitalizedEdition + capitalizedClassifier + "Pack", taskCls, settings, files, edition);
+        task.getArchiveClassifier().convention(editionPrefix + classifier);
         task.getDestinationDirectory().set(project.file("build").toPath().resolve("target").toFile());
         Task buildTask = TaskUtil.getOrNull(project, "build", Task.class);
         if (buildTask != null) buildTask.dependsOn(task);

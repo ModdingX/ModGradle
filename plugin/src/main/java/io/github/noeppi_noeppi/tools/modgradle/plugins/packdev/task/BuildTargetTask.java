@@ -13,24 +13,28 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.work.InputChanges;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BuildTargetTask extends AbstractArchiveTask {
 
     protected final PackSettings settings;
     protected final List<CurseFile> files;
+    protected final String edition;
 
     private final Property<FileCollection> inputData = this.getProject().getObjects().property(FileCollection.class);
 
     @Inject
-    public BuildTargetTask(PackSettings settings, List<CurseFile> files) {
+    public BuildTargetTask(PackSettings settings, List<CurseFile> files, String edition) {
         this.settings = settings;
         this.files = files;
-        
+        this.edition = edition;
+
         this.getArchiveBaseName().convention(new DefaultProvider<>(this.getProject()::getName));
         this.getArchiveVersion().convention(new DefaultProvider<>(() -> this.getProject().getVersion().toString()));
         this.getArchiveClassifier().convention(new DefaultProvider<>(() -> ""));
@@ -71,4 +75,29 @@ public abstract class BuildTargetTask extends AbstractArchiveTask {
     }
     
     protected abstract void generate(Path target) throws IOException;
+    
+    // Elements later in the list should overwrite
+    // Null means everything
+    protected final List<Path> getOverridePaths(@Nullable Side side) {
+        ArrayList<Path> list = new ArrayList<>();
+        if (side != null) {
+            list.add(this.getProject().file("data/" + Side.COMMON.id).toPath());
+            if (side != Side.COMMON) list.add(this.getProject().file("data/" + side.id).toPath());
+        } else {
+            list.add(this.getProject().file("data/" + Side.COMMON.id).toPath());
+            list.add(this.getProject().file("data/" + Side.SERVER.id).toPath());
+            list.add(this.getProject().file("data/" + Side.CLIENT.id).toPath());
+        }
+        if (this.edition != null) {
+            if (side != null) {
+                list.add(this.getProject().file("data- " + this.edition + "/" + Side.COMMON.id).toPath());
+                if (side != Side.COMMON) list.add(this.getProject().file("data- " + this.edition + "/" + side.id).toPath());
+            } else {
+                list.add(this.getProject().file("data- " + this.edition + "/" + Side.COMMON.id).toPath());
+                list.add(this.getProject().file("data- " + this.edition + "/" + Side.SERVER.id).toPath());
+                list.add(this.getProject().file("data- " + this.edition + "/" + Side.CLIENT.id).toPath());
+            }
+        }
+        return list.stream().filter(Files::isDirectory).toList();
+    }
 }

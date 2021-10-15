@@ -14,7 +14,9 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.file.*;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +40,15 @@ public class BuildServerPackTask extends BuildTargetTask {
         if (installScript == null) throw new IllegalStateException("Can't build server pack: Install script not found in ModGradle.");
         Files.copy(installScript, fs.getPath("install.py"));
         installScript.close();
+        try {
+            HashSet<PosixFilePermission> perms = new HashSet<>(Files.getPosixFilePermissions(fs.getPath("install.py")));
+            perms.add(PosixFilePermission.OWNER_EXECUTE);
+            perms.add(PosixFilePermission.GROUP_EXECUTE);
+            perms.add(PosixFilePermission.OTHERS_EXECUTE);
+            Files.setPosixFilePermissions(fs.getPath("install.py"), perms);
+        } catch (Exception e) {
+            //
+        }
         
         InputStream dockerFile = PackDevPlugin.class.getResourceAsStream("/" + PackDevPlugin.class.getPackage().getName().replace('.', '/') + "/Dockerfile");
         if (dockerFile == null) throw new IllegalStateException("Can't build server pack: Dockerfile not found in ModGradle.");

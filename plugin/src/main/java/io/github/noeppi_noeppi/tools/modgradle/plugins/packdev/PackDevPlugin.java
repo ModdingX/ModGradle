@@ -22,6 +22,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.jvm.toolchain.JavaLanguageVersion;
 
 import javax.annotation.Nonnull;
@@ -179,6 +180,16 @@ public class PackDevPlugin implements Plugin<Project> {
         copyTask.setDestinationDir(workingDir);
         copyTask.from(project.fileTree("data/" + Side.COMMON.id));
         if (side != Side.COMMON) copyTask.from(project.fileTree("data/" + side.id));
+        // Create some directories because forge 1.17 requires it
+        JavaCompile jc = TaskUtil.getOrNull(project, "compileJava", JavaCompile.class);
+        if (jc == null) throw new IllegalStateException("Can't set up PackDev run config: compileJava task not found.");
+        copyTask.doLast(t -> {
+            try {
+                Files.createDirectories(jc.getDestinationDirectory().getAsFile().get().toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         project.getGradle().projectsEvaluated(g -> {
             Task prepareRunTask = project.getTasks().getByName("prepareRuns");
             prepareRunTask.dependsOn(copyTask);

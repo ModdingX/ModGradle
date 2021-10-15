@@ -22,6 +22,8 @@ public class JavadocPlugin implements Plugin<Project> {
     public void apply(@Nonnull Project project) {
         AtomicReference<DownloadTask> cssTask = new AtomicReference<>(null);
         project.getTasks().withType(Javadoc.class).forEach(jd -> {
+            // Notice for later: sources for configure should not be modified in afterEvaluate
+            // MergeArtifact plugin relies on it.
             JavadocConfigureTask configureTask = project.getTasks().create(jd.getName() + "Configure", JavadocConfigureTask.class);
             jd.dependsOn(configureTask);
             JavadocLinksTask linkTask = project.getTasks().create(jd.getName() + "Links", JavadocLinksTask.class);

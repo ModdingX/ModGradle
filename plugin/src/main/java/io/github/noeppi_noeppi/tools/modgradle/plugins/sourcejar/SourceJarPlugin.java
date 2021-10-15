@@ -1,6 +1,7 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.sourcejar;
 
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
+import io.github.noeppi_noeppi.tools.modgradle.plugins.mergeartifact.MergedArtifacts;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
@@ -22,6 +23,7 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Set;
 
 // Plugin to build SRG named source jars
@@ -66,7 +68,10 @@ public class SourceJarPlugin implements Plugin<Project> {
         mergeJars.dependsOn(applyRangeMap);
         if (buildTask != null) buildTask.dependsOn(mergeJars);
         project.afterEvaluate(p -> {
-            Set<File> sources = JavaEnv.getJavaSources(project).getJava().getSrcDirs();
+            Set<File> sources = new HashSet<>();
+            sources.addAll(JavaEnv.getJavaSources(project).getJava().getSrcDirs());
+            // If artifacts got merged, copy them as well
+            sources.addAll(MergedArtifacts.additionalSourceDirs(project));
             FileCollection classpath = compileTask == null ? project.files() : compileTask.getClasspath();
             ConfigurableFileCollection libraryPath = project.files();
             libraryPath.from(classpath);

@@ -63,6 +63,10 @@ gradlePlugin {
             id = 'io.github.noeppi_noeppi.tools.modgradle.packdev'
             implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackDevPlugin'
         }
+        mergeartifact {
+            id = 'io.github.noeppi_noeppi.tools.modgradle.mergeartifact'
+            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.mergeartifact.MergeArtifactPlugin'
+        }
     }
 }
 

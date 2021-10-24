@@ -57,11 +57,12 @@ def setup_server():
             print('Failed to process forge installer output.')
 
         with open('user_jvm_args.txt', mode='w') as file:
-            file.write('# Add custom JVM arguments here')
+            file.write('# Add custom JVM arguments here\n')
 
         with open('run.sh', mode='w') as file:
             file.write('#!/usr/bin/env sh\n')
-            file.write(f'java @user_jvm_args.txt -jar forge-{mcv}-{mlv}.jar "$@"\n')
+            # Can't use @user_jvm_args.txt here as java 8 doesn't understand it.
+            file.write(f'java $(sed -E \'s/^([^#]*)(#.*)?$/\\1/\' user_jvm_args.txt) -jar forge-{mcv}-{mlv}.jar "$@"\n')
 
         with open('run.bat', mode='w') as file:
             file.write(f'java @user_jvm_args.txt -jar forge-{mcv}-{mlv}.jar %*\n')

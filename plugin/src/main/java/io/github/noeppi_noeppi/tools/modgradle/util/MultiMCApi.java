@@ -12,7 +12,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class MultiMCApi {
     
@@ -30,16 +32,35 @@ public class MultiMCApi {
         Component main = resolve(uid, version);
         components.put(uid, main);
         addDependencies(components, main);
+        
         JsonArray array = new JsonArray();
+        Set<String> addedUids = new HashSet<>();
+        // Stuff must be below its dependencies.
+        // Minecraft is first
+        if (components.containsKey(MC_UID)) addToList(components.get(MC_UID), components, uid, array, addedUids);
+        // Primary uid is second
+        addToList(main, components, uid, array, addedUids);
+        // then everything else follows
         for (Component c : components.values()) {
-            boolean important = c.uid().equals(MC_UID);
-            boolean dependency = !c.uid().equals(MC_UID) && !c.uid().equals(uid);
-            array.add(c.toJson(important, dependency));
+            addToList(c, components, uid, array, addedUids);
         }
         JsonObject json = new JsonObject();
         json.addProperty("formatVersion", 1);
         json.add("components", array);
         return json;
+    }
+    
+    private static void addToList(Component c, Map<String, Component> components, String mainUid, JsonArray array, Set<String> addedUids) {
+        if (!addedUids.contains(c.uid())) {
+            addedUids.add(c.uid());
+            c.requires().stream()
+                    .map(Dependency::uid)
+                    .filter(components::containsKey)
+                    .forEach(key -> addToList(components.get(key), components, mainUid, array, addedUids));
+            boolean important = c.uid().equals(MC_UID);
+            boolean dependency = !c.uid().equals(MC_UID) && !c.uid().equals(mainUid);
+            array.add(c.toJson(important, dependency));
+        }
     }
     
     private static void addDependencies(Map<String, Component> components, Component component) throws IOException {
@@ -97,10 +118,7 @@ public class MultiMCApi {
             if (!this.requires.isEmpty()) {
                 JsonArray array = new JsonArray();
                 for (Dependency dep : this.requires) {
-                    JsonObject require = new JsonObject();
-                    require.addProperty("uid", dep.uid());
-                    require.addProperty("equals", dep.version());
-                    if (dep.suggest() != null) require.addProperty("suggests", dep.suggest());
+                    array.add(dep.toJson());
                 }
                 json.add("cachedRequires", array);
             }
@@ -112,6 +130,14 @@ public class MultiMCApi {
         
         public Component resolve() throws IOException {
             return MultiMCApi.resolve(this.uid, this.version);
+        }
+        
+        public JsonObject toJson() {
+            JsonObject json = new JsonObject();
+            json.addProperty("uid", this.uid());
+            json.addProperty("equals", this.version());
+            if (this.suggest() != null) json.addProperty("suggests", this.suggest());
+            return json;
         }
     }
 }

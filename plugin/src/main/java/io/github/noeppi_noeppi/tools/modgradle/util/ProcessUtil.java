@@ -1,5 +1,7 @@
 package io.github.noeppi_noeppi.tools.modgradle.util;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -12,10 +14,13 @@ public class ProcessUtil {
             quoted[i] = quoteWin(command[i]);
         }
         ProcessBuilder pb = new ProcessBuilder(quoted);
-        pb.inheritIO();
+        pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
         pb.directory(dir.toFile());
         try {
             Process proc = pb.start();
+            IOUtils.copy(proc.getInputStream(), System.err);
             int code = proc.waitFor();
             if (code != 0) {
                 throw new IOException("External process returned exit code " + code + ": " + String.join(" ", command));

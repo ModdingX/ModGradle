@@ -102,6 +102,7 @@ public class PackCoreModsTask extends DefaultTask {
             json.addProperty(name, IntStream.range(0, loc.getNameCount()).mapToObj(loc::getName).map(Path::toString).collect(Collectors.joining("/")));
         }
         
+        if (!Files.exists(target.resolve("META-INF"))) Files.createDirectories(target.resolve("META-INF"));
         Files.writeString(target.resolve("META-INF").resolve("coremods.json"), ModGradle.GSON.toJson(json) + "\n", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

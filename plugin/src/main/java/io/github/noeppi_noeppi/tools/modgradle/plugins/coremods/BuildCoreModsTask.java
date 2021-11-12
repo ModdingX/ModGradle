@@ -1,6 +1,5 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.coremods;
 
-import io.github.noeppi_noeppi.tools.modgradle.util.FSUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.ProcessUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.*;

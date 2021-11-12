@@ -1,42 +1,47 @@
 package io.github.noeppi_noeppi.tools.modgradle.mappings;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public record Names(
-        Map<String, String> classes,
         Map<String, String> fields,
         Map<String, String> methods,
-        Map<String, Map<Integer, String>> params
-) {
+        Map<String, String> params) {
+
+    public static final Names EMPTY = new Names(Map.of(), Map.of(), Map.of());
+
+    public Names(Map<String, String> fields, Map<String, String> methods, Map<String, String> params) {
+        this.fields = Map.copyOf(fields);
+        this.methods = Map.copyOf(methods);
+        this.params = Map.copyOf(params);
+    }
+
+    public Optional<String> field(String srg) {
+        return Optional.ofNullable(this.fields.get(srg));
+    }
+
+    public Optional<String> method(String srg) {
+        return Optional.ofNullable(this.methods.get(srg));
+    }
+
+    public Optional<String> param(String srg) {
+        return Optional.ofNullable(this.params.get(srg));
+    }
     
-    public static final Names EMPTY = new Names(Map.of(), Map.of(), Map.of(), Map.of());
+    public boolean isEmpty() {
+        return this.fields.isEmpty() && this.methods.isEmpty() && this.params.isEmpty();
+    }
 
     public Names merge(Names other) {
-        Map<String, String> classes = new HashMap<>(this.classes);
+        if (other.isEmpty()) return this;
+        if (this.isEmpty()) return other;
         Map<String, String> fields = new HashMap<>(this.fields);
         Map<String, String> methods = new HashMap<>(this.methods);
-        Map<String, Map<Integer, String>> params = new HashMap<>(this.params.entrySet().stream()
-                .map(e -> Map.entry(e.getKey(), new HashMap<>(e.getValue())))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-        );
-        classes.putAll(other.classes);
+        Map<String, String> params = new HashMap<>(this.params);
         fields.putAll(other.fields);
         methods.putAll(other.methods);
-        for (Map.Entry<String, Map<Integer, String>> entry : other.params.entrySet()) {
-            Map<Integer, String> map = params.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
-            map.putAll(entry.getValue());
-        }
-        return new Names(
-                Collections.unmodifiableMap(classes),
-                Collections.unmodifiableMap(fields),
-                Collections.unmodifiableMap(methods),
-                Collections.unmodifiableMap(params.entrySet().stream()
-                        .map(e -> Map.entry(e.getKey(), Collections.unmodifiableMap(e.getValue())))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-                )
-        );
+        params.putAll(other.params);
+        return new Names(fields, methods, params);
     }
 }

@@ -1,7 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mergeartifact;
 
 import com.google.common.collect.ImmutableSet;
-import io.github.noeppi_noeppi.tools.modgradle.util.FSUtil;
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.Project;

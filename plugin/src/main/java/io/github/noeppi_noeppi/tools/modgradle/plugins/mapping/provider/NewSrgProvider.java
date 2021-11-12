@@ -1,8 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider;
 
-import io.github.noeppi_noeppi.tools.modgradle.mappings.BaseNames;
-import io.github.noeppi_noeppi.tools.modgradle.mappings.OldMappingReader;
-import io.github.noeppi_noeppi.tools.modgradle.mappings.SrgRemapper;
+import io.github.noeppi_noeppi.tools.modgradle.mappings.Names;
 import io.github.noeppi_noeppi.tools.modgradle.mappings.export.OldMcpExporter;
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader;
 import net.minecraftforge.gradle.mcp.MCPRepo;
@@ -47,11 +45,11 @@ public class NewSrgProvider extends MappingsProvider {
         File base = MavenArtifactDownloader.generate(project, MCPRepo.getMappingDep(channel.substring(0, channel.length() - 1), version), false);
         if (base == null)
             throw new IllegalStateException("Failed to SRG-remap mappings: base names not found: " + MCPRepo.getMappingDep(channel.substring(0, channel.length() - 1), version));
-        BaseNames names = OldMappingReader.readOldMappings(Files.newInputStream(base.toPath()), false, channel.equals("unofficial2"));
-        BaseNames doc = OldMappingReader.readOldMappings(Files.newInputStream(base.toPath()), true, channel.equals("unofficial2"));
+        Names names = OldMappingReader.readOldMappings(Files.newInputStream(base.toPath()), false, channel.equals("unofficial2"));
+        Names doc = OldMappingReader.readOldMappings(Files.newInputStream(base.toPath()), true, channel.equals("unofficial2"));
         SrgRemapper remapper = SrgRemapper.create(SRG_REMAP_SOURCE_CONFIG.openStream(), SRG_REMAP_TARGET_CONFIG.openStream(), null, false);
-        BaseNames remappedNames = remapper.remapNames(names);
-        BaseNames remappedDoc = remapper.remapNames(doc);
+        Names remappedNames = remapper.remapNames(names);
+        Names remappedDoc = remapper.remapNames(doc);
         OldMcpExporter.writeMcpZip(out, remappedNames, remappedDoc);
     }
 }

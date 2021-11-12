@@ -1,6 +1,5 @@
 package io.github.noeppi_noeppi.tools.modgradle.util;
 
-import com.google.common.collect.ImmutableSet;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ConfigurableFileTree;
@@ -16,17 +15,15 @@ import java.util.Set;
 
 public class JavaHelper {
     
-    private static final Set<String> KEYWORDS = ImmutableSet.of(
-            "abstract", "continue", "for", "new", "switch",
-            "assert", "default", "goto", "package", "synchronized",
-            "boolean", "do", "if", "private", "this",
-            "break", "double", "implements", "protected", "throw",
-            "byte", "else", "import", "public", "throws",
-            "case", "enum", "instanceof", "return", "transient",
-            "catch", "extends", "int", "short", "try",
-            "char", "final", "interface", "static", "void",
-            "class", "finally", "long", "strictfp", "volatile",
-            "const", "float", "native", "super", "while", "_"
+    private static final Set<String> KEYWORDS = Set.of(
+            "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
+            "class", "const", "continue", "default", "do", "double", "else", "enum",
+            "extends", "final", "finally", "float", "for", "goto", "if", "implements",
+            "import", "instanceof", "int", "interface", "long", "native", "new", "package",
+            "private", "protected", "public", "return", "non-sealed", "short", "static",
+            "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
+            "transient", "try", "void", "volatile", "while", "permits", "record", "sealed",
+            "var", "yield", "true", "false", "null", "_"
     );
     
     public static boolean isKeyword(String str) {

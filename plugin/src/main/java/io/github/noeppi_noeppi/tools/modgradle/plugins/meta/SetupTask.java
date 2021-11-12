@@ -1,7 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.meta;
 
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
-import io.github.noeppi_noeppi.tools.modgradle.util.CopyUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.DefaultTask;

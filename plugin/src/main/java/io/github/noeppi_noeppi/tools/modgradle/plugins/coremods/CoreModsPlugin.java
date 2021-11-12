@@ -1,11 +1,9 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.coremods;
 
-import io.github.noeppi_noeppi.tools.modgradle.util.FSUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;

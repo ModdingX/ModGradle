@@ -4,7 +4,6 @@ import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.CurseFile;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackDevPlugin;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
-import io.github.noeppi_noeppi.tools.modgradle.util.CopyUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import org.apache.commons.io.file.PathUtils;
 

@@ -1,4 +1,4 @@
-package io.github.noeppi_noeppi.tools.modgradle.util;
+package io.github.noeppi_noeppi.tools.modgradle.util.multimc;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;

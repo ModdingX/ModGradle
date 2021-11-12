@@ -2,7 +2,6 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.coremods;
 
 import com.google.gson.JsonObject;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
-import io.github.noeppi_noeppi.tools.modgradle.util.FSUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;

@@ -1,7 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate;
 
 import io.github.noeppi_noeppi.tools.modgradle.mappings.OfficialNames;
-import io.github.noeppi_noeppi.tools.modgradle.mappings.SrgRemapper;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;

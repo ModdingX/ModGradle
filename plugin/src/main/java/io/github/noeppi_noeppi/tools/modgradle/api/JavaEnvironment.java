@@ -4,6 +4,7 @@ import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.jvm.toolchain.JavaCompiler;
 
@@ -17,23 +18,27 @@ public class JavaEnvironment {
     /**
      * Gets the library path (classpath + system libraries) for a java compile task.
      */
-    public static FileCollection getLibraryPath(Project project, JavaCompile task) {
-        ConfigurableFileCollection files = project.files();
-        files.from(task.getClasspath());
-        if (task.getJavaCompiler().getOrNull() != null) {
-            JavaHelper.addBuiltinLibraries(project, task.getJavaCompiler().get().getMetadata().getInstallationPath().getAsFile().toPath(), files);
-        } else {
-            JavaHelper.addBuiltinLibraries(project, Paths.get(System.getProperty("java.home")), files);
-        }
-        return files;
+    public static Provider<FileCollection> getLibraryPath(Project project, JavaCompile task) {
+        return project.provider(() -> {
+            ConfigurableFileCollection fc = project.files();
+            fc.from(task.getClasspath());
+            if (task.getJavaCompiler().getOrNull() != null) {
+                JavaHelper.addBuiltinLibraries(project, task.getJavaCompiler().get().getMetadata().getInstallationPath().getAsFile().toPath(), fc);
+            } else {
+                JavaHelper.addBuiltinLibraries(project, Paths.get(System.getProperty("java.home")), fc);
+            }
+            return fc;
+        });
     }
     
     /**
      * Gets the system libraries for a java compiler.
      */
-    public static FileCollection getSystemLibraries(Project project, JavaCompiler compiler) {
-        ConfigurableFileCollection files = project.files();
-        JavaHelper.addBuiltinLibraries(project, compiler.getMetadata().getInstallationPath().getAsFile().toPath(), files);
-        return files;
+    public static Provider<FileCollection> getSystemLibraries(Project project, JavaCompiler compiler) {
+        return project.provider(() -> {
+            ConfigurableFileCollection fc = project.files();
+            JavaHelper.addBuiltinLibraries(project, compiler.getMetadata().getInstallationPath().getAsFile().toPath(), fc);
+            return fc;
+        });
     }
 }

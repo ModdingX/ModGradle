@@ -7,7 +7,7 @@ import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.MultiMCExtension;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
-import io.github.noeppi_noeppi.tools.modgradle.util.MultiMCApi;
+import io.github.noeppi_noeppi.tools.modgradle.util.multimc.MultiMCApi;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.jvm.toolchain.JavaToolchainService;

@@ -1,46 +1,52 @@
 package io.github.noeppi_noeppi.tools.modgradle.util;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.io.IOUtils;
 
 import javax.annotation.WillClose;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackReader;
-import java.io.Reader;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.URI;
+import java.nio.file.*;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 public class IOUtil {
-    
-    public static String readUntil(Reader reader, char chr) throws IOException {
-        String str = readTo(reader, chr);
-        return str.isEmpty() ? "" : str.substring(0, str.length() - 1);
-    }
-    
-    public static String readTo(Reader reader, char chr) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        while (true) {
-            int read = reader.read();
-            if (read == -1) return sb.toString();
-            sb.append((char) read);
-            if ((char) read == chr) return sb.toString();
-        }
-    }
-    
-    public static void skipWhitespace(PushbackReader reader) throws IOException {
-        while (true) {
-            int read = reader.read();
-            if (read == -1) return;
-            if (!Character.isWhitespace((char) read)) {
-                reader.unread(read);
-                return;
-            }
+
+    public static void copyFile(Path from, Path to, Map<String, String> replace, boolean replaceFile) throws IOException {
+        if (Files.isRegularFile(from) && (replaceFile || !Files.exists(to))) {
+            String content = Files.readString(from);
+            writeReplaced(content, to, replace);
         }
     }
 
+    public static void copyFile(InputStream from, Path to, Map<String, String> replace, boolean replaceFile) throws IOException {
+        if (replaceFile || !Files.exists(to)) {
+            Reader reader = new InputStreamReader(from);
+            String content = IOUtils.toString(reader);
+            reader.close();
+            writeReplaced(content, to, replace);
+        }
+    }
+
+    private static void writeReplaced(String content, Path to, Map<String, String> replace) throws IOException {
+        for (String replaceKey : replace.keySet().stream().sorted().toList()) {
+            content = content.replace("${" + replaceKey + "}", replace.get(replaceKey));
+        }
+        content = content.replace("$$", "$");
+        Files.writeString(to, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+    
+    public static FileSystem getFileSystem(URI uri) throws IOException {
+        try {
+            return FileSystems.newFileSystem(uri, Map.of());
+        } catch (FileSystemAlreadyExistsException e) {
+            return FileSystems.getFileSystem(uri);
+        }
+    }
+    
     public static Map<String, String> commonHashes(@WillClose InputStream in) throws IOException {
         MessageDigest sha1;
         MessageDigest sha256;

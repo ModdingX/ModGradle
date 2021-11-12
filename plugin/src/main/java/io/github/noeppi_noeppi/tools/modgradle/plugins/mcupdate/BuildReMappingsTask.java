@@ -131,18 +131,18 @@ public class BuildReMappingsTask extends DefaultTask {
         if (mappings == null) throw new IllegalStateException("Can't remap sources: Mappings not set.");
         String channel = mappings.substring(0, mappings.indexOf('_'));
         String version = mappings.substring(mappings.indexOf('_') + 1);
-        BaseNames names = switch (channel) {
+        Names names = switch (channel) {
             case "stable", "snapshot" -> OldMappingReader.readOldMappings(new URL("https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_" + channel + "/" + version + "/mcp_" + channel + "-" + version + ".zip").openStream(), false, false);
             case "official", "parchment" -> {
                 System.out.println("Running mcupdate on official names is discouraged.");
-                yield BaseNames.EMPTY;
+                yield Names.EMPTY;
             }
             // ModUtils channels
             case "unofficial" -> OldMappingReader.readOldMappings(new URL("https://noeppi-noeppi.github.io/MappingUtilities/mcp_unofficial/" + version + ".zip").openStream(), false, true);
             case "custom" -> throw new IllegalStateException("Remapping sources from custom names is not supported.");
             default -> throw new IllegalStateException("Can't remap sources: Invalid mappings: " + mappings);
         };
-        MappingExtractor.SrgInfo from = MappingExtractor.extractSrg(this.getSource().openStream());
+        MappingIO.SrgInfo from = MappingIO.readMcpConfigSrg(this.getSource().openStream());
         IMappingFile fromSrg = from.srg();
         IMappingFile official = OfficialNames.readOfficialMappings(this.getOfficialClient().openStream(), this.getOfficialServer().openStream());
         

@@ -1,6 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.api;
 
-import io.github.noeppi_noeppi.tools.modgradle.mappings.MappingExtractor;
+import io.github.noeppi_noeppi.tools.modgradle.mappings.MappingIO;
 import io.github.noeppi_noeppi.tools.modgradle.mappings.OfficialNames;
 import net.minecraftforge.srgutils.IMappingFile;
 import net.minecraftforge.srgutils.INamedMappingFile;
@@ -20,7 +20,7 @@ public class MappingData {
     public static IMappingFile loadSrgOfficial(String mcpConfig) throws IOException {
         String mcv = mcpConfig.contains("-") ? mcpConfig.substring(0, mcpConfig.indexOf('-')) : mcpConfig;
         McpConfigInfo info = McpConfigInfo.getInfo(mcpConfig);
-        INamedMappingFile nmf = MappingExtractor.extractSrg2(new URL("https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_config/" + mcpConfig + "/mcp_config-" + mcpConfig + ".zip").openStream());
+        INamedMappingFile nmf = MappingIO.readMcpConfigSrg(new URL("https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_config/" + mcpConfig + "/mcp_config-" + mcpConfig + ".zip").openStream());
         IMappingFile srg = nmf.getMap("obf", "srg");
         IMappingFile official = OfficialNames.readOfficialMappings(mcv);
         // Is now official -> srg
@@ -45,7 +45,7 @@ public class MappingData {
     public static IMappingFile loadSrgId(String mcpConfig) throws IOException {
         String mcv = mcpConfig.contains("-") ? mcpConfig.substring(0, mcpConfig.indexOf('-')) : mcpConfig;
         McpConfigInfo info = McpConfigInfo.getInfo(mcpConfig);
-        INamedMappingFile nmf = MappingExtractor.extractSrg2(new URL("https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_config/" + mcpConfig + "/mcp_config-" + mcpConfig + ".zip").openStream());
+        INamedMappingFile nmf = MappingIO.readMcpConfigSrg(new URL("https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_config/" + mcpConfig + "/mcp_config-" + mcpConfig + ".zip").openStream());
         IMappingFile srgId = nmf.getMap("srg", "id");
         if (info.official) {
             IMappingFile srgObf = nmf.getMap("srg", "obf");

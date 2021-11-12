@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate;
 
+import io.github.noeppi_noeppi.tools.modgradle.api.task.DownloadTask;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
 import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;

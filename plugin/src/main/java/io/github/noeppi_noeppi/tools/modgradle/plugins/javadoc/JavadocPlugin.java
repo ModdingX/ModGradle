@@ -1,6 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.javadoc;
 
-import io.github.noeppi_noeppi.tools.modgradle.util.task.DownloadTask;
+import io.github.noeppi_noeppi.tools.modgradle.api.task.DownloadTask;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

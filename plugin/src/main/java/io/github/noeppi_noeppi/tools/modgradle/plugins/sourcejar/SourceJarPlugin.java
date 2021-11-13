@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.sourcejar;
 
+import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
@@ -31,6 +32,7 @@ public class SourceJarPlugin implements Plugin<Project> {
 
     @Override
     public void apply(@Nonnull Project project) {
+        ModGradle.initialiseProject(project);
         GenerateSRG generateMappings = TaskUtil.getOrNull(project, "createMcpToSrg", GenerateSRG.class);
         if (generateMappings == null) throw new IllegalStateException("The SourceJar plugin can't find the MCP -> SRG mappings.");
         

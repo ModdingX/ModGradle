@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.coremods;
 
+import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;
@@ -24,6 +25,7 @@ public class CoreModsPlugin implements Plugin<Project> {
     
     @Override
     public void apply(@Nonnull Project p) {
+        ModGradle.initialiseProject(p);
         Configuration coreModsConfiguration = p.getConfigurations().create("coremods", c -> {
             c.setCanBeResolved(true);
             c.setCanBeConsumed(false);

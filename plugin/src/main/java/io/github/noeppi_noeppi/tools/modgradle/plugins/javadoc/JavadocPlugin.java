@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.javadoc;
 
+import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.api.task.DownloadTask;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -20,6 +21,7 @@ public class JavadocPlugin implements Plugin<Project> {
 
     @Override
     public void apply(@Nonnull Project project) {
+        ModGradle.initialiseProject(project);
         AtomicReference<DownloadTask> cssTask = new AtomicReference<>(null);
         // Copy to a list first to avoid ConcurrentModificationException
         project.getTasks().withType(Javadoc.class).stream().toList().forEach(jd -> {

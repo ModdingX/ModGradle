@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping;
 
+import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.NoneProvider;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.SugarcaneProvider;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.UnofficialProvider;
@@ -14,19 +15,21 @@ public class MappingPlugin implements Plugin<Project> {
 
     @Override
     public void apply(@Nonnull Project project) {
-        // Maven for SugarCane
-        project.getRepositories().maven(r -> {
-            r.setUrl("https://maven.melanx.de/");
-            r.content(c -> c.includeGroup("io.github.noeppi_noeppi.sugarcane"));
-        });
-        
+        ModGradle.initialiseProject(project);
         ChannelProvidersExtension ext = project.getExtensions().getByType(ChannelProvidersExtension.class);
         ext.addProvider(NoneProvider.INSTANCE);
         ext.addProvider(UnofficialProvider.INSTANCE);
         try {
             Class.forName("org.parchmentmc.librarian.forgegradle.LibrarianForgeGradlePlugin");
             //noinspection TrivialFunctionalExpressionUsage
-            ((Runnable) () -> ext.addProvider(SugarcaneProvider.INSTANCE)).run();
+            ((Runnable) () -> {
+                // Maven for SugarCane
+                project.getRepositories().maven(r -> {
+                    r.setUrl("https://maven.melanx.de/");
+                    r.content(c -> c.includeGroup("io.github.noeppi_noeppi.sugarcane"));
+                });
+                ext.addProvider(SugarcaneProvider.INSTANCE);
+            }).run();
         } catch (ClassNotFoundException e) {
             //
         }

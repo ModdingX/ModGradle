@@ -2,7 +2,10 @@ package io.github.noeppi_noeppi.tools.modgradle;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.gradle.api.Project;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class ModGradle {
@@ -34,4 +37,16 @@ public class ModGradle {
         builder.disableHtmlEscaping();
         return builder.create();
     }).get();
+    
+    private static final Set<Project> initialised = new HashSet<>();
+    
+    public static synchronized void initialiseProject(Project project) {
+        if (!initialised.contains(project)) {
+            initialised.add(project);
+            project.getRepositories().maven(r -> {
+                r.setUrl("https://noeppi-noeppi.github.io/MinecraftUtilities/maven");
+                r.content(c -> c.includeGroup("io.github.noeppi_noeppi.tools"));
+            });
+        }
+    }
 }

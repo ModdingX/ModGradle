@@ -3,7 +3,7 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.coremods;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
-import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;
+import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class CoreModsPlugin implements Plugin<Project> {
@@ -49,7 +50,7 @@ public class CoreModsPlugin implements Plugin<Project> {
             packCoreMods.getCoreModTypes().set(dep.toFile());
             packCoreMods.getSourceDir().set(buildCoreMods.getOutputDir());
 
-            Copy resourceTask = TaskUtil.getOrNull(p, "processResources", Copy.class);
+            Copy resourceTask = MgUtil.task(p, "processResources", Copy.class);
             if (resourceTask != null) {
                 resourceTask.dependsOn(packCoreMods);
                 resourceTask.from(packCoreMods.getTargetDir());
@@ -77,5 +78,14 @@ public class CoreModsPlugin implements Plugin<Project> {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public static List<Path> getRelativeCoreModPaths(Path path) throws IOException {
+        return Files.walk(path)
+                .filter(Files::isRegularFile)
+                .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".ts"))
+                .filter(p -> !p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".d.ts"))
+                .map(p -> path.relativize(p.toAbsolutePath()))
+                .toList();
     }
 }

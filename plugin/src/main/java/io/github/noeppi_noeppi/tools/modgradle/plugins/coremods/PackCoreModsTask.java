@@ -20,6 +20,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public abstract class PackCoreModsTask extends DefaultTask {
         }
 
         JsonObject json = new JsonObject();
-        for (Path loc : coreMods) {
+        for (Path loc : coreMods.stream().sorted(Comparator.nullsFirst(Comparator.comparing(Path::getFileName))).toList()) {
             Path dest = target.resolve(loc);
             PathUtils.createParentDirectories(dest);
             Writer writer = Files.newBufferedWriter(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);

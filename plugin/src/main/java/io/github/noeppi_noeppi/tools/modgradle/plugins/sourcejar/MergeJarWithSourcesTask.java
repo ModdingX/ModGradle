@@ -1,15 +1,20 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.sourcejar;
 
+import io.github.noeppi_noeppi.tools.modgradle.plugins.coremods.CoreModsPlugin;
+import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.StringUtil;
 import org.apache.commons.io.IOUtils;
+import org.gradle.api.UnknownDomainObjectException;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.file.copy.CopyAction;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.work.InputChanges;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +36,14 @@ public abstract class MergeJarWithSourcesTask extends AbstractArchiveTask {
         this.getOutputs().upToDateWhen(t -> false);
         // We need dummy sources, or it will always skip with NO-SOURCE
         this.from(this.getBase(), this.getSources());
+        this.getCoreModSources().convention(JavaEnv.getJavaExtension(this.getProject()).map(ext -> {
+            try {
+                return ext.getSourceSets().getByName("coremods").getResources().getSourceDirectories();
+            } catch (UnknownDomainObjectException e) {
+                //noinspection ConstantConditions
+                return null;
+            }
+        }));
     }
     
     @InputFile
@@ -38,6 +51,10 @@ public abstract class MergeJarWithSourcesTask extends AbstractArchiveTask {
 
     @InputFile
     public abstract RegularFileProperty getSources();
+
+    @Optional
+    @InputFiles
+    public abstract Property<FileCollection> getCoreModSources();
 
     @Nonnull
     @Override
@@ -52,6 +69,15 @@ public abstract class MergeJarWithSourcesTask extends AbstractArchiveTask {
         Set<String> dirs = new HashSet<>();
         this.processJar(out, this.getBase().getAsFile().get().toPath(), dirs, false);
         this.processJar(out, this.getSources().getAsFile().get().toPath(), dirs, true);
+        if (this.getCoreModSources().isPresent()) {
+            for (File srcDir : this.getCoreModSources().get().getFiles()) {
+                for (Path loc : CoreModsPlugin.getRelativeCoreModPaths(srcDir.toPath())) {
+                    out.putNextEntry(new ZipEntry(loc.normalize().toString()));
+                    Files.copy(srcDir.toPath().resolve(loc), out);
+                    out.closeEntry();
+                }
+            }
+        }
         out.close();
     }
     

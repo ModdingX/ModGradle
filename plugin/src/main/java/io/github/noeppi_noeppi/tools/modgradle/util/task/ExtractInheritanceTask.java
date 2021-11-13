@@ -21,6 +21,7 @@ public abstract class ExtractInheritanceTask extends JarExec {
         this.getArgs().addAll("inheritance", "--classes", "{classes}", "--classpath", "{classpath}", "--output", "{output}");
         this.getLibraryPath().convention(this.getProject().provider(() -> this.getProject().files()));
         this.setRuntimeJavaVersion(ModGradle.TARGET_JAVA);
+        this.getGenerateLocals().convention(false);
     }
 
     @InputDirectory

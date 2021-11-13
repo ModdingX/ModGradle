@@ -5,7 +5,7 @@ import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
-import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;
+import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.task.ExtractInheritanceTask;
 import io.github.noeppi_noeppi.tools.modgradle.util.task.MergeMappingsTask;
 import io.github.noeppi_noeppi.tools.modgradle.util.task.SourceMappingsTask;
@@ -33,21 +33,21 @@ public class SourceJarPlugin implements Plugin<Project> {
     @Override
     public void apply(@Nonnull Project project) {
         ModGradle.initialiseProject(project);
-        GenerateSRG generateMappings = TaskUtil.getOrNull(project, "createMcpToSrg", GenerateSRG.class);
+        GenerateSRG generateMappings = MgUtil.task(project, "createMcpToSrg", GenerateSRG.class);
         if (generateMappings == null) throw new IllegalStateException("The SourceJar plugin can't find the MCP -> SRG mappings.");
         
-        JavaCompile compileTask = TaskUtil.getOrNull(project, "compileJava", JavaCompile.class);
+        JavaCompile compileTask = MgUtil.task(project, "compileJava", JavaCompile.class);
         if (compileTask == null) {
             System.out.println("The SourceJar plugin was not able to find the `compileJava` task. You might need to configure stuff manually.");
         }
         
-        Jar jarTask = TaskUtil.getOrNull(project, "jar", Jar.class);
+        Jar jarTask = MgUtil.task(project, "jar", Jar.class);
         if (compileTask == null) {
             System.out.println("The SourceJar plugin was not able to find the `jar` task. You might need to configure stuff manually.");
         }
         
-        Task reobfJarTask = TaskUtil.getOrNull(project, "reobfJar", Task.class);
-        Task buildTask = TaskUtil.getOrNull(project, "build", Task.class);
+        Task reobfJarTask = MgUtil.task(project, "reobfJar", Task.class);
+        Task buildTask = MgUtil.task(project, "build", Task.class);
 
         ExtractInheritanceTask extractInheritance = project.getTasks().create("sourceJarExtractInheritance", ExtractInheritanceTask.class);
         extractInheritance.getOutputs().upToDateWhen(t -> false);

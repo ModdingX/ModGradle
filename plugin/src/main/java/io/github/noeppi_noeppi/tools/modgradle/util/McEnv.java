@@ -56,7 +56,7 @@ public class McEnv {
                     Artifact currentArtifact = Artifact.from(dep.getGroup(), dep.getName(), dep.getVersion(), null, null);
                     if (artifact == null) {
                         artifact = currentArtifact;
-                    } else if (!ArtifactUtil.sameArtifact(artifact, currentArtifact)) {
+                    } else if (!MgUtil.sameArtifact(artifact, currentArtifact)) {
                         // Sometimes the forge configuration contains the same dependency multiple times.
                         // In that case we just ignore it.
                         throw new IllegalStateException("Can't resolve forge dependency: Multiple entries in " + minecraft.getName() + " configuration.");

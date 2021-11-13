@@ -37,6 +37,14 @@ public abstract class JavadocConfigureTask extends DefaultTask {
 
     @Input
     public abstract ListProperty<String> getIncludes();
+    
+    public void exclude(String pattern) {
+        this.getExcludes().add(pattern);
+    }
+    
+    public void include(String pattern) {
+        this.getIncludes().add(pattern);
+    }
 
     public FileCollection getDirs(Path base) {
         try {

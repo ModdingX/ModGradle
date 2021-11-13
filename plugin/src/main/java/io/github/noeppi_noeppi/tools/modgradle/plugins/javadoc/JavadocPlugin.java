@@ -29,7 +29,7 @@ public class JavadocPlugin implements Plugin<Project> {
             // MergeArtifact plugin relies on it.
             JavadocConfigureTask configureTask = project.getTasks().create(jd.getName() + "Configure", JavadocConfigureTask.class);
             jd.dependsOn(configureTask);
-            JavadocLinksTask linkTask = project.getTasks().create(jd.getName() + "Links", JavadocLinksTask.class);
+            JavadocLinksTask linkTask = project.getTasks().create(jd.getName() + "Links", JavadocLinksTask.class, jd);
             jd.dependsOn(linkTask);
             if (cssTask.get() == null) {
                 try {

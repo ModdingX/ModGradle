@@ -33,6 +33,9 @@ public class SourceJarPlugin implements Plugin<Project> {
     @Override
     public void apply(@Nonnull Project project) {
         ModGradle.initialiseProject(project);
+
+        SourceJarExtension ext = project.getExtensions().create(SourceJarExtension.EXTENSION_NAME, SourceJarExtension.class);
+        
         GenerateSRG generateMappings = MgUtil.task(project, "createMcpToSrg", GenerateSRG.class);
         if (generateMappings == null) throw new IllegalStateException("The SourceJar plugin can't find the MCP -> SRG mappings.");
         
@@ -71,8 +74,14 @@ public class SourceJarPlugin implements Plugin<Project> {
         if (buildTask != null) buildTask.dependsOn(mergeJars);
         project.afterEvaluate(p -> {
             Set<File> sources = new HashSet<>(JavaEnv.getJavaSources(project).get().getJava().getSrcDirs());
+            sources.addAll(ext.getAdditionalSources());
             
-            Provider<FileCollection> classpath = project.provider(() -> compileTask == null ? project.files() : compileTask.getClasspath());
+            Provider<FileCollection> classpath = project.provider(() -> {
+                ConfigurableFileCollection fc = project.files();
+                if (compileTask != null) fc.from(compileTask.getClasspath());
+                fc.from(ext.getAdditionalClasspath());
+                return fc;
+            });
             Provider<FileCollection> libraryPath = classpath.map(cp -> {
                 ConfigurableFileCollection fc = project.files();
                 fc.from(cp);

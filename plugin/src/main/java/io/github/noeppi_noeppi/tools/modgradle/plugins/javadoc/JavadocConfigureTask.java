@@ -3,18 +3,24 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.javadoc;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
 import io.github.noeppi_noeppi.tools.modgradle.util.PackageMatcher;
+import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.InputChanges;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +32,7 @@ public abstract class JavadocConfigureTask extends DefaultTask {
         this.getSources().convention(JavaEnv.getJavaSourceDirs(this.getProject()));
         this.getExcludes().convention(this.getProject().provider(ArrayList::new));
         this.getIncludes().convention(this.getProject().provider(ArrayList::new));
+        this.getDocletMetaOptions().convention(this.getProject().provider(() -> () -> this.getProject().file("build").toPath().resolve(this.getName()).resolve("metaOptions.txt").toFile()));
         this.getOutputs().upToDateWhen(t -> false);
     }
 
@@ -37,6 +44,14 @@ public abstract class JavadocConfigureTask extends DefaultTask {
 
     @Input
     public abstract ListProperty<String> getIncludes();
+    
+    @OutputFile
+    public abstract RegularFileProperty getDocletMetaOptions();
+    
+    public void from(Object from) {
+        FileCollection old = this.getSources().get();
+        this.getSources().set(this.getProject().files(from, old));
+    }
     
     public void exclude(String pattern) {
         this.getExcludes().add(pattern);
@@ -63,6 +78,16 @@ public abstract class JavadocConfigureTask extends DefaultTask {
             throw new RuntimeException(e);
         }
     }
+    
+    public List<String> getExcludedPackages(Path base) {
+        try {
+            Set<String> packages = JavaHelper.findPackages(List.of(base));
+            PackageMatcher matcher = new PackageMatcher(this.getExcludes().get(), this.getIncludes().get());
+            return packages.stream().filter(matcher.getMatcher()).toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private static Stream<Path> listDir(Path path) {
         try {
@@ -74,6 +99,19 @@ public abstract class JavadocConfigureTask extends DefaultTask {
 
     @TaskAction
     protected void configureJavadoc(InputChanges inputs) throws IOException {
-        //
+        List<String> excluded = this.getSources().get().getFiles().stream()
+                .map(File::toPath)
+                .map(path -> path.toAbsolutePath().normalize())
+                .flatMap(p -> this.getExcludedPackages(p).stream())
+                .distinct().toList();
+        
+        Path metaOptions = this.getDocletMetaOptions().get().getAsFile().toPath();
+        PathUtils.createParentDirectories(metaOptions);
+        try (BufferedWriter writer = Files.newBufferedWriter(metaOptions, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            for (String ex : excluded) {
+                writer.write(" --exclude-package " + ex);
+            }
+            writer.write("\n");
+        }
     }
 }

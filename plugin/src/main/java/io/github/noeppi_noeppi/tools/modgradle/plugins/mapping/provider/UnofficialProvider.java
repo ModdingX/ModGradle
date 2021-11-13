@@ -1,7 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider;
 
-import io.github.noeppi_noeppi.tools.modgradle.mappings.Names;
-import io.github.noeppi_noeppi.tools.modgradle.mappings.export.OldMcpExporter;
+import io.github.noeppi_noeppi.tools.modgradle.mappings.MappingIO;
 import org.gradle.api.Project;
 
 import javax.annotation.Nonnull;
@@ -27,8 +26,7 @@ public class UnofficialProvider extends MappingsProvider {
     @Override
     protected void generate(OutputStream out, Project project, String channel, String version) throws IOException {
         URL url = new URL("https://noeppi-noeppi.github.io/MappingUtilities/mcp_unofficial/" + version + ".zip");
-        Names names = OldMappingReader.readOldMappings(url.openStream(), false, true);
-        Names doc = OldMappingReader.readOldMappings(url.openStream(), true, true);
-        OldMcpExporter.writeMcpZip(out, names, doc);
+        MappingIO.NameMappings names = MappingIO.readNames(url.openStream(), true);
+        MappingIO.writeNames(out, names.names(), names.docs());
     }
 }

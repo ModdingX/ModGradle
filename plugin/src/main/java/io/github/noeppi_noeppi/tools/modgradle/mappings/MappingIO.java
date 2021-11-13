@@ -93,11 +93,11 @@ public class MappingIO {
         return replace ? str.replace('.', '/') : str;
     }
 
-    public static void writeMappings(@WillClose OutputStream out, Names names) throws IOException {
-        writeMappings(out, names, Javadocs.EMPTY);
+    public static void writeNames(@WillClose OutputStream out, Names names) throws IOException {
+        writeNames(out, names, Javadocs.EMPTY);
     }
 
-    public static void writeMappings(@WillClose OutputStream out, Names names, Javadocs docs) throws IOException {
+    public static void writeNames(@WillClose OutputStream out, Names names, Javadocs docs) throws IOException {
         ZipOutputStream zip = new ZipOutputStream(out);
 
         zip.putNextEntry(new ZipEntry("fields.csv"));

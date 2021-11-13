@@ -1,6 +1,5 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping;
 
-import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.NewSrgProvider;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.NoneProvider;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.SugarcaneProvider;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider.UnofficialProvider;
@@ -24,7 +23,12 @@ public class MappingPlugin implements Plugin<Project> {
         ChannelProvidersExtension ext = project.getExtensions().getByType(ChannelProvidersExtension.class);
         ext.addProvider(NoneProvider.INSTANCE);
         ext.addProvider(UnofficialProvider.INSTANCE);
-        ext.addProvider(NewSrgProvider.INSTANCE);
-        ext.addProvider(SugarcaneProvider.INSTANCE);
+        try {
+            Class.forName("org.parchmentmc.librarian.forgegradle.LibrarianForgeGradlePlugin");
+            //noinspection TrivialFunctionalExpressionUsage
+            ((Runnable) () -> ext.addProvider(SugarcaneProvider.INSTANCE)).run();
+        } catch (ClassNotFoundException e) {
+            //
+        }
     }
 }

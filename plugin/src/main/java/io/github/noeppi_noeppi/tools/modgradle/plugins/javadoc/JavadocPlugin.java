@@ -33,8 +33,8 @@ public class JavadocPlugin implements Plugin<Project> {
                 try {
                     cssTask.set(project.getTasks().create("javadocDownloadThemeCss", DownloadTask.class));
                     cssTask.get().redownload();
-                    cssTask.get().setURL(new URL("https://gist.githubusercontent.com/noeppi-noeppi/56bb978ef90a61bbc749dee17d3ad98b/raw/darkmode.css"));
-                    cssTask.get().setOutput(() -> project.file("build").toPath().resolve(cssTask.get().getName()).resolve("darkTheme.css").toFile());
+                    cssTask.get().getUrl().set(new URL("https://gist.githubusercontent.com/noeppi-noeppi/56bb978ef90a61bbc749dee17d3ad98b/raw/darkmode.css"));
+                    cssTask.get().getOutput().set(project.file("build").toPath().resolve(cssTask.get().getName()).resolve("darkTheme.css").toFile());
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to configure javadoc theme download task", e);
                 }
@@ -45,25 +45,26 @@ public class JavadocPlugin implements Plugin<Project> {
                 jd.doFirst(new Action<>() {
                     @Override
                     public void execute(@Nonnull Task t) {
-                        FileCollection fc = project.files(configureTask.getSources().getFiles().stream()
+                        FileCollection fc = project.files(configureTask.getSources().get().getFiles().stream()
                                 .map(File::toPath)
                                 .map(path -> path.toAbsolutePath().normalize())
                                 .map(configureTask::getDirs)
                                 .toArray());
                         jd.setSource(fc);
+
+                        JavadocTool tool = jd.getJavadocTool().getOrNull();
+                        if (tool != null && tool.getMetadata().getLanguageVersion().asInt() < 11) {
+                            System.err.println("The used java version for " + jd.getName() + " does not support adding multiple stylesheets. Dark theme will not work.");
+                        } else {
+                            if (o instanceof CoreJavadocOptions co) {
+                                co.addFileOption("-add-stylesheet", cssTask.get().getOutput().get().getAsFile());
+                            } else {
+                                System.err.println("Failed to apply dark theme stylesheet to " + jd.getName() + ": Options are no CoreJavadocOptions");
+                            }
+                        }
                     }
                 });
-                o.optionFiles(linkTask.getOutput().getAsFile());
-                JavadocTool tool = jd.getJavadocTool().getOrNull();
-                if (tool != null && tool.getMetadata().getLanguageVersion().asInt() < 11) {
-                    System.err.println("The used java version for " + jd.getName() + " does not support adding multiple stylesheets. Dark theme will not work.");
-                } else {
-                    if (o instanceof CoreJavadocOptions) {
-                        ((CoreJavadocOptions) o).addFileOption("-add-stylesheet", cssTask.get().getOutput().getAsFile());
-                    } else {
-                        System.err.println("Failed to apply dark theme stylesheet to " + jd.getName() + ": Options are no CoreJavadocOptions");
-                    }
-                }
+                o.optionFiles(linkTask.getOutput().get().getAsFile());
             }));
         });
     }

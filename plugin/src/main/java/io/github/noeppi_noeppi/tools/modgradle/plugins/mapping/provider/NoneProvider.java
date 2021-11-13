@@ -1,7 +1,8 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider;
 
+import io.github.noeppi_noeppi.tools.modgradle.mappings.Javadocs;
+import io.github.noeppi_noeppi.tools.modgradle.mappings.MappingIO;
 import io.github.noeppi_noeppi.tools.modgradle.mappings.Names;
-import io.github.noeppi_noeppi.tools.modgradle.mappings.export.OldMcpExporter;
 import org.gradle.api.Project;
 
 import javax.annotation.Nonnull;
@@ -25,6 +26,6 @@ public class NoneProvider extends MappingsProvider {
 
     @Override
     protected void generate(OutputStream out, Project project, String channel, String version) throws IOException {
-        OldMcpExporter.writeMcpZip(out, Names.EMPTY, Names.EMPTY);
+        MappingIO.writeNames(out, Names.EMPTY, Javadocs.EMPTY);
     }
 }

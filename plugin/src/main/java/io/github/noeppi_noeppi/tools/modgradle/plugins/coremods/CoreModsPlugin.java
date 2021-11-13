@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.coremods;
 
+import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.TaskUtil;
 import org.gradle.api.Plugin;
@@ -28,13 +29,13 @@ public class CoreModsPlugin implements Plugin<Project> {
             c.setCanBeConsumed(false);
         });
 
-        SourceSet coreModsSource = JavaEnv.getJavaExtension(p).getSourceSets().create("coremods", s -> {
+        SourceSet coreModsSource = JavaEnv.getJavaExtension(p).get().getSourceSets().create("coremods", s -> {
             s.getJava().setSrcDirs(List.of());
             s.getResources().setSrcDirs(List.of(p.file("src/coremods")));
         });
 
         BuildCoreModsTask buildCoreMods = p.getTasks().create("buildCoreMods", BuildCoreModsTask.class);
-        buildCoreMods.setCoreModSources(coreModsSource.getResources().getSourceDirectories());
+        buildCoreMods.getCoreModSources().set(p.provider(() -> coreModsSource.getResources().getSourceDirectories()));
         PackCoreModsTask packCoreMods = p.getTasks().create("packCoreMods", PackCoreModsTask.class);
         packCoreMods.dependsOn(buildCoreMods);
         
@@ -42,9 +43,9 @@ public class CoreModsPlugin implements Plugin<Project> {
             Path dep = resolveCoreModTypes(coreModsConfiguration);
             unzipTypesForIDE(coreModsSource, dep);
             
-            buildCoreMods.setCoreModTypes(dep.toFile());
-            packCoreMods.setCoreModTypes(dep.toFile());
-            packCoreMods.setSourceDir(buildCoreMods.getOutputDir());
+            buildCoreMods.getCoreModTypes().set(dep.toFile());
+            packCoreMods.getCoreModTypes().set(dep.toFile());
+            packCoreMods.getSourceDir().set(buildCoreMods.getOutputDir());
 
             Copy resourceTask = TaskUtil.getOrNull(p, "processResources", Copy.class);
             if (resourceTask != null) {
@@ -61,11 +62,11 @@ public class CoreModsPlugin implements Plugin<Project> {
     }
     
     public static void unzipTypesForIDE(SourceSet sourceSet, Path path) {
-        try (FileSystem fs = FSUtil.getFileSystem(URI.create("jar:" + path.toUri()))) {
+        try (FileSystem fs = IOUtil.getFileSystem(URI.create("jar:" + path.toUri()))) {
             Path typeSrc = fs.getPath("coremods.d.ts");
             Path cfgSrc = fs.getPath("tsconfig.json");
             for (File dir : sourceSet.getResources().getSrcDirs()) {
-                if (!Files.exists(dir.toPath())) Files.createDirectories(dir.toPath());
+                Files.createDirectories(dir.toPath());
                 Path typeDest = dir.toPath().toAbsolutePath().normalize().resolve("coremods.d.ts");
                 Path cfgDest = dir.toPath().toAbsolutePath().normalize().resolve("tsconfig.json");
                 Files.copy(typeSrc, typeDest, StandardCopyOption.REPLACE_EXISTING);

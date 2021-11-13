@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.api.task;
 
+import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
@@ -42,7 +43,7 @@ public abstract class DownloadTask extends DefaultTask {
     @TaskAction
     protected void downloadResource(InputChanges inputs) throws IOException {
         Path path  = this.getOutput().get().getAsFile().toPath();
-        if (!Files.isDirectory(path.getParent())) Files.createDirectories(path.getParent());
+        PathUtils.createParentDirectories(path);
         URL url = this.getUrl().get();
         InputStream in = url.openStream();
         Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);

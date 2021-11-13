@@ -1,7 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.sourcejar;
 
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
-import io.github.noeppi_noeppi.tools.modgradle.plugins.mergeartifact.MergedArtifacts;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
@@ -17,6 +16,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 
@@ -68,54 +68,52 @@ public class SourceJarPlugin implements Plugin<Project> {
         mergeJars.dependsOn(applyRangeMap);
         if (buildTask != null) buildTask.dependsOn(mergeJars);
         project.afterEvaluate(p -> {
-            Set<File> sources = new HashSet<>();
-            sources.addAll(JavaEnv.getJavaSources(project).getJava().getSrcDirs());
-            // If artifacts got merged, copy them as well
-            sources.addAll(MergedArtifacts.additionalSourceDirs(project));
-            FileCollection classpath = compileTask == null ? project.files() : compileTask.getClasspath();
-            ConfigurableFileCollection libraryPath = project.files();
-            libraryPath.from(classpath);
-            if (compileTask != null) {
-                if (compileTask.getJavaCompiler().getOrNull() != null) {
-                    JavaHelper.addBuiltinLibraries(project, compileTask.getJavaCompiler().get().getMetadata().getInstallationPath().getAsFile().toPath(), libraryPath);
-                } else {
-                    JavaHelper.addBuiltinLibraries(project, Paths.get(System.getProperty("java.home")), libraryPath);
+            Set<File> sources = new HashSet<>(JavaEnv.getJavaSources(project).get().getJava().getSrcDirs());
+            
+            Provider<FileCollection> classpath = project.provider(() -> compileTask == null ? project.files() : compileTask.getClasspath());
+            Provider<FileCollection> libraryPath = classpath.map(cp -> {
+                ConfigurableFileCollection fc = project.files();
+                fc.from(cp);
+                if (compileTask != null) {
+                    if (compileTask.getJavaCompiler().getOrNull() != null) {
+                        JavaHelper.addBuiltinLibraries(project, compileTask.getJavaCompiler().get().getMetadata().getInstallationPath().getAsFile().toPath(), fc);
+                    } else {
+                        JavaHelper.addBuiltinLibraries(project, Paths.get(System.getProperty("java.home")), fc);
+                    }
                 }
-            }
-            String mcv = McEnv.findMinecraftVersion(project);
-            int java = Versioning.getJavaVersion(mcv);
+                return fc;
+            });
             
-            if (compileTask != null) extractInheritance.setClasses(compileTask.getDestinationDirectory().get());
-            extractInheritance.setLibraryPath(libraryPath);
-            extractInheritance.setOutput(() -> project.file("build").toPath().resolve(extractInheritance.getName()).resolve("inheritance.txt").toFile());
+            Provider<String> mcv = McEnv.findMinecraftVersion(project);
+            Provider<Integer> java = mcv.map(Versioning::getJavaVersion);
+            
+            if (compileTask != null) extractInheritance.getClasses().set(compileTask.getDestinationDirectory());
+            extractInheritance.getLibraryPath().set(libraryPath);
+            extractInheritance.getOutput().set(project.file("build").toPath().resolve(extractInheritance.getName()).resolve("inheritance.txt").toFile());
 
-            createSourceMappings.setInheritance(extractInheritance.getOutput());
-            createSourceMappings.setMappings(generateMappings.getOutput().get());
-            createSourceMappings.setOutput(() -> project.file("build").toPath().resolve(createSourceMappings.getName()).resolve("source_mappings.tsrg").toFile());
+            createSourceMappings.getInheritance().set(extractInheritance.getOutput());
+            createSourceMappings.getMappings().set(generateMappings.getOutput());
+            createSourceMappings.getOutput().set(project.file("build").toPath().resolve(createSourceMappings.getName()).resolve("source_mappings.tsrg").toFile());
             
-            mergeSourceMappings.setPrimary(generateMappings.getOutput().get());
-            mergeSourceMappings.setMappings(project.files(createSourceMappings.getOutput()));
-            mergeSourceMappings.setOutput(() -> project.file("build").toPath().resolve(mergeSourceMappings.getName()).resolve("source_mappings.tsrg").toFile());
-            mergeSourceMappings.setNoParam(true);
+            mergeSourceMappings.getPrimary().set(generateMappings.getOutput());
+            mergeSourceMappings.getMappings().set(project.files(createSourceMappings.getOutput()));
+            mergeSourceMappings.getOutput().set(project.file("build").toPath().resolve(mergeSourceMappings.getName()).resolve("source_mappings.tsrg").toFile());
+            mergeSourceMappings.getNoParam().set(true);
 
             sources.forEach(createRangeMap.getSources()::from);
             createRangeMap.getDependencies().from(classpath);
             createRangeMap.getOutput().set(project.file("build").toPath().resolve(createRangeMap.getName()).resolve("rangemap.txt").toFile());
-            if (java <= 8) {
-                createRangeMap.getSourceCompatibility().set("JAVA_1_" + java);
-            } else {
-                createRangeMap.getSourceCompatibility().set("JAVA_" + java);
-            }
-            createRangeMap.setRuntimeJavaToolchain(JavaEnv.getJavaExtension(project).getToolchain());
+            createRangeMap.getSourceCompatibility().set(java.map(jv -> jv <= 8 ? "JAVA_1_" + jv : "JAVA_" + jv));
+            createRangeMap.setRuntimeJavaToolchain(JavaEnv.getJavaExtension(project).get().getToolchain());
 
             applyRangeMap.getSources().from(sources);
             applyRangeMap.getSrgFiles().from(mergeSourceMappings.getOutput());
             applyRangeMap.getRangeMap().set(createRangeMap.getOutput());
             applyRangeMap.getOutput().set(project.file("build").toPath().resolve(applyRangeMap.getName()).resolve("srg_sources.zip").toFile());
-            createRangeMap.setRuntimeJavaToolchain(JavaEnv.getJavaExtension(project).getToolchain());
+            applyRangeMap.setRuntimeJavaToolchain(JavaEnv.getJavaExtension(project).get().getToolchain());
             
             if (jarTask != null) {
-                mergeJars.setBase(jarTask.getArchiveFile().get());
+                mergeJars.getBase().set(jarTask.getArchiveFile());
                 mergeJars.getDestinationDirectory().set(jarTask.getDestinationDirectory());
                 mergeJars.getArchiveBaseName().set(jarTask.getArchiveBaseName());
                 mergeJars.getArchiveAppendix().set(jarTask.getArchiveAppendix());
@@ -125,7 +123,7 @@ public class SourceJarPlugin implements Plugin<Project> {
             } else {
                 mergeJars.getDestinationDirectory().set(project.file("build").toPath().resolve("libs").toFile());
             }
-            mergeJars.setSources(applyRangeMap.getOutput().get());
+            mergeJars.getSources().set(applyRangeMap.getOutput());
         });
     }
 }

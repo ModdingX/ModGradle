@@ -1,10 +1,10 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.meta;
 
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
+import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.internal.provider.DefaultProvider;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -21,108 +21,50 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 
-public class SetupTask extends DefaultTask {
-
-    public final Property<String> modid = this.getProject().getObjects().property(String.class);
-    public final Property<String> minecraftVersion = this.getProject().getObjects().property(String.class);
-    public final Property<String> forgeVersion = this.getProject().getObjects().property(String.class);
-    public final Property<String> license = this.getProject().getObjects().property(String.class);
-    public final Property<URL> licenseUrl = this.getProject().getObjects().property(URL.class);
-    public final Property<Boolean> mixin = this.getProject().getObjects().property(Boolean.class);
-    public final Property<URL> repo = this.getProject().getObjects().property(URL.class);
-    public final Property<String> repoBranch = this.getProject().getObjects().property(String.class);
+public abstract class SetupTask extends DefaultTask {
 
     public SetupTask() {
-        this.minecraftVersion.convention(new DefaultProvider<>(() -> McEnv.findMinecraftVersion(this.getProject())));
-        this.forgeVersion.convention(new DefaultProvider<>(() -> McEnv.findForgeVersion(this.getProject())));
-        this.license.convention("The Apache License, Version 2.0");
-        this.mixin.convention(false);
+        this.getMinecraftVersion().convention(McEnv.findMinecraftVersion(this.getProject()));
+        this.getForgeVersion().convention(McEnv.findForgeVersion(this.getProject()));
+        this.getLicense().convention("The Apache License, Version 2.0");
+        this.getMixin().convention(false);
         try {
-            this.licenseUrl.convention(new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"));
+            this.getLicenseUrl().convention(new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"));
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to configure conventions for SetupTask", e);
         }
-        this.repoBranch.convention("master");
+        this.getRepoBranch().convention("master");
         this.getOutputs().upToDateWhen(t -> false);
     }
 
     @Input
-    public String getModid() {
-        return this.modid.get();
-    }
-
-    public void setModid(String modid) {
-        this.modid.set(modid);
-    }
+    public abstract Property<String> getModid();
 
     @Input
-    public String getMinecraftVersion() {
-        return this.minecraftVersion.get();
-    }
-
-    public void setMinecraftVersion(String minecraftVersion) {
-        this.minecraftVersion.set(minecraftVersion);
-    }
+    public abstract Property<String> getMinecraftVersion();
 
     @Input
-    public String getForgeVersion() {
-        return this.forgeVersion.get();
-    }
-
-    public void setForgeVersion(String minecraftVersion) {
-        this.forgeVersion.set(minecraftVersion);
-    }
+    public abstract Property<String> getForgeVersion();
 
     @Input
-    public String getLicense() {
-        return this.license.get();
-    }
-
-    public void setLicense(String license) {
-        this.license.set(license);
-    }
+    public abstract Property<String> getLicense();
 
     @Input
-    public URL getLicenseUrl() {
-        return this.licenseUrl.get();
-    }
-
-    public void setLicenseUrl(URL licenseUrl) {
-        this.licenseUrl.set(licenseUrl);
-    }
+    public abstract Property<URL> getLicenseUrl();
 
     @Input
-    public boolean isMixin() {
-        return this.mixin.get();
-    }
-
-    public void setMixin(boolean mixin) {
-        this.mixin.set(mixin);
-    }
+    public abstract Property<Boolean> getMixin();
 
     @Input
-    public URL getRepo() {
-        return this.repo.get();
-    }
-
-    public void setRepo(URL repo) {
-        this.repo.set(repo);
-    }
+    public abstract Property<URL> getRepo();
 
     @Input
-    public String getRepoBranch() {
-        return this.repoBranch.get();
-    }
-
-    public void setRepoBranch(String repoBranch) {
-        this.repoBranch.set(repoBranch);
-    }
+    public abstract Property<String> getRepoBranch();
 
     @TaskAction
     protected void runSetup(InputChanges inputs) throws IOException {
         Path clone = Files.createTempDirectory("modgradle-meta-setup");
-        ProcessBuilder process = new ProcessBuilder().inheritIO()
-                .command("git", "clone", "-b", this.getRepoBranch(), this.getRepo().toString(), clone.toAbsolutePath().normalize().toString());
+        ProcessBuilder process = new ProcessBuilder().inheritIO().command("git", "clone", "-b", this.getRepoBranch().get(), this.getRepo().get().toString(), clone.toAbsolutePath().normalize().toString());
         process.redirectError(ProcessBuilder.Redirect.INHERIT);
         int exitCode;
         try {
@@ -137,12 +79,12 @@ public class SetupTask extends DefaultTask {
 
         Map<String, String> replaces = Map.of(
                 "name", this.getProject().getName(),
-                "modid", this.getModid(),
-                "minecraft", this.getMinecraftVersion(),
-                "forge", this.getForgeVersion(),
-                "license", this.getLicense(),
-                "jdk", Integer.toString(Versioning.getJavaVersion(this.getMinecraftVersion())),
-                "resource", Integer.toString(Versioning.getResourceVersion(this.getMinecraftVersion()))
+                "modid", this.getModid().get(),
+                "minecraft", this.getMinecraftVersion().get(),
+                "forge", this.getForgeVersion().get(),
+                "license", this.getLicense().get(),
+                "jdk", Integer.toString(Versioning.getJavaVersion(this.getMinecraftVersion().get())),
+                "resource", Integer.toString(Versioning.getResourceVersion(this.getMinecraftVersion().get()))
         );
         
         this.copyDir(clone, "runClient");
@@ -156,12 +98,12 @@ public class SetupTask extends DefaultTask {
 
         Files.createDirectories(this.getProject().file("src/main/java").toPath()
                 .resolve(this.getProject().getGroup().toString().replace('.', '/'))
-                .resolve(this.getModid()));
+                .resolve(this.getModid().get()));
         Files.createDirectories(this.getProject().file("src/main/resources/META-INF").toPath());
         Files.createDirectories(this.getProject().file("src/main/resources/assets").toPath()
-                .resolve(this.getModid()).resolve("lang"));
+                .resolve(this.getModid().get()).resolve("lang"));
         Files.createDirectories(this.getProject().file("src/main/resources/data").toPath()
-                .resolve(this.getModid()));
+                .resolve(this.getModid().get()));
         Files.createDirectories(this.getProject().file("src/generated/resources").toPath());
 
         if (!Files.exists(this.getProject().file("src/main/resources/META-INF/accesstransformer.cfg").toPath())) {
@@ -170,28 +112,28 @@ public class SetupTask extends DefaultTask {
 
         ModFiles.createToml(
                 this.getProject().file("src/main/resources/META-INF/mods.toml").toPath(),
-                this.getModid(), this.getProject().getName(), this.getMinecraftVersion(),
-                this.getForgeVersion(), this.getLicense()
+                this.getModid().get(), this.getProject().getName(), this.getMinecraftVersion().get(),
+                this.getForgeVersion().get(), this.getLicense().get()
         );
         ModFiles.createPackFile(
                 this.getProject().file("src/main/resources/pack.mcmeta").toPath(),
-                this.getProject().getName(), this.getMinecraftVersion()
+                this.getProject().getName(), this.getMinecraftVersion().get()
         );
-        if (this.isMixin()) {
+        if (this.getMixin().get()) {
             ModFiles.createMixinFile(
                     this.getProject().file("src/main/resources/" + this.getModid() + ".mixins.json").toPath(),
-                    this.getModid(), this.getProject().getGroup().toString(), this.getMinecraftVersion()
+                    this.getModid().get(), this.getProject().getGroup().toString(), this.getMinecraftVersion().get()
             );
         }
 
         if (!Files.exists(this.getProject().file("LICENSE").toPath())) {
-            InputStream in = this.getLicenseUrl().openStream();
+            InputStream in = this.getLicenseUrl().get().openStream();
             Files.copy(in, this.getProject().file("LICENSE").toPath());
             in.close();
         }
     }
 
-    private void copyFile(Path clone, @SuppressWarnings("SameParameterValue") String file) throws IOException {
+    private void copyFile(Path clone, String file) throws IOException {
         this.copyFile(clone, file, file);
     }
 
@@ -206,7 +148,7 @@ public class SetupTask extends DefaultTask {
     }
 
     private void copyFile(Path clone, String fromFile, String toFile, Map<String, String> replace) throws IOException {
-        CopyUtil.copyFile(clone.resolve(fromFile), this.getProject().file(toFile).toPath(), replace, false);
+        IOUtil.copyFile(clone.resolve(fromFile), this.getProject().file(toFile).toPath(), replace, false);
     }
 
     private void copyDir(Path clone, String dir) throws IOException {
@@ -242,7 +184,7 @@ public class SetupTask extends DefaultTask {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Path target = SetupTask.this.getProject().file(toDir).toPath().toAbsolutePath().resolve(clone.resolve(fromDir).toAbsolutePath().relativize(file.toAbsolutePath()));
-                    CopyUtil.copyFile(file, target, replace, false);
+                    IOUtil.copyFile(file, target, replace, false);
                     return FileVisitResult.CONTINUE;
                 }
 

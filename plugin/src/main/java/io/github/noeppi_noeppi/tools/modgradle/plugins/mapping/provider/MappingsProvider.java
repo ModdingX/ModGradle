@@ -2,6 +2,7 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider;
 
 import net.minecraftforge.gradle.mcp.ChannelProvider;
 import net.minecraftforge.gradle.mcp.MCPRepo;
+import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.Project;
 
 import javax.annotation.Nonnull;
@@ -17,7 +18,7 @@ public abstract class MappingsProvider implements ChannelProvider {
 
     // Increment this to drop all previously cached versions
     // Might be required if bigger changes are done to the providers
-    public static final int SYSTEM_VERSION = 2;
+    public static final int SYSTEM_VERSION = 3;
 
     @Nullable
     @Override
@@ -25,9 +26,7 @@ public abstract class MappingsProvider implements ChannelProvider {
         String hash = Long.toHexString(this.hash(project, channel, version));
         Path path = getCacheFile(project, channel, version, hash, "zip");
         if (!Files.exists(path) || Files.size(path) <= 0) {
-            if (!Files.exists(path.getParent())) {
-                Files.createDirectories(path.getParent());
-            }
+            PathUtils.createParentDirectories(path);
             OutputStream out = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             this.generate(out, project, channel, version);
             out.close();

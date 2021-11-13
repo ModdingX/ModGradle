@@ -63,9 +63,9 @@ public class IOUtil {
                 in3.readAllBytes();
             }
             ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
-            map.put("sha1", new BigInteger(1, sha1.digest()).toString(16));
-            map.put("sha256", new BigInteger(1, sha256.digest()).toString(16));
-            map.put("md5", new BigInteger(1, md5.digest()).toString(16));
+            map.put("sha1", String.format("%040X", new BigInteger(1, sha1.digest())));
+            map.put("sha256", String.format("%064X", new BigInteger(1, sha256.digest())));
+            map.put("md5", String.format("%032X", new BigInteger(1, md5.digest())));
             return map.build();
         } catch (NoSuchAlgorithmException e) {
             throw new IOException("Failed to compute file hashes", e);

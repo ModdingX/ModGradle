@@ -100,7 +100,6 @@ public class SourceJarPlugin implements Plugin<Project> {
             
             if (compileTask != null) extractInheritance.getClasses().set(compileTask.getDestinationDirectory());
             extractInheritance.getLibraryPath().set(libraryPath);
-            extractInheritance.getOutput().set(project.file("build").toPath().resolve(extractInheritance.getName()).resolve("inheritance.txt").toFile());
 
             createSourceMappings.getInheritance().set(extractInheritance.getOutput());
             createSourceMappings.getMappings().set(generateMappings.getOutput());

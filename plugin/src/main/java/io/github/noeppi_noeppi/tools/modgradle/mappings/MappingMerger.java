@@ -3,6 +3,7 @@ package io.github.noeppi_noeppi.tools.modgradle.mappings;
 import net.minecraftforge.srgutils.IMappingBuilder;
 import net.minecraftforge.srgutils.IMappingFile;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -10,8 +11,12 @@ public class MappingMerger {
 
     // Merges by original.
     // To merge by mapped, reverse before merging and then reverse the merged mappings again.
-    public static IMappingFile mergeMappings(IMappingFile main, List<IMappingFile> others, boolean noparam) {
-        List<IMappingFile> mappings = new ArrayList<>(Collections.singleton(main));
+    public static IMappingFile mergeMappings(@Nullable IMappingFile main, List<IMappingFile> others, boolean noparam) {
+        if (main != null && others.isEmpty() && !noparam) {
+            return main;
+        }
+        List<IMappingFile> mappings = new ArrayList<>();
+        if (main != null) mappings.add(main);
         mappings.addAll(others);
         IMappingBuilder builder = IMappingBuilder.create("from", "to");
         for (IMappingFile mf : mappings) {

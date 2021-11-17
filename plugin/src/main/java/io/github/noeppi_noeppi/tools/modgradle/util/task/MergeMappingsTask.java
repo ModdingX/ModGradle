@@ -19,6 +19,7 @@ public abstract class MergeMappingsTask extends DefaultTask {
     public MergeMappingsTask() {
         this.getMappings().convention(this.getProject().provider(() -> this.getProject().files()));
         this.getNoParam().convention(this.getProject().provider(() -> false));
+        this.getOutput().convention(this.getProject().provider(() -> () -> this.getProject().file("build").toPath().resolve(this.getName()).resolve("mappings.tsrg").toFile()));
     }
 
     @InputFile

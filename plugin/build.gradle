@@ -46,6 +46,10 @@ gradlePlugin {
             id = 'io.github.noeppi_noeppi.tools.modgradle.coremods'
             implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.coremods.CoreModsPlugin'
         }
+        mcupdate {
+            id = 'io.github.noeppi_noeppi.tools.modgradle.mcupdate'
+            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.McUpdatePlugin'
+        }
     }
 }
 

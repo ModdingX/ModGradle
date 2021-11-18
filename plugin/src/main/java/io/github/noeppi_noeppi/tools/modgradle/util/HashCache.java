@@ -12,15 +12,19 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class HashCache {
     
     private final Path path;
+    private final Path base;
     private final Map<String, String> hashes;
     private final Map<String, String> staged;
 
     private HashCache(Path path) throws IOException {
         this.path = path.toAbsolutePath().normalize();
+        this.base = this.path.getParent() == null ? this.path : this.path.getParent().toAbsolutePath().normalize();
         this.hashes = new HashMap<>();
         this.staged = new HashMap<>();
         if (Files.exists(this.path)) {
@@ -28,7 +32,7 @@ public class HashCache {
                 reader.lines().forEach(line -> {
                     if (line.length() > 41) {
                         String hash = line.substring(0, 40);
-                        String pathKey = this.pathKey(this.path.resolve(line.substring(41)));
+                        String pathKey = this.pathKey(this.base.resolve(line.substring(41).replace("/", File.separator)));
                         this.hashes.put(pathKey, hash);
                     }
                 });
@@ -78,7 +82,9 @@ public class HashCache {
     }
     
     private String pathKey(Path p) {
-        return this.path.relativize(p.toAbsolutePath().normalize()).normalize().toString();
+        Path key = this.base.relativize(p.toAbsolutePath().normalize()).normalize();
+        String keyString = IntStream.range(0, key.getNameCount()).mapToObj(key::getName).map(Path::toString).collect(Collectors.joining("/"));
+        return keyString.isEmpty() ? "." : keyString;
     }
     
     private String hash(Path path) throws IOException {

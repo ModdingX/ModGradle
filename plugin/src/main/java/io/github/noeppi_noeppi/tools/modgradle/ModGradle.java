@@ -10,18 +10,18 @@ import java.util.function.Supplier;
 
 public class ModGradle {
     
-    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:1.0.14:fatjar";
-    public static final String DOCLET_META = "io.github.noeppi_noeppi.tools:JavaDocletMeta:0.0.5:fatjar";
+    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:1.1.0:fatjar";
+    public static final String DOCLET_META = "io.github.noeppi_noeppi.tools:JavaDocletMeta:0.0.6:fatjar";
 
     // Target minecraft version. Acts as default
     // ModGradle can still be used with other minecraft versions
     // For example this is the fallback when using an unknown
     // version in the Versioning class
-    public static final String TARGET_MINECRAFT = "1.17.1";
+    public static final String TARGET_MINECRAFT = "1.18";
 
     // Target java version for ModGradle and external tools
     // not for the toolchain
-    public static final int TARGET_JAVA = 16;
+    public static final int TARGET_JAVA = 17;
 
     @SuppressWarnings("TrivialFunctionalExpressionUsage")
     public static final Gson GSON = ((Supplier<Gson>) () -> {

@@ -30,7 +30,8 @@ public class Versioning {
                     Pair.of(VersionRange.createFromVersionSpec("[1.15,1.16)"), new VersionInfo(8, 5, null)),
                     Pair.of(VersionRange.createFromVersionSpec("[1.16,1.16.2)"), new VersionInfo(8, 5, new MixinVersion("JAVA_8", "0.8.2"))),
                     Pair.of(VersionRange.createFromVersionSpec("[1.16.2,1.17)"), new VersionInfo(8, 6, new MixinVersion("JAVA_8", "0.8.2"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.17,1.18)"), new VersionInfo(16, 7, new MixinVersion("JAVA_16", "0.8.4")))
+                    Pair.of(VersionRange.createFromVersionSpec("[1.17,1.18)"), new VersionInfo(16, 7, new MixinVersion("JAVA_16", "0.8.4"))),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.18,1.19)"), new VersionInfo(17, 8, null))
             );
         } catch (InvalidVersionSpecificationException e) {
             throw new RuntimeException(e);

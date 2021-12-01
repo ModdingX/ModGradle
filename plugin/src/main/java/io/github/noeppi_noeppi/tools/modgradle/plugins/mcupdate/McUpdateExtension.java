@@ -73,7 +73,7 @@ public class McUpdateExtension {
     
     @Internal
     public URL getConfiguration() throws MalformedURLException {
-        return this.configuration == null ? new URL("https://noeppi-noeppi.github.io/MinecraftUtilities/" + this.getMinecraft() + "/mcupdate.json") : this.configuration;
+        return this.configuration == null ? new URL("https://noeppi-noeppi.github.io/MinecraftUtilities/mcupdate/" + this.getMinecraft() + "/mcupdate.json") : this.configuration;
     }
     
     @Internal

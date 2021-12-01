@@ -6,8 +6,6 @@ import javax.annotation.Nullable;
 import java.net.URL;
 
 public class McUpdateData {
-
-    public final String loaderVersion;
     
     @Nullable
     public final URL mappings;
@@ -17,7 +15,6 @@ public class McUpdateData {
     
     public McUpdateData(JsonObject data) {
         try {
-            this.loaderVersion = data.get("loaderVersion").getAsString();
             this.mappings = data.has("mappings") ? new URL(data.get("mappings").getAsString()) : null;
             this.transformer = data.has("transformer") ? new URL(data.get("transformer").getAsString()) : null;
         } catch (Exception e) {

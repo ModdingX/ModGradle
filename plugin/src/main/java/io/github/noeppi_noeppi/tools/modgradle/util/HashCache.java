@@ -63,8 +63,15 @@ public class HashCache {
     }
     
     public void apply() {
+        this.apply(true);
+    }
+    
+    public void apply(boolean deleteInvalid) {
         this.hashes.putAll(this.staged);
         this.staged.clear();
+        if (deleteInvalid) {
+            this.hashes.keySet().removeIf(p -> !Files.exists(this.base.resolve(p.replace("/", File.separator))));
+        }
     }
     
     public void save() throws IOException {

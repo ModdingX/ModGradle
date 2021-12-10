@@ -10,6 +10,10 @@ import urllib.parse
 from urllib.request import Request, urlopen
 
 
+def is_major_mc(mcv, expected):
+    return mcv == expected or mcv.startswith(expected + '.')
+
+
 def setup_server():
     mods = []
     with open('server.txt') as file:
@@ -26,7 +30,8 @@ def setup_server():
     print('Installing Forge')
     mcv = mods[0][0]
     mlv = mods[0][1]
-    request = Request(f'https://maven.minecraftforge.net/net/minecraftforge/forge/{mcv}-{mlv}/forge-{mcv}-{mlv}-installer.jar')
+    request = Request(
+        f'https://maven.minecraftforge.net/net/minecraftforge/forge/{mcv}-{mlv}/forge-{mcv}-{mlv}-installer.jar')
 
     response = urlopen(request)
     with open('installer.jar', mode='wb') as file:
@@ -67,6 +72,29 @@ def setup_server():
         with open('run.bat', mode='w') as file:
             file.write(f'java @user_jvm_args.txt -jar forge-{mcv}-{mlv}.jar %*\n')
             file.write('pause\n')
+
+    print("Adding version specific files")
+    if is_major_mc(mcv, '1.17') or mcv == '1.18':
+        with open('user_jvm_args.txt', mode='a') as file:
+            file.write('\n-Dlog4j2.formatMsgNoLookups=true\n')
+    elif is_major_mc(mcv, '1.12') or is_major_mc(mcv, '1.13') or is_major_mc(mcv, '1.14') \
+            or is_major_mc(mcv, '1.15') or is_major_mc(mcv, '1.16'):
+        with open('user_jvm_args.txt', mode='a') as file:
+            file.write('\n-Dlog4j.configurationFile=log4j2_112-116.xml\n')
+        log_request = Request(
+            f'https://launcher.mojang.com/v1/objects/02937d122c86ce73319ef9975b58896fc1b491d1/log4j2_112-116.xml')
+        log_response = urlopen(log_request)
+        with open('log4j2_112-116.xml', mode='wb') as file:
+            file.write(log_response.read())
+    elif is_major_mc(mcv, '1.7') or is_major_mc(mcv, '1.8') or is_major_mc(mcv, '1.9') \
+            or is_major_mc(mcv, '1.10') or is_major_mc(mcv, '1.11'):
+        with open('user_jvm_args.txt', mode='a') as file:
+            file.write('\n-Dlog4j.configurationFile=log4j2_17-111.xml\n')
+        log_request = Request(
+            f'https://launcher.mojang.com/v1/objects/dd2b723346a8dcd48e7f4d245f6bf09e98db9696/log4j2_17-111.xml')
+        log_response = urlopen(log_request)
+        with open('log4j2_17-111.xml', mode='wb') as file:
+            file.write(log_response.read())
 
     print('Downloading Mods')
     if not os.path.isdir('mods'):

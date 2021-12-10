@@ -24,6 +24,10 @@ dependencies {
     implementation ('org.apache.maven:maven-artifact') { version { strictly '[3.8.1,)';  prefer '3.8.1' } }
     implementation ('commons-io:commons-io') { version { strictly '[2.10.0,)';  prefer '2.10.0' } }
     
+    // See https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228
+    implementation('org.apache.logging.log4j:log4j-api') { version { strictly '[2.15.0,)' } }
+    implementation('org.apache.logging.log4j:log4j-core') { version { strictly '[2.15.0,)' } }
+    
     // Only use this for parsers
     implementation ('org.scala-lang:scala-library') { version { strictly '[2.13.1,2.14.0)';  prefer '2.13.1' } }
     implementation ('org.scala-lang.modules:scala-parser-combinators_2.13') { version { strictly '[2.0.0,)';  prefer '2.0.0' } }

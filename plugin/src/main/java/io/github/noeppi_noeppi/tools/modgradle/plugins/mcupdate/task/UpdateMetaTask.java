@@ -58,7 +58,7 @@ public abstract class UpdateMetaTask extends DefaultTask {
     }
     
     private void processJenkinsfile(String minecraft, Path path) throws IOException {
-        Pattern pattern = Pattern.compile("(tools\\s*\\{.*?jdk\s*['\"]java)\\d+(['\"].*?})");
+        Pattern pattern = Pattern.compile("(tools[\\s\n]*\\{[.\\s]*?jdk\s*['\"]java)\\d+(['\"][.\\s]*?})");
         String file = Files.readString(path);
         String replaced = pattern.matcher(file).replaceAll(r -> r.group(1) + Versioning.getJavaVersion(minecraft) + r.group(2));
         if (!file.equals(replaced)) {

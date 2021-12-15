@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public class ModGradle {
     
-    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:1.1.0:fatjar";
+    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:1.1.1:fatjar";
     public static final String DOCLET_META = "io.github.noeppi_noeppi.tools:JavaDocletMeta:0.0.6:fatjar";
 
     // Target minecraft version. Acts as default

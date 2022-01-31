@@ -5,6 +5,7 @@ import net.minecraftforge.gradle.userdev.DependencyManagementExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 
@@ -31,7 +32,11 @@ public class CurseDepPlugin implements Plugin<Project> {
     }
 
     public static String curseArtifact(String slug, int projectId, int fileId) {
-        return "curse.maven:" + slug + "-" + projectId + ":" + fileId;
+        return curseArtifact(slug, projectId, fileId, null);
+    }
+
+    public static String curseArtifact(String slug, int projectId, int fileId, @Nullable String extension) {
+        return "curse.maven:" + slug + "-" + projectId + ":" + fileId + (extension == null ? "" : "@" + extension);
     }
 
     public static String getSlug(int projectId) {

@@ -63,7 +63,7 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
             return this.project.getDependencies().create(cache);
         }
 
-        File file = MavenArtifactDownloader.download(this.project, CurseDepPlugin.curseArtifact("cursepack", projectId, fileId), false);
+        File file = MavenArtifactDownloader.download(this.project, CurseDepPlugin.curseArtifact("O", projectId, fileId, "zip"), false);
         if (file == null) {
             throw new IllegalStateException("Cannot create curse ModPack dependency: Failed to download manifest");
         } else try {

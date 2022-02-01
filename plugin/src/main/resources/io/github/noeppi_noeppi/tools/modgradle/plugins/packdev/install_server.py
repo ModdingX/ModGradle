@@ -9,6 +9,14 @@ import subprocess
 import urllib.parse
 from urllib.request import Request, urlopen
 
+headers = {'Accept': 'application/json', 'User-Agent': 'python3/modgradle server installer'}
+
+
+def get_file_name(project_id, file_id):
+    file_info = Request(f'https://curse.melanx.de/project/{project_id}/file/{file_id}', headers=headers)
+    data = json.loads(urlopen(file_info).read().decode('utf-8'))
+    return data["name"]
+
 
 def setup_server():
     mods = []
@@ -26,7 +34,8 @@ def setup_server():
     print('Installing Forge')
     mcv = mods[0][0]
     mlv = mods[0][1]
-    request = Request(f'https://maven.minecraftforge.net/net/minecraftforge/forge/{mcv}-{mlv}/forge-{mcv}-{mlv}-installer.jar')
+    request = Request(
+        f'https://maven.minecraftforge.net/net/minecraftforge/forge/{mcv}-{mlv}/forge-{mcv}-{mlv}-installer.jar')
 
     response = urlopen(request)
     with open('installer.jar', mode='wb') as file:
@@ -74,15 +83,13 @@ def setup_server():
     for mod in mods[1:]:
         project_id = mod[0]
         file_id = mod[1]
-        download_url = f'https://addons-ecs.forgesvc.net/api/v2/addon/{project_id}/file/{file_id}/download-url'
-        request1 = Request(download_url)
-        response1 = urlopen(request1)
-        file_url = response1.read().decode('utf-8')
-        request2 = Request(urllib.parse.quote(file_url, safe="/:@?=&"))
-        response2 = urlopen(request2)
-        print('Downloading mod %s...' % file_url[file_url.rfind('/') + 1:])
-        with open('mods' + os.path.sep + file_url[file_url.rfind('/') + 1:], mode='wb') as target:
-            target.write(response2.read())
+        download_url = f'https://cfa2.cursemaven.com/curse/maven/O-{project_id}/{file_id}/O-{project_id}-{file_id}.jar'
+        file_name = get_file_name(project_id, file_id)
+        request = Request(urllib.parse.quote(download_url, safe="/:@?=&"), headers=headers)
+        response = urlopen(request)
+        print('Downloading mod %s...' % file_name)
+        with open('mods' + os.path.sep + file_name, mode='wb') as target:
+            target.write(response.read())
 
 
 if __name__ == '__main__':

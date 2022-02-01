@@ -1,22 +1,19 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep;
 
-import io.github.noeppi_noeppi.tools.cursewrapper.api.CurseWrapper;
+import io.github.noeppi_noeppi.tools.modgradle.util.CurseUtil;
 import net.minecraftforge.gradle.userdev.DependencyManagementExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.net.URI;
 
 public class CurseDepPlugin implements Plugin<Project> {
-
-    private static final CurseWrapper API = new CurseWrapper(URI.create("https://curse.melanx.de/"));
 
     @Override
     public void apply(Project project) {
         project.getRepositories().maven(r -> {
-            r.setUrl("https://cfa2.cursemaven.com");
+            r.setUrl(CurseUtil.CURSE_MAVEN_URL);
             r.content(c -> c.includeGroup("curse.maven"));
         });
         DependencyManagementExtension ext = getDepExt(project);
@@ -41,7 +38,7 @@ public class CurseDepPlugin implements Plugin<Project> {
 
     public static String getSlug(int projectId) {
         try {
-            return API.getSlug(projectId);
+            return CurseUtil.API.getSlug(projectId);
         } catch (IOException e) {
             return "unknown";
         }

@@ -45,7 +45,7 @@ public class PackDevPlugin implements Plugin<Project> {
             throw new IllegalStateException("The PackDev plugin requires the ModGradle mapping plugin.");
 
         project.getRepositories().maven(r -> {
-            r.setUrl(CurseUtil.CURSE_MAVEN_URL);
+            r.setUrl(CurseUtil.CURSE_MAVEN);
             r.content(c -> c.includeGroup("curse.maven"));
         });
 

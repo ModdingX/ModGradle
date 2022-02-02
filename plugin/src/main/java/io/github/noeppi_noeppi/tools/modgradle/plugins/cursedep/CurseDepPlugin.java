@@ -13,7 +13,7 @@ public class CurseDepPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getRepositories().maven(r -> {
-            r.setUrl(CurseUtil.CURSE_MAVEN_URL);
+            r.setUrl(CurseUtil.CURSE_MAVEN);
             r.content(c -> c.includeGroup("curse.maven"));
         });
         DependencyManagementExtension ext = getDepExt(project);

@@ -48,7 +48,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
         for (CurseFile file : this.files) {
             futures.add(service.submit(() -> {
                 try {
-                    Map<String, String> map = IOUtil.commonHashes(file.downloadUrl().openStream());
+                    Map<String, String> map = IOUtil.commonHashes(file.downloadUrl().toURL().openStream());
                     hashes.put(file, map);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -80,7 +80,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
 
         JsonArray fileArray = new JsonArray();
         for (CurseFile file : this.files.stream().sorted(Comparator.comparing(CurseFile::projectId)).toList()) {
-            URL url = file.downloadUrl();
+            URI url = file.downloadUrl();
             JsonObject fileObj = new JsonObject();
             fileObj.addProperty("path", "mods/" + file.fileName());
 

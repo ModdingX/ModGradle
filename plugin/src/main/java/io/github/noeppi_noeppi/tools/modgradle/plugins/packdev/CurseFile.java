@@ -12,7 +12,7 @@ import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -21,8 +21,8 @@ import java.util.Map;
 
 public record CurseFile(int projectId, int fileId, Side side) {
 
-    public URL downloadUrl() throws IOException {
-        return new URL("https://www.cursemaven.com/curse/maven/O-" + this.projectId + "/" + this.fileId + "/O-" + this.projectId + "-" + this.fileId + ".jar");
+    public URI downloadUrl() throws IOException {
+        return CurseUtil.curseMaven("/curse/maven/O-" + this.projectId + "/" + this.fileId + "/O-" + this.projectId + "-" + this.fileId + ".jar");
     }
 
     public String fileName() throws IOException {

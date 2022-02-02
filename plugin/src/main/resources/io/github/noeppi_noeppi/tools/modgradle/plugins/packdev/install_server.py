@@ -26,7 +26,7 @@ def setup_server():
     print('Installing Forge')
     mcv = mods[0][0]
     mlv = mods[0][1]
-    request = Request(f'https://maven.minecraftforge.net/net/minecraftforge/forge/{mcv}-{mlv}/forge-{mcv}-{mlv}-installer.jar')
+    request = make_request(f'https://maven.minecraftforge.net/net/minecraftforge/forge/{mcv}-{mlv}/forge-{mcv}-{mlv}-installer.jar')
 
     response = urlopen(request)
     with open('installer.jar', mode='wb') as file:
@@ -68,6 +68,16 @@ def setup_server():
             file.write(f'java @user_jvm_args.txt -jar forge-{mcv}-{mlv}.jar %*\n')
             file.write('pause\n')
 
+    print('Adding version specific files')
+    if mcv == '1.16.4' or mcv == '1.16.5' or is_major_mc(mcv, '1.17') or is_major_mc(mcv, '1.18'):
+        apply_log4j_fix('https://files.minecraftforge.net/log4shell/1.16.4/log4j2_server.xml', 'log4j2_server.xml', no_lookup=not is_major_mc(mcv, '1.16'))
+    elif is_major_mc(mcv, '1.13') or is_major_mc(mcv, '1.14') or is_major_mc(mcv, '1.15') or is_major_mc(mcv, '1.16'):
+        apply_log4j_fix('https://files.minecraftforge.net/log4shell/1.13/log4j2_server.xml', 'log4j2_server.xml')
+    elif is_major_mc(mcv, '1.12'):
+        apply_log4j_fix('https://files.minecraftforge.net/log4shell/1.12/log4j2_server.xml', 'log4j2_server.xml')
+    elif is_major_mc(mcv, '1.7') or is_major_mc(mcv, '1.8') or is_major_mc(mcv, '1.9') or is_major_mc(mcv, '1.10') or is_major_mc(mcv, '1.11'):
+        apply_log4j_fix('https://files.minecraftforge.net/log4shell/1.7/log4j2_server.xml', 'log4j2_server.xml')
+
     print('Downloading Mods')
     if not os.path.isdir('mods'):
         os.makedirs('mods')
@@ -76,17 +86,39 @@ def setup_server():
         file_id = mod[1]
         download_url = f'https://cfa2.cursemaven.com/curse/maven/O-{project_id}/{file_id}/O-{project_id}-{file_id}.jar'
         file_name = get_file_name(project_id, file_id)
-        request = Request(urllib.parse.quote(download_url, safe="/:@?=&"), headers={'Accept': 'application/json', 'User-Agent': 'python3/modgradle server installer' })
+        request = make_request(urllib.parse.quote(download_url, safe='/:@?=&'))
         response = urlopen(request)
         print('Downloading mod %s...' % file_name)
         with open('mods' + os.path.sep + file_name, mode='wb') as target:
             target.write(response.read())
 
 
+def is_major_mc(mcv, expected):
+    return mcv == expected or mcv.startswith(expected + '.')
+
+
+def apply_log4j_fix(file_url, file_name, no_lookup=False):
+    download_file(file_url, file_name)
+    with open('user_jvm_args.txt', mode='a') as file:
+        file.write(f'\n-Dlog4j.configurationFile={file_name}\n')
+        if no_lookup:
+            file.write('-Dlog4j2.formatMsgNoLookups=true\n')
+
+
+def download_file(file_url, file_name):
+    response = urlopen(make_request(file_url))
+    with open(file_name, mode='wb') as file:
+        file.write(response.read())
+
+
 def get_file_name(project_id, file_id):
-    file_info = Request(f'https://curse.melanx.de/project/{project_id}/file/{file_id}', headers={'Accept': 'application/json', 'User-Agent': 'python3/modgradle server installer'})
+    file_info = make_request(f'https://curse.melanx.de/project/{project_id}/file/{file_id}')
     data = json.loads(urlopen(file_info).read().decode('utf-8'))
-    return data["name"]
+    return data['name']
+
+
+def make_request(file_url):
+    return Request(file_url, headers={'Accept': 'application/json', 'User-Agent': 'python3/modgradle server installer'})
 
 
 if __name__ == '__main__':

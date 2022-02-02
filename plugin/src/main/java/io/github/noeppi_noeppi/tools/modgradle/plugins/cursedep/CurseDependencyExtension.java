@@ -100,7 +100,6 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
         if (this.ext == null) {
             return this.project.getDependencies().create(obj);
         }
-
         return this.ext.deobf(obj);
     }
 }

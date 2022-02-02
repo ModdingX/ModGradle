@@ -25,7 +25,7 @@ dependencies {
     implementation('commons-io:commons-io') { version { strictly '[2.11.0,)'; prefer '2.11.0' } }
     implementation('org.apache.maven:maven-artifact') { version { strictly '[3.8.1,)'; prefer '3.8.1' } }
     implementation('commons-io:commons-io') { version { strictly '[2.10.0,)'; prefer '2.10.0' } }
-    implementation('io.github.noeppi_noeppi.tools:CurseWrapper') { version { strictly '[0.3, 1.0)'; prefer '0.3' } }
+    implementation('io.github.noeppi_noeppi.tools:CurseWrapper') { version { strictly '[1.0,)'; prefer '1.0' } }
 
     // See https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228
     implementation('org.apache.logging.log4j:log4j-api') { version { strictly '[2.16.0,)' } }

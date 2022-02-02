@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;

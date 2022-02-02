@@ -2,7 +2,9 @@ package io.github.noeppi_noeppi.tools.modgradle.util.task;
 
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import net.minecraftforge.gradle.common.tasks.JarExec;
-import org.gradle.api.file.*;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;

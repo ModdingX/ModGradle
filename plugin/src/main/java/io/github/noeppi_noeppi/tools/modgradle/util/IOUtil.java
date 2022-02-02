@@ -4,7 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.WillClose;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigInteger;
 import java.net.URI;
 import java.nio.file.*;

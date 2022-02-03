@@ -118,7 +118,7 @@ def get_file_name(project_id, file_id):
 
 
 def make_request(file_url):
-    return Request(file_url, headers={'Accept': 'application/json', 'User-Agent': 'python3/modgradle server installer'})
+    return Request(file_url, headers={'Accept': '*/*', 'User-Agent': 'python3/modgradle server installer'})
 
 
 if __name__ == '__main__':

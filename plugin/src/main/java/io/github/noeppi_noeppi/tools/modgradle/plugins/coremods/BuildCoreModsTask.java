@@ -74,7 +74,7 @@ public abstract class BuildCoreModsTask extends DefaultTask {
                 String fileName = loc.getFileName().toString();
                 String jsFileName = fileName.substring(0, fileName.length() - 3) + ".js";
                 Path jsSrc = src.getParent().resolve(jsFileName);
-                if (isCI || !Files.exists(jsSrc) || cache.compareAndStage(src)) {
+                if (isCI || !Files.exists(jsSrc) || cache.compareAndStage(src, true)) {
                     Path dest = target.resolve(loc);
                     PathUtils.createParentDirectories(dest);
                     Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);

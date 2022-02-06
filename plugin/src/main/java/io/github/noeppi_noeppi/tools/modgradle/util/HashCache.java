@@ -4,6 +4,7 @@ import org.apache.commons.io.file.PathUtils;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -40,9 +41,9 @@ public class HashCache {
         }
     }
     
-    public boolean compareAndSet(Path path) throws IOException {
+    public boolean compareAndSet(Path path, boolean text) throws IOException {
         String key = this.pathKey(path);
-        String hash = this.hash(path);
+        String hash = this.hash(path, text);
         if (!this.hashes.containsKey(key) || !this.hashes.get(key).equals(hash)) {
             this.hashes.put(key, hash);
             return true;
@@ -51,9 +52,9 @@ public class HashCache {
         }
     }
     
-    public boolean compareAndStage(Path path) throws IOException {
+    public boolean compareAndStage(Path path, boolean text) throws IOException {
         String key = this.pathKey(path);
-        String hash = this.hash(path);
+        String hash = this.hash(path, text);
         if (!this.hashes.containsKey(key) || !this.hashes.get(key).equals(hash)) {
             this.staged.put(key, hash);
             return true;
@@ -94,11 +95,20 @@ public class HashCache {
         return keyString.isEmpty() ? "." : keyString;
     }
     
-    private String hash(Path path) throws IOException {
+    private String hash(Path path, boolean text) throws IOException {
         try {
             MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-            try (InputStream in = new DigestInputStream(Files.newInputStream(path), sha1)) {
-                in.readAllBytes();
+            if (text) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(Files.newInputStream(path)))) {
+                    // Needs readLine to eliminate CRLF on windows.
+                    for (String line = in.readLine(); line != null; line = in.readLine()) {
+                        sha1.update(StandardCharsets.UTF_8.encode(line + "\n"));
+                    }
+                }
+            } else {
+                try (InputStream in = new DigestInputStream(Files.newInputStream(path), sha1)) {
+                    in.readAllBytes();
+                }
             }
             return String.format("%040X", new BigInteger(1, sha1.digest()));
         } catch (NoSuchAlgorithmException e) {

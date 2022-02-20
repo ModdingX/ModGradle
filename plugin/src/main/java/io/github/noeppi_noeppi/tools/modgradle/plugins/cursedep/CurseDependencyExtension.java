@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,8 +39,8 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
         return this.createDependency(CurseDepPlugin.curseArtifact(projectId, fileId));
     }
 
-    public Dependency pack(int projectId, int fileId) {
-        return this.pack(projectId, fileId, Collections.emptyList());
+    public Dependency pack(int projectId, int fileId, Object... excludes) {
+        return this.pack(projectId, fileId, Arrays.stream(excludes).collect(Collectors.toList()));
     }
 
     public Dependency pack(int projectId, int fileId, List<Object> excludes) {

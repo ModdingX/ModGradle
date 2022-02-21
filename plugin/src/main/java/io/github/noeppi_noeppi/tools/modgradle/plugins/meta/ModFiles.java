@@ -39,7 +39,7 @@ public class ModFiles {
                     "modId=\"" + modid + "\"",
                     "version=\"${file.jarVersion}\"",
                     "displayName=\"" + name + "\"",
-                    "displayURL=\"\"",
+                    "displayURL=\"example.invalid\"",
                     "updateJSONURL=\"\"",
                     "authors=\"\"",
                     "description=\"\"\"",

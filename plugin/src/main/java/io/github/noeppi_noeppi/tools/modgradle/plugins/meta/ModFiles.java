@@ -40,7 +40,7 @@ public class ModFiles {
                     "version=\"${file.jarVersion}\"",
                     "displayName=\"" + name + "\"",
                     "displayURL=\"\"",
-                    "updateJSONURL=\"\"",
+                    "updateJSONURL=\"example.invalid\"",
                     "authors=\"\"",
                     "description=\"\"\"",
                     "\"\"\"",

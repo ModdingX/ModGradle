@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.OptionalInt;
 
 /**
  * Utilities for versioning and to get data for a minecraft version..
@@ -23,15 +24,17 @@ public class Versioning {
     static {
         try {
             VERSION_MAP = List.of(
-                    Pair.of(VersionRange.createFromVersionSpec("(,1.9)"), new VersionInfo(8, 1, null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.9,1.11)"), new VersionInfo(8, 2, null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.11,1.13)"), new VersionInfo(8, 3, null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.13,1.15)"), new VersionInfo(8, 4, null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.15,1.16)"), new VersionInfo(8, 5, null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.16,1.16.2)"), new VersionInfo(8, 5, new MixinVersion("JAVA_8", "0.8.2"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.16.2,1.17)"), new VersionInfo(8, 6, new MixinVersion("JAVA_8", "0.8.2"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.17,1.18)"), new VersionInfo(16, 7, new MixinVersion("JAVA_16", "0.8.4"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.18,1.19)"), new VersionInfo(17, 8, new MixinVersion("JAVA_17", "0.8.5")))
+                    Pair.of(VersionRange.createFromVersionSpec("(,1.9)"), new VersionInfo(8, 1, OptionalInt.empty(), null)),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.9,1.11)"), new VersionInfo(8, 2, OptionalInt.empty(), null)),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.11,1.12)"), new VersionInfo(8, 3, OptionalInt.empty(), null)),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.12,1.13)"), new VersionInfo(8, 3, OptionalInt.empty(), null)),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.13,1.15)"), new VersionInfo(8, 4, OptionalInt.of(4), null)),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.15,1.16)"), new VersionInfo(8, 5, OptionalInt.of(5), null)),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.16,1.16.2)"), new VersionInfo(8, 5, OptionalInt.of(5), new MixinVersion("JAVA_8", "0.8.2"))),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.16.2,1.17)"), new VersionInfo(8, 6, OptionalInt.of(6), new MixinVersion("JAVA_8", "0.8.2"))),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.17,1.18)"), new VersionInfo(16, 7, OptionalInt.of(7), new MixinVersion("JAVA_16", "0.8.4"))),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.18,1.18.2)"), new VersionInfo(17, 8, OptionalInt.of(8), new MixinVersion("JAVA_17", "0.8.5"))),
+                    Pair.of(VersionRange.createFromVersionSpec("[1.18.2,1.19)"), new VersionInfo(17, 8, OptionalInt.of(9), new MixinVersion("JAVA_17", "0.8.5")))
             );
         } catch (InvalidVersionSpecificationException e) {
             throw new RuntimeException(e);
@@ -76,14 +79,22 @@ public class Versioning {
     public static int getJavaVersion(String minecraft) {
         return getMinecraftVersion(minecraft).java();
     }
-    
+
     /**
      * Gets the resource pack version for a given version of minecraft.
      */
     public static int getResourceVersion(String minecraft) {
         return getMinecraftVersion(minecraft).resource();
     }
-    
+
+    /**
+     * Gets the datapack version for a given version of minecraft.
+     * If datapacks were not yet introduced in that version, the returned optional will be empty.
+     */
+    public static OptionalInt getDataVersion(String minecraft) {
+        return getMinecraftVersion(minecraft).data();
+    }
+
     /**
      * Gets the mixin version for a given version of minecraft.
      */
@@ -91,7 +102,7 @@ public class Versioning {
     public static MixinVersion getMixinVersion(String minecraft) {
         return getMinecraftVersion(minecraft).mixin();
     }
-    
+
     private static VersionInfo getMinecraftVersion(String minecraft) {
         ArtifactVersion v = new DefaultArtifactVersion(minecraft);
         for (Pair<VersionRange, VersionInfo> pair : VERSION_MAP) {
@@ -105,6 +116,6 @@ public class Versioning {
             return getMinecraftVersion(ModGradle.TARGET_MINECRAFT);
         }
     }
-    
-    private record VersionInfo(int java, int resource, @Nullable MixinVersion mixin) {}
+
+    private record VersionInfo(int java, int resource, OptionalInt data, @Nullable MixinVersion mixin) {}
 }

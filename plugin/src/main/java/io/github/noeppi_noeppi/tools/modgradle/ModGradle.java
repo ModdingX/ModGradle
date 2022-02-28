@@ -17,7 +17,7 @@ public class ModGradle {
     // ModGradle can still be used with other minecraft versions
     // For example this is the fallback when using an unknown
     // version in the Versioning class
-    public static final String TARGET_MINECRAFT = "1.18.1";
+    public static final String TARGET_MINECRAFT = "1.18.2";
 
     // Target java version for ModGradle and external tools
     // not for the toolchain

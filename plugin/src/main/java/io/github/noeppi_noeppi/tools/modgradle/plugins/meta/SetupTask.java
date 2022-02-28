@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.meta;
 
+import com.google.common.collect.ImmutableMap;
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
@@ -77,15 +78,16 @@ public abstract class SetupTask extends DefaultTask {
             throw new IllegalStateException("Failed to clone repository: " + this.getRepo());
         }
 
-        Map<String, String> replaces = Map.of(
-                "name", this.getProject().getName(),
-                "modid", this.getModid().get(),
-                "minecraft", this.getMinecraftVersion().get(),
-                "forge", this.getForgeVersion().get(),
-                "license", this.getLicense().get(),
-                "jdk", Integer.toString(Versioning.getJavaVersion(this.getMinecraftVersion().get())),
-                "resource", Integer.toString(Versioning.getResourceVersion(this.getMinecraftVersion().get()))
-        );
+        ImmutableMap.Builder<String, String> replaceBuilder = ImmutableMap.builder();
+        replaceBuilder.put("name", this.getProject().getName());
+        replaceBuilder.put("modid", this.getModid().get());
+        replaceBuilder.put("minecraft", this.getMinecraftVersion().get());
+        replaceBuilder.put("forge", this.getForgeVersion().get());
+        replaceBuilder.put("license", this.getLicense().get());
+        replaceBuilder.put("jdk", Integer.toString(Versioning.getJavaVersion(this.getMinecraftVersion().get())));
+        replaceBuilder.put("resource", Integer.toString(Versioning.getResourceVersion(this.getMinecraftVersion().get())));
+        Versioning.getDataVersion(this.getMinecraftVersion().get()).ifPresent(v -> replaceBuilder.put("data", Integer.toString(v)));
+        Map<String, String> replaces = replaceBuilder.build();
         
         this.copyDir(clone, "runClient");
         this.copyDir(clone, "runServer");

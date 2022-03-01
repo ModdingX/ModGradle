@@ -19,28 +19,29 @@ public class JarUtil {
     
     @Nullable
     public static String mainClass(Path jarFile) throws IOException {
-        FileSystem fs = IOUtil.getFileSystem(jarFile.toAbsolutePath().normalize().toUri());
-        
-        Path manifestPath = fs.getPath("/META-INF/MANIFEST.MF");
-        if (Files.isRegularFile(manifestPath)) {
-            try (InputStream in = Files.newInputStream(manifestPath)) {
-                Manifest manifest = new Manifest(in);
-                if (manifest.getMainAttributes().containsKey("Main-Class")) {
-                    return manifest.getMainAttributes().get("Main-Class").toString().strip();
+        try (FileSystem fs = IOUtil.getFileSystem(jarFile.toAbsolutePath().normalize().toUri())) {
+
+            Path manifestPath = fs.getPath("/META-INF/MANIFEST.MF");
+            if (Files.isRegularFile(manifestPath)) {
+                try (InputStream in = Files.newInputStream(manifestPath)) {
+                    Manifest manifest = new Manifest(in);
+                    if (manifest.getMainAttributes().containsKey("Main-Class")) {
+                        return manifest.getMainAttributes().get("Main-Class").toString().strip();
+                    }
                 }
             }
-        }
-        
-        Path modulePath = fs.getPath("/module-info.class");
-        if (Files.isRegularFile(modulePath)) {
-            try (InputStream in = Files.newInputStream(modulePath)) {
-                ModuleDescriptor module = ModuleDescriptor.read(in);
-                if (module.mainClass().isPresent()) {
-                    return module.mainClass().get();
+
+            Path modulePath = fs.getPath("/module-info.class");
+            if (Files.isRegularFile(modulePath)) {
+                try (InputStream in = Files.newInputStream(modulePath)) {
+                    ModuleDescriptor module = ModuleDescriptor.read(in);
+                    if (module.mainClass().isPresent()) {
+                        return module.mainClass().get();
+                    }
                 }
             }
+
+            return null;
         }
-        
-        return null;
     }
 }

@@ -4,7 +4,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 
@@ -27,10 +26,10 @@ public class ConfigurationDownloader {
         FileCollection mainFiles = download(project, dependency, configuration -> configuration.setTransitive(false));
         if (mainFiles == null) return null;
         Set<File> mainFileSet = mainFiles.getFiles();
-        if (mainFileSet.isEmpty()) throw new IllegalStateException("Dependency resolved to nothing: " + depName(dependency)); 
-        if (mainFileSet.size() > 1) throw new IllegalStateException("Dependency resolved to more than one element: " + depName(dependency)); 
+        if (mainFileSet.isEmpty()) throw new IllegalStateException("Dependency resolved to nothing: " + MgUtil.dependencyName(dependency)); 
+        if (mainFileSet.size() > 1) throw new IllegalStateException("Dependency resolved to more than one element: " + MgUtil.dependencyName(dependency)); 
         String mainClass = JarUtil.mainClass(mainFiles.iterator().next());
-        if (mainClass == null) throw new IllegalStateException("No main class found in dependency: " + depName(dependency));
+        if (mainClass == null) throw new IllegalStateException("No main class found in dependency: " + MgUtil.dependencyName(dependency));
         return new Executable(mainClass, files);
     }
 
@@ -48,7 +47,7 @@ public class ConfigurationDownloader {
             resolution.cacheDynamicVersionsFor(10, TimeUnit.MINUTES);
         });
         action.execute(configuration);
-        FileCollection files = download(project, configuration, depName(dependency));
+        FileCollection files = download(project, configuration, MgUtil.dependencyName(dependency));
         project.getConfigurations().remove(configuration);
         return files;
     }
@@ -78,14 +77,6 @@ public class ConfigurationDownloader {
         ConfigurableFileCollection fc = project.files();
         files.forEach(fc::from);
         return fc;
-    }
-    
-    private static String depName(Dependency dependency) {
-        if (dependency instanceof ExternalModuleDependency emd) {
-            return emd.getGroup() + ":" + emd.getName() + ":" + emd.getVersion();
-        } else {
-            return dependency.toString();
-        }
     }
     
     public record Executable(String mainClass, FileCollection classpath) {}

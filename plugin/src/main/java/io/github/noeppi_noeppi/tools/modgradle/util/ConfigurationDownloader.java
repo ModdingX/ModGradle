@@ -28,7 +28,7 @@ public class ConfigurationDownloader {
         Set<File> mainFileSet = mainFiles.getFiles();
         if (mainFileSet.isEmpty()) throw new IllegalStateException("Dependency resolved to nothing: " + MgUtil.dependencyName(dependency)); 
         if (mainFileSet.size() > 1) throw new IllegalStateException("Dependency resolved to more than one element: " + MgUtil.dependencyName(dependency)); 
-        String mainClass = JarUtil.mainClass(mainFiles.iterator().next());
+        String mainClass = JarUtil.mainClass(mainFileSet.iterator().next());
         if (mainClass == null) throw new IllegalStateException("No main class found in dependency: " + MgUtil.dependencyName(dependency));
         return new Executable(mainClass, files);
     }

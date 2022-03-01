@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.module.ModuleDescriptor;
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,14 +20,15 @@ public class JarUtil {
     
     @Nullable
     public static String mainClass(Path jarFile) throws IOException {
-        try (FileSystem fs = IOUtil.getFileSystem(jarFile.toAbsolutePath().normalize().toUri())) {
-
+        try (FileSystem fs = IOUtil.getFileSystem(URI.create("jar:" + jarFile.toAbsolutePath().normalize().toUri()))) {
             Path manifestPath = fs.getPath("/META-INF/MANIFEST.MF");
             if (Files.isRegularFile(manifestPath)) {
                 try (InputStream in = Files.newInputStream(manifestPath)) {
                     Manifest manifest = new Manifest(in);
-                    if (manifest.getMainAttributes().containsKey("Main-Class")) {
-                        return manifest.getMainAttributes().get("Main-Class").toString().strip();
+                    // containsKey does not work
+                    Object value = manifest.getMainAttributes().getValue("Main-Class");
+                    if (value != null) {
+                        return value.toString().strip();
                     }
                 }
             }

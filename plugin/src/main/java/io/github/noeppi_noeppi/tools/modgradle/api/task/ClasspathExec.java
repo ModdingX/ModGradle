@@ -1,7 +1,7 @@
 package io.github.noeppi_noeppi.tools.modgradle.api.task;
 
+import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.util.ConfigurationDownloader;
-import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import net.minecraftforge.gradle.common.tasks.JarExec;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.DefaultTask;
@@ -11,6 +11,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.jvm.toolchain.JavaLanguageVersion;
@@ -36,6 +37,7 @@ import java.util.List;
 public abstract class ClasspathExec extends DefaultTask {
     
     public ClasspathExec() {
+        this.getJavaVersion().convention(ModGradle.TARGET_JAVA);
         this.getJavaLauncher().convention(this.getProject().provider(() -> this.getJavaToolchainService().launcherFor(spec -> spec.getLanguageVersion().set(this.getJavaVersion().map(JavaLanguageVersion::of))).get()));
         this.getWorkingDirectory().set(this.getProject().file("build").toPath().resolve(this.getName()).toFile());
         this.getLogFile().set(this.getProject().file("build").toPath().resolve(this.getName()).resolve("log.txt").toFile());
@@ -47,15 +49,11 @@ public abstract class ClasspathExec extends DefaultTask {
     @Input
     public abstract ListProperty<String> getArgs();
     
-    public void tool(Object dep) {
-        this.getTool().set(this.getProject().getDependencies().create(dep));
-    }
-    
     /**
-     * The {@link Dependency} to load.
+     * The dependency to load.
      */
     @Input
-    public abstract Property<Dependency> getTool();
+    public abstract Property<String> getTool();
 
     /**
      * The directory to start the process in.
@@ -81,7 +79,7 @@ public abstract class ClasspathExec extends DefaultTask {
     /**
      * The java launcher to use.
      */
-    @Input
+    @Nested
     public abstract Property<JavaLauncher> getJavaLauncher();
 
     protected List<String> processArgs(List<String> args) {
@@ -90,8 +88,8 @@ public abstract class ClasspathExec extends DefaultTask {
     
     @TaskAction
     public void exec(InputChanges changes) throws IOException {
-        ConfigurationDownloader.Executable executable = ConfigurationDownloader.executable(this.getProject(), this.getTool().get());
-        if (executable == null) throw new IllegalStateException("Could not resolve tool: " + MgUtil.dependencyName(this.getTool().get()));
+        ConfigurationDownloader.Executable executable = ConfigurationDownloader.executable(this.getProject(), this.getProject().getDependencies().create(this.getTool().get()));
+        if (executable == null) throw new IllegalStateException("Could not resolve tool: " + this.getTool().get());
         List<String> arguments = this.processArgs(this.getArgs().get());
         Path logFile = this.getLogFile().get().getAsFile().toPath().toAbsolutePath().normalize();
         PathUtils.createParentDirectories(logFile);
@@ -102,6 +100,7 @@ public abstract class ClasspathExec extends DefaultTask {
             out.println("Working Directory: " + this.getWorkingDirectory().get().getAsFile().toPath().toAbsolutePath().normalize());
             out.println("Main Class: " + executable.mainClass());
             out.println("Arguments: " + String.join(" ", arguments));
+            out.println("\n");
             this.getProject().javaexec(spec -> {
                 spec.setExecutable(java);
                 spec.setClasspath(executable.classpath());

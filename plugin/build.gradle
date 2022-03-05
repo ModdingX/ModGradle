@@ -17,7 +17,7 @@ dependencies {
     implementation('net.minecraftforge:srgutils') { version { strictly '[0.4.9,)'; prefer '0.4.9' } }
     implementation('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.31,5.2)"; prefer '5.1.31' } }
     implementation('net.minecraftforge:artifactural') { version { strictly '[3.0.8,)'; prefer '3.0.8' } }
-    compileOnly('org.parchmentmc:librarian') { version { strictly '[1.1.5,)'; prefer '1.1.5' } }
+    compileOnly('org.parchmentmc:librarian') { version { strictly '[1.2.0,)'; prefer '1.2.0' } }
     implementation('de.siegmar:fastcsv') { version { strictly '[2.1.0,)'; prefer '2.1.0' } }
     implementation('com.google.code.gson:gson') { version { strictly '[2.9.0,)'; prefer '2.9.0' } }
     implementation('com.google.guava:guava') { version { strictly '[31.0.1-jre,)'; prefer '31.0.1-jre' } }

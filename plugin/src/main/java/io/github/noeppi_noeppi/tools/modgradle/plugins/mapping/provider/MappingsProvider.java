@@ -18,7 +18,7 @@ public abstract class MappingsProvider implements ChannelProvider {
 
     // Increment this to drop all previously cached versions
     // Might be required if bigger changes are done to the providers
-    public static final int SYSTEM_VERSION = 3;
+    public static final int SYSTEM_VERSION = 4;
 
     @Nullable
     @Override

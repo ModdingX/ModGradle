@@ -58,7 +58,8 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
     @Nonnull
     @Override
     protected File cacheParchment(Project project, String queryMcVersion, String mcpVersion, String mappingsVersion, String ext) {
-        return MappingsProvider.getCacheFile(project, "sugarcane", (queryMcVersion.isEmpty() ? "null" : queryMcVersion) + "__" + mappingsVersion, mcpVersion, ext).toFile();
+        String fullVersion = (queryMcVersion == null || queryMcVersion.isEmpty() ? "" : queryMcVersion + "-") + mappingsVersion;
+        return MappingsProvider.getCacheFile(project, "sugarcane", fullVersion, mcpVersion, ext).toFile();
     }
 
     @Override

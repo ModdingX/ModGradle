@@ -21,6 +21,7 @@ import java.util.zip.ZipFile;
 public class SugarcaneProvider extends ParchmentChannelProvider {
 
     public static final SugarcaneProvider INSTANCE = new SugarcaneProvider();
+    private static boolean printedWarning = false;
     
     private SugarcaneProvider() {
         
@@ -37,7 +38,13 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
     public File getMappingsFile(MCPRepo mcpRepo, Project project, String channel, String mappingVersion) throws IOException {
         ParchmentMappingVersion version = ParchmentMappingVersion.of(mappingVersion);
         if (!Objects.equals(version.mcpVersion(), version.queryMcVersion())) {
-            System.err.println("Using SugarCane for " + version.queryMcVersion() + " on minecraft " + version.mcpVersion() + ". This is discouraged and will most likely result in compilation errors or subtle bugs.");
+            synchronized (this) {
+                if (!printedWarning) {
+                    printedWarning = true;
+                    System.err.println("Using SugarCane for " + version.queryMcVersion() + " on minecraft " + version.mcpVersion() + ". Recompilation errors or subtle bugs may arise.");
+                    System.err.println("In that case, consider switching to plain parchment until SugarCane is available for minecraft " + version.mcVersion() + ".");
+                }
+            }
         }
         return super.getMappingsFile(mcpRepo, project, channel, mappingVersion);
     }
@@ -56,7 +63,7 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
 
     @Override
     protected File getParchmentZip(Project project, ParchmentMappingVersion version) {
-        return MavenArtifactDownloader.download(project, "io.github.noeppi_noeppi.sugarcane:sugarcane-" + version.mcVersion() + ":" + version.parchmentVersion() + "@zip", false);
+        return MavenArtifactDownloader.download(project, "io.github.noeppi_noeppi.sugarcane:sugarcane-" + version.queryMcVersion() + ":" + version.parchmentVersion() + "@zip", false);
     }
 
     @Override

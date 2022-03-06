@@ -1,16 +1,19 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.provider;
 
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader;
+import net.minecraftforge.gradle.mcp.MCPRepo;
 import org.gradle.api.Project;
 import org.parchmentmc.feather.mapping.VersionedMappingDataContainer;
 import org.parchmentmc.librarian.forgegradle.ParchmentChannelProvider;
 import org.parchmentmc.librarian.forgegradle.ParchmentMappingVersion;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -18,6 +21,7 @@ import java.util.zip.ZipFile;
 public class SugarcaneProvider extends ParchmentChannelProvider {
 
     public static final SugarcaneProvider INSTANCE = new SugarcaneProvider();
+    private static boolean printedWarning = false;
     
     private SugarcaneProvider() {
         
@@ -28,7 +32,23 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
     public Set<String> getChannels() {
         return Set.of("sugarcane");
     }
-    
+
+    @Nullable
+    @Override
+    public File getMappingsFile(MCPRepo mcpRepo, Project project, String channel, String mappingVersion) throws IOException {
+        ParchmentMappingVersion version = ParchmentMappingVersion.of(mappingVersion);
+        if (!Objects.equals(version.mcpVersion(), version.queryMcVersion())) {
+            synchronized (this) {
+                if (!printedWarning) {
+                    printedWarning = true;
+                    System.err.println("Using SugarCane for " + version.queryMcVersion() + " on minecraft " + version.mcpVersion() + ". Recompilation errors or subtle bugs may arise.");
+                    System.err.println("In that case, consider switching to plain parchment until SugarCane is available for minecraft " + version.mcVersion() + ".");
+                }
+            }
+        }
+        return super.getMappingsFile(mcpRepo, project, channel, mappingVersion);
+    }
+
     @Nonnull
     @Override
     protected Path getCacheBase(Project project) {
@@ -37,13 +57,13 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
 
     @Nonnull
     @Override
-    protected File cacheParchment(Project project, String mcpVersion, String mappingsVersion, String ext) {
-        return MappingsProvider.getCacheFile(project, "sugarcane", mappingsVersion, mcpVersion, ext).toFile();
+    protected File cacheParchment(Project project, String queryMcVersion, String mcpVersion, String mappingsVersion, String ext) {
+        return MappingsProvider.getCacheFile(project, "sugarcane", (queryMcVersion.isEmpty() ? "null" : queryMcVersion) + "__" + mappingsVersion, mcpVersion, ext).toFile();
     }
 
     @Override
     protected File getParchmentZip(Project project, ParchmentMappingVersion version) {
-        return MavenArtifactDownloader.download(project, "io.github.noeppi_noeppi.sugarcane:sugarcane-" + version.mcVersion() + ":" + version.parchmentVersion() + "@zip", false);
+        return MavenArtifactDownloader.download(project, "io.github.noeppi_noeppi.sugarcane:sugarcane-" + version.queryMcVersion() + ":" + version.parchmentVersion() + "@zip", false);
     }
 
     @Override

@@ -13,6 +13,7 @@ import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import net.minecraftforge.gradle.userdev.UserDevExtension;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -23,6 +24,7 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.jvm.toolchain.JavaLanguageVersion;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -161,7 +163,7 @@ public class PackDevPlugin implements Plugin<Project> {
     }
 
     private static void addRunConfig(Project project, UserDevExtension ext, String name, Side side, SourceSet commonMods, SourceSet additionalMods) {
-        String capitalized = name.substring(0, 1).toLowerCase(Locale.ROOT) + name.substring(1);
+        String capitalized = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
         String taskName = "run" + capitalized;
         File workingDir = project.file(taskName);
         ext.getRuns().create(name, run -> {
@@ -181,11 +183,15 @@ public class PackDevPlugin implements Plugin<Project> {
         // Create some directories because Forge 1.17+ requires it
         JavaCompile jc = MgUtil.task(project, "compileJava", JavaCompile.class);
         if (jc == null) throw new IllegalStateException("Cannot set up PackDev run config: compileJava task not found");
-        copyTask.doLast(t -> {
-            try {
-                Files.createDirectories(jc.getDestinationDirectory().getAsFile().get().toPath());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        //noinspection Convert2Lambda
+        copyTask.doLast(new Action<>() {
+            @Override
+            public void execute(@Nonnull Task task) {
+                try {
+                    Files.createDirectories(jc.getDestinationDirectory().getAsFile().get().toPath());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 

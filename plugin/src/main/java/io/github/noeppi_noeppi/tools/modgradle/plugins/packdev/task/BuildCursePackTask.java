@@ -89,7 +89,7 @@ public class BuildCursePackTask extends BuildTargetTask {
             String name = info.name();
             String slug = info.slug();
             String author = "<a href=\"https://www.curseforge.com/members/" + info.owner() + "/projects\">" + info.owner() + "</a>";
-            linesBySlug.put(slug, "<li><a href=\"" + info.website() + "\">" + name + "</a>" + author + "</li>");
+            linesBySlug.put(slug, "<li><a href=\"" + info.website() + "\">" + name + "</a> (" + author + ")</li>");
         }
         Writer writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE_NEW);
         writer.write("<h2>" + this.getProject().getName() + " - " + this.getProject().getVersion() + "</h2>\n");

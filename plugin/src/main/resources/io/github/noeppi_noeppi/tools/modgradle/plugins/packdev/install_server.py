@@ -84,7 +84,7 @@ def setup_server():
     for mod in mods[1:]:
         project_id = mod[0]
         file_id = mod[1]
-        download_url = f'https://cfa2.cursemaven.com/curse/maven/O-{project_id}/{file_id}/O-{project_id}-{file_id}.jar'
+        download_url = f'https://www.cursemaven.com/curse/maven/O-{project_id}/{file_id}/O-{project_id}-{file_id}.jar'
         file_name = get_file_name(project_id, file_id)
         request = make_request(urllib.parse.quote(download_url, safe='/:@?=&'))
         response = urlopen(request)

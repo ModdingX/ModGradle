@@ -82,15 +82,22 @@ def setup_server():
     if not os.path.isdir('mods'):
         os.makedirs('mods')
     for mod in mods[1:]:
-        project_id = mod[0]
-        file_id = mod[1]
-        download_url = f'https://www.cursemaven.com/curse/maven/O-{project_id}/{file_id}/O-{project_id}-{file_id}.jar'
-        file_name = get_file_name(project_id, file_id)
-        request = make_request(urllib.parse.quote(download_url, safe='/:@?=&'))
-        response = urlopen(request)
-        print('Downloading mod %s...' % file_name)
-        with open('mods' + os.path.sep + file_name, mode='wb') as target:
-            target.write(response.read())
+        attempts = 0
+        while attempts < 10:
+            try:
+                project_id = mod[0]
+                file_id = mod[1]
+                download_url = f'https://www.cursemaven.com/curse/maven/O-{project_id}/{file_id}/O-{project_id}-{file_id}.jar'
+                file_name = get_file_name(project_id, file_id)
+                request = make_request(urllib.parse.quote(download_url, safe='/:@?=&'))
+                response = urlopen(request)
+                print('Downloading mod %s...' % file_name)
+                with open('mods' + os.path.sep + file_name, mode='wb') as target:
+                    target.write(response.read())
+                break
+            except:
+                attempts += 1
+                print('Retry download')
 
 
 def is_major_mc(mcv, expected):

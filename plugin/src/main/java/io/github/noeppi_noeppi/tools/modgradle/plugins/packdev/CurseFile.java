@@ -12,6 +12,7 @@ import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +28,21 @@ public record CurseFile(int projectId, int fileId, Side side) {
 
     public String fileName() throws IOException {
         return CurseUtil.API.getFile(this.projectId, this.fileId).name();
+    }
+
+    public int fileSize() {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) this.downloadUrl().toURL().openConnection();
+            conn.setRequestMethod("HEAD");
+            return conn.getContentLength();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
     }
 
     public static CurseFile parse(JsonObject json) {

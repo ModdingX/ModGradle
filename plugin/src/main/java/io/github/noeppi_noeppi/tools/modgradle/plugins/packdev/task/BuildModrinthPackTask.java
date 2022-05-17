@@ -7,6 +7,7 @@ import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.CurseFile;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
 import org.apache.commons.io.file.PathUtils;
+import org.gradle.api.internal.provider.DefaultProvider;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
     @Inject
     public BuildModrinthPackTask(PackSettings settings, List<CurseFile> files, String edition) {
         super(settings, files, edition);
+        this.getArchiveExtension().convention(new DefaultProvider<>(() -> "mrpack"));
     }
 
     @Override
@@ -35,7 +37,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
         for (Path src : this.getOverridePaths(null)) {
             PathUtils.copyDirectory(src, fs.getPath("overrides"));
         }
-        this.generateIndex(fs.getPath("index.json"));
+        this.generateIndex(fs.getPath("modrinth.index.json"));
         fs.close();
     }
 
@@ -99,6 +101,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
                 }
             }
             fileObj.add("hashes", hashesObj);
+            fileObj.addProperty("fileSize", file.fileSize());
 
             fileArray.add(fileObj);
         }

@@ -6,11 +6,13 @@ import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.CurseFile;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.internal.provider.DefaultProvider;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.file.*;
@@ -44,13 +46,15 @@ public class BuildModrinthPackTask extends BuildTargetTask {
     private void generateIndex(Path target) throws IOException {
         // First compute hashes async
         ScheduledExecutorService service = new ScheduledThreadPoolExecutor(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
-        Map<CurseFile, Map<String, String>> hashes = Collections.synchronizedMap(new HashMap<>());
+        Map<CurseFile, FileMeta> metaMap = Collections.synchronizedMap(new HashMap<>());
         List<Future<?>> futures = new ArrayList<>();
         for (CurseFile file : this.files) {
             futures.add(service.submit(() -> {
                 try {
-                    Map<String, String> map = IOUtil.commonHashes(file.downloadUrl().toURL().openStream());
-                    hashes.put(file, map);
+                    InputStream in = file.downloadUrl().toURL().openStream();
+                    FileMeta meta = new FileMeta(IOUtils.toByteArray(in).length, IOUtil.commonHashes(in));
+                    metaMap.put(file, meta);
+                    in.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -83,6 +87,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
         for (CurseFile file : this.files.stream().sorted(Comparator.comparing(CurseFile::projectId)).toList()) {
             URI url = file.downloadUrl();
             JsonObject fileObj = new JsonObject();
+            fileObj.addProperty("fileSize", metaMap.get(file).fileSize());
             fileObj.addProperty("path", "mods/" + file.fileName());
 
             JsonArray downloadArray = new JsonArray();
@@ -95,13 +100,12 @@ public class BuildModrinthPackTask extends BuildTargetTask {
             fileObj.add("env", env);
 
             JsonObject hashesObj = new JsonObject();
-            if (hashes.containsKey(file)) {
-                for (Map.Entry<String, String> entry : hashes.get(file).entrySet()) {
+            if (metaMap.containsKey(file)) {
+                for (Map.Entry<String, String> entry : metaMap.get(file).hashes().entrySet()) {
                     hashesObj.addProperty(entry.getKey(), entry.getValue());
                 }
             }
             fileObj.add("hashes", hashesObj);
-            fileObj.addProperty("fileSize", file.fileSize());
 
             fileArray.add(fileObj);
         }
@@ -110,5 +114,9 @@ public class BuildModrinthPackTask extends BuildTargetTask {
         Writer writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE_NEW);
         writer.write(ModGradle.GSON.toJson(json) + "\n");
         writer.close();
+    }
+
+    record FileMeta(int fileSize, Map<String, String> hashes) {
+
     }
 }

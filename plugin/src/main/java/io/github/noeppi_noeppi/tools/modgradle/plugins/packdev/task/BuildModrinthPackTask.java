@@ -6,6 +6,7 @@ import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.CurseFile;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
 import io.github.noeppi_noeppi.tools.modgradle.util.IOUtil;
+import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.internal.provider.DefaultProvider;
@@ -35,9 +36,13 @@ public class BuildModrinthPackTask extends BuildTargetTask {
         FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + target.toUri()), Map.of(
                 "create", String.valueOf(!Files.exists(target))
         ));
-        Files.createDirectories(fs.getPath("overrides"));
-        for (Path src : this.getOverridePaths(null)) {
-            PathUtils.copyDirectory(src, fs.getPath("overrides"));
+        Files.createDirectories(fs.getPath("client-overrides"));
+        for (Path src : this.getOverridePaths(Side.CLIENT)) {
+            PathUtils.copyDirectory(src, fs.getPath("client-overrides"));
+        }
+        Files.createDirectories(fs.getPath("server-overrides"));
+        for (Path src : this.getOverridePaths(Side.SERVER)) {
+            PathUtils.copyDirectory(src, fs.getPath("server-overrides"));
         }
         this.generateIndex(fs.getPath("modrinth.index.json"));
         fs.close();

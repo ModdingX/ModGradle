@@ -1,5 +1,7 @@
 package io.github.noeppi_noeppi.tools.modgradle.api;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.util.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
@@ -8,37 +10,53 @@ import org.gradle.api.Project;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  * Utilities for versioning and to get data for a minecraft version..
  */
 public class Versioning {
 
-    private static final List<Pair<VersionRange, VersionInfo>> VERSION_MAP;
+    private static final List<Pair<VersionRange, VersionInfo>> VERSION_MAP = new ArrayList<>();
 
-    static {
-        try {
-            VERSION_MAP = List.of(
-                    Pair.of(VersionRange.createFromVersionSpec("(,1.9)"), new VersionInfo(8, 1, OptionalInt.empty(), null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.9,1.11)"), new VersionInfo(8, 2, OptionalInt.empty(), null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.11,1.12)"), new VersionInfo(8, 3, OptionalInt.empty(), null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.12,1.13)"), new VersionInfo(8, 3, OptionalInt.empty(), null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.13,1.15)"), new VersionInfo(8, 4, OptionalInt.of(4), null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.15,1.16)"), new VersionInfo(8, 5, OptionalInt.of(5), null)),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.16,1.16.2)"), new VersionInfo(8, 5, OptionalInt.of(5), new MixinVersion("JAVA_8", "0.8.2"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.16.2,1.17)"), new VersionInfo(8, 6, OptionalInt.of(6), new MixinVersion("JAVA_8", "0.8.2"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.17,1.18)"), new VersionInfo(16, 7, OptionalInt.of(7), new MixinVersion("JAVA_16", "0.8.4"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.18,1.18.2)"), new VersionInfo(17, 8, OptionalInt.of(8), new MixinVersion("JAVA_17", "0.8.5"))),
-                    Pair.of(VersionRange.createFromVersionSpec("[1.18.2,1.19)"), new VersionInfo(17, 8, OptionalInt.of(9), new MixinVersion("JAVA_17", "0.8.5")))
-            );
-        } catch (InvalidVersionSpecificationException e) {
-            throw new RuntimeException(e);
+    public static List<Pair<VersionRange, VersionInfo>> versionMap() {
+        if (VERSION_MAP.isEmpty()) {
+            try {
+                URI uri = URI.create("https://assets.melanx.de/minecraft_data.json");
+                URLConnection connection = uri.toURL().openConnection();
+                connection.connect();
+
+                JsonObject json = ModGradle.GSON.fromJson(new InputStreamReader((InputStream) connection.getContent()), JsonObject.class);
+
+                for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                    VersionRange versionRange = VersionRange.createFromVersionSpec(entry.getKey());
+
+                    JsonObject versionInfo = entry.getValue().getAsJsonObject();
+                    int java = versionInfo.get("java").getAsInt();
+                    int resource = versionInfo.get("resource_pack").getAsInt();
+                    OptionalInt data = versionInfo.has("data_pack") ? OptionalInt.of(versionInfo.get("data_pack").getAsInt()) : OptionalInt.empty();
+                    MixinVersion mixin = null;
+                    if (versionInfo.has("mixin")) {
+                        JsonObject mixinObj = versionInfo.getAsJsonObject("mixin");
+                        String compatibility = mixinObj.get("compatibility").getAsString();
+                        String release = mixinObj.get("release").getAsString();
+                        mixin = new MixinVersion(compatibility, release);
+                    }
+
+                    VERSION_MAP.add(Pair.of(versionRange, new VersionInfo(java, resource, data, mixin)));
+                }
+            } catch (IOException | InvalidVersionSpecificationException e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        return VERSION_MAP;
     }
 
     /**
@@ -105,7 +123,7 @@ public class Versioning {
 
     private static VersionInfo getMinecraftVersion(String minecraft) {
         ArtifactVersion v = new DefaultArtifactVersion(minecraft);
-        for (Pair<VersionRange, VersionInfo> pair : VERSION_MAP) {
+        for (Pair<VersionRange, VersionInfo> pair : versionMap()) {
             if (pair.getLeft().containsVersion(v)) {
                 return pair.getRight();
             }

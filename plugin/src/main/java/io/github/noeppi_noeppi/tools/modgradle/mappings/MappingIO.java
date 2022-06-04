@@ -156,7 +156,7 @@ public class MappingIO {
         csv.close();
         writer.close();
         bout.close();
-        out.write(bout.toByteArray());
+        bout.writeTo(out);
     }
     
     public record NameMappings(Names names, Javadocs docs) {}

@@ -1,6 +1,7 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.task;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.api.Versioning;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
@@ -48,7 +49,13 @@ public abstract class UpdateMetaTask extends DefaultTask {
             JsonElement json = ModGradle.GSON.fromJson(in, JsonElement.class);
             in.close();
             if (json.isJsonObject() && json.getAsJsonObject().has("pack")) {
-                json.getAsJsonObject().getAsJsonObject("pack").addProperty("pack_format", Versioning.getDataVersion(minecraft).orElse(Versioning.getResourceVersion(minecraft)));
+                int formatVersion = Versioning.getDataVersion(minecraft).orElse(Versioning.getResourceVersion(minecraft));
+                JsonObject pack = json.getAsJsonObject().getAsJsonObject("pack");
+                pack.addProperty("pack_format", formatVersion);
+                if (formatVersion >= 9) {
+                    pack.addProperty("forge:resource_pack_format", Versioning.getResourceVersion(minecraft));
+                    pack.addProperty("forge:data_pack_format", formatVersion);
+                }
                 Writer out = Files.newBufferedWriter(resourcePackPath, StandardOpenOption.TRUNCATE_EXISTING);
                 ModGradle.GSON.toJson(json, out);
                 out.write("\n");

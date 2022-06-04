@@ -70,6 +70,10 @@ public class ModFiles {
             JsonObject pack = new JsonObject();
             pack.addProperty("description", name + " resources");
             pack.addProperty("pack_format", formatVersion);
+            if (formatVersion >= 9) {
+                pack.addProperty("forge:resource_pack_format", Versioning.getResourceVersion(minecraftVersion));
+                pack.addProperty("forge:data_pack_format", formatVersion);
+            }
             json.add("pack", pack);
             Files.writeString(path, ModGradle.GSON.toJson(json) + "\n", StandardOpenOption.CREATE);
         }

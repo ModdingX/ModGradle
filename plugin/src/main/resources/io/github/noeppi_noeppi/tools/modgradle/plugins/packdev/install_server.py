@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # ModGradle server install script
-# https://github.com/noeppi-noeppi/ModGradle
+# https://github.com/ModdingX/ModGradle
 
 import json
 import os

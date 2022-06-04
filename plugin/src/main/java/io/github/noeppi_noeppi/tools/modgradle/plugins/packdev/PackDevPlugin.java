@@ -41,6 +41,7 @@ public class PackDevPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        ModGradle.initialiseProject(project);
         if (!project.getPlugins().hasPlugin("net.minecraftforge.gradle"))
             throw new IllegalStateException("The PackDev plugin requires the ForgeGradle userdev plugin.");
         if (!project.getPlugins().hasPlugin("io.github.noeppi_noeppi.tools.modgradle.mapping"))

@@ -1,17 +1,20 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep;
 
+import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.util.CurseUtil;
 import net.minecraftforge.gradle.userdev.DependencyManagementExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class CurseDepPlugin implements Plugin<Project> {
 
     @Override
-    public void apply(Project project) {
+    public void apply(@Nonnull Project project) {
+        ModGradle.initialiseProject(project);
         project.getRepositories().maven(r -> {
             r.setUrl(CurseUtil.CURSE_MAVEN);
             r.content(c -> c.includeGroup("curse.maven"));

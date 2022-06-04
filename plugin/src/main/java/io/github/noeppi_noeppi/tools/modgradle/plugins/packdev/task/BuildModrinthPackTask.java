@@ -57,7 +57,7 @@ public class BuildModrinthPackTask extends BuildTargetTask {
             futures.add(service.submit(() -> {
                 try {
                     InputStream in = file.downloadUrl().toURL().openStream();
-                    FileMeta meta = new FileMeta(IOUtils.toByteArray(in).length, IOUtil.commonHashes(in));
+                    FileMeta meta = new FileMeta(in.readAllBytes().length, IOUtil.commonHashes(in));
                     metaMap.put(file, meta);
                     in.close();
                 } catch (IOException e) {

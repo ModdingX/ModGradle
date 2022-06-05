@@ -65,15 +65,15 @@ public class ModFiles {
     
     public static void createPackFile(Path path, String name, String minecraftVersion) throws IOException {
         if (!Files.exists(path)) {
-            int formatVersion = Versioning.getDataVersion(minecraftVersion).orElse(Versioning.getResourceVersion(minecraftVersion));
+            int formatVersion = Math.max(Versioning.getResourceVersion(minecraftVersion), Versioning.getDataVersion(minecraftVersion).orElse(0));
             JsonObject json = new JsonObject();
             JsonObject pack = new JsonObject();
             pack.addProperty("description", name + " resources");
             pack.addProperty("pack_format", formatVersion);
-            if (formatVersion >= 9) {
+            Versioning.getDataVersion(minecraftVersion).stream().filter(v -> v >= 9).forEach(dataVersion -> {
                 pack.addProperty("forge:resource_pack_format", Versioning.getResourceVersion(minecraftVersion));
-                pack.addProperty("forge:data_pack_format", formatVersion);
-            }
+                pack.addProperty("forge:data_pack_format", dataVersion);
+            });
             json.add("pack", pack);
             Files.writeString(path, ModGradle.GSON.toJson(json) + "\n", StandardOpenOption.CREATE);
         }

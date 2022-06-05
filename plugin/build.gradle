@@ -14,16 +14,16 @@ repositories {
 
 dependencies {
     implementation('com.google.code.findbugs:jsr305') { version { strictly '[3.0.2,)'; prefer '3.0.2' } }
-    implementation('net.minecraftforge:srgutils') { version { strictly '[0.4.9,)'; prefer '0.4.9' } }
-    implementation('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.31,5.2)"; prefer '5.1.31' } }
+    implementation('net.minecraftforge:srgutils') { version { strictly '[0.4.11,)'; prefer '0.4.11' } }
+    implementation('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.41,5.2)"; prefer '5.1.41' } }
     implementation('net.minecraftforge:artifactural') { version { strictly '[3.0.8,)'; prefer '3.0.8' } }
     compileOnly('org.parchmentmc:librarian') { version { strictly '[1.2.0,)'; prefer '1.2.0' } }
     implementation('de.siegmar:fastcsv') { version { strictly '[2.1.0,)'; prefer '2.1.0' } }
     implementation('com.google.code.gson:gson') { version { strictly '[2.9.0,)'; prefer '2.9.0' } }
-    implementation('com.google.guava:guava') { version { strictly '[31.0.1-jre,)'; prefer '31.0.1-jre' } }
+    implementation('com.google.guava:guava') { version { strictly '[31.1-jre,)'; prefer '31.1-jre' } }
     implementation('org.apache.commons:commons-lang3') { version { strictly '[3.12.0,4.0.0)'; prefer '3.12.0' } }
     implementation('commons-io:commons-io') { version { strictly '[2.11.0,)'; prefer '2.11.0' } }
-    implementation('org.apache.maven:maven-artifact') { version { strictly '[3.8.4,)'; prefer '3.8.4' } }
+    implementation('org.apache.maven:maven-artifact') { version { strictly '[3.8.5,)'; prefer '3.8.5' } }
     implementation('io.github.noeppi_noeppi.tools:CurseWrapper') { version { strictly '[1.0,)'; prefer '1.0' } }
 
     // See https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228

@@ -49,13 +49,13 @@ public abstract class UpdateMetaTask extends DefaultTask {
             JsonElement json = ModGradle.GSON.fromJson(in, JsonElement.class);
             in.close();
             if (json.isJsonObject() && json.getAsJsonObject().has("pack")) {
-                int formatVersion = Versioning.getDataVersion(minecraft).orElse(Versioning.getResourceVersion(minecraft));
+                int formatVersion = Math.max(Versioning.getResourceVersion(minecraft), Versioning.getDataVersion(minecraft).orElse(0));
                 JsonObject pack = json.getAsJsonObject().getAsJsonObject("pack");
                 pack.addProperty("pack_format", formatVersion);
-                if (formatVersion >= 9) {
+                Versioning.getDataVersion(minecraft).stream().filter(v -> v >= 9).forEach(dataVersion -> {
                     pack.addProperty("forge:resource_pack_format", Versioning.getResourceVersion(minecraft));
-                    pack.addProperty("forge:data_pack_format", formatVersion);
-                }
+                    pack.addProperty("forge:data_pack_format", dataVersion);
+                });
                 Writer out = Files.newBufferedWriter(resourcePackPath, StandardOpenOption.TRUNCATE_EXISTING);
                 ModGradle.GSON.toJson(json, out);
                 out.write("\n");

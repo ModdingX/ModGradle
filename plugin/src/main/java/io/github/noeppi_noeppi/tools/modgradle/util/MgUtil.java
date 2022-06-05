@@ -43,9 +43,4 @@ public class MgUtil {
             return System.getenv("JENKINS_URL") != null;
         });
     }
-    
-    private static boolean getBoolEnv(String name) {
-        String env = System.getenv(name);
-        return Boolean.parseBoolean(env);
-    }
 }

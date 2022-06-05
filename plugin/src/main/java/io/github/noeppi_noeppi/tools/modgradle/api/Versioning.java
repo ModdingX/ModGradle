@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.api;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
@@ -10,30 +11,29 @@ import org.gradle.api.Project;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalInt;
 
 /**
  * Utilities for versioning and to get data for a minecraft version..
  */
 public class Versioning {
 
-    private static final List<Pair<VersionRange, VersionInfo>> VERSION_MAP = new ArrayList<>();
+    private static List<Pair<VersionRange, VersionInfo>> VERSION_MAP = null;
 
-    public static List<Pair<VersionRange, VersionInfo>> versionMap() {
-        if (VERSION_MAP.isEmpty()) {
+    private static List<Pair<VersionRange, VersionInfo>> versionMap() {
+        if (VERSION_MAP == null) {
             try {
                 URI uri = URI.create("https://assets.melanx.de/minecraft_data.json");
-                URLConnection connection = uri.toURL().openConnection();
-                connection.connect();
+                JsonObject json = ModGradle.GSON.fromJson(new InputStreamReader(uri.toURL().openStream()), JsonObject.class);
 
-                JsonObject json = ModGradle.GSON.fromJson(new InputStreamReader((InputStream) connection.getContent()), JsonObject.class);
-
+                ImmutableList.Builder<Pair<VersionRange, VersionInfo>> builder = ImmutableList.builder();
                 for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
                     VersionRange versionRange = VersionRange.createFromVersionSpec(entry.getKey());
 
@@ -49,8 +49,10 @@ public class Versioning {
                         mixin = new MixinVersion(compatibility, release);
                     }
 
-                    VERSION_MAP.add(Pair.of(versionRange, new VersionInfo(java, resource, data, mixin)));
+                    builder.add(Pair.of(versionRange, new VersionInfo(java, resource, data, mixin)));
                 }
+
+                VERSION_MAP = builder.build();
             } catch (IOException | InvalidVersionSpecificationException e) {
                 throw new RuntimeException(e);
             }

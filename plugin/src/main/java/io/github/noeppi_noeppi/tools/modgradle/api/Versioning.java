@@ -30,7 +30,7 @@ public class Versioning {
     private static List<Pair<VersionRange, VersionInfo>> versionMap() {
         if (VERSION_MAP == null) {
             try {
-                URI uri = URI.create("https://assets.melanx.de/minecraft_data.json");
+                URI uri = URI.create("https://assets.melanx.de/minecraft/versions.json");
                 JsonObject json = ModGradle.GSON.fromJson(new InputStreamReader(uri.toURL().openStream()), JsonObject.class);
 
                 ImmutableList.Builder<Pair<VersionRange, VersionInfo>> builder = ImmutableList.builder();
@@ -39,8 +39,8 @@ public class Versioning {
 
                     JsonObject versionInfo = entry.getValue().getAsJsonObject();
                     int java = versionInfo.get("java").getAsInt();
-                    int resource = versionInfo.get("resource_pack").getAsInt();
-                    OptionalInt data = versionInfo.has("data_pack") ? OptionalInt.of(versionInfo.get("data_pack").getAsInt()) : OptionalInt.empty();
+                    int resource = versionInfo.get("resource").getAsInt();
+                    OptionalInt data = versionInfo.has("data") ? OptionalInt.of(versionInfo.get("data").getAsInt()) : OptionalInt.empty();
                     MixinVersion mixin = null;
                     if (versionInfo.has("mixin")) {
                         JsonObject mixinObj = versionInfo.getAsJsonObject("mixin");

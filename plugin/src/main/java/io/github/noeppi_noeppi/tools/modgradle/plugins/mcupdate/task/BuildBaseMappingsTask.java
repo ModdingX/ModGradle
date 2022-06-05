@@ -1,5 +1,6 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.task;
 
+import com.google.common.collect.Streams;
 import io.github.noeppi_noeppi.tools.modgradle.mappings.MappingMerger;
 import net.minecraftforge.srgutils.IMappingFile;
 import org.apache.commons.io.file.PathUtils;
@@ -18,38 +19,38 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
 
 public abstract class BuildBaseMappingsTask extends DefaultTask {
-    
+
     public BuildBaseMappingsTask() {
         this.getAdditionalMappings().convention(this.getProject().provider(ArrayList::new));
         this.getMappingOutput().convention(this.getProject().provider(() -> () -> this.getProject().file("build").toPath().resolve(this.getName()).resolve("mappings.tsrg").toFile()));
     }
-    
+
     @Input
     @Optional
     public abstract Property<URL> getMainMappings();
-    
+
     @Input
     @Optional
     public abstract ListProperty<URL> getAdditionalMappings();
-    
+
     @OutputFile
     public abstract RegularFileProperty getMappingOutput();
-    
+
     @TaskAction
     public void buildMappings(InputChanges changes) throws IOException {
         Path path = this.getMappingOutput().get().getAsFile().toPath();
         PathUtils.createParentDirectories(path);
-        
-        IMappingFile main = this.getMainMappings().getOrNull() == null ? null : this.loadMappings(this.getMainMappings().get());
-        List<IMappingFile> additional = this.getAdditionalMappings().get().stream().map(this::loadMappings).toList();
-        
-        IMappingFile merged = MappingMerger.mergeMappings(main, additional, false);
+
+        IMappingFile merged = MappingMerger.mergeMappings(Streams.concat(
+                Stream.ofNullable(this.getMainMappings().getOrNull()).map(this::loadMappings),
+                this.getAdditionalMappings().get().stream().map(this::loadMappings)
+        ).toList(), false);
         merged.write(path, IMappingFile.Format.TSRG2, false);
     }
-    
+
     private IMappingFile loadMappings(URL url) {
         try (InputStream in = url.openStream()) {
             return IMappingFile.load(in);

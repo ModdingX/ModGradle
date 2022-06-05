@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO make this API
 public abstract class MergeMappingsTask extends DefaultTask {
 
     public MergeMappingsTask() {
@@ -36,12 +37,12 @@ public abstract class MergeMappingsTask extends DefaultTask {
 
     @TaskAction
     protected void mergeMappings(InputChanges inputs) throws IOException {
-        IMappingFile primary = IMappingFile.load(this.getPrimary().get().getAsFile());
         List<IMappingFile> mappings = new ArrayList<>();
+        mappings.add(IMappingFile.load(this.getPrimary().get().getAsFile()));
         for (File file : this.getMappings().get()) {
             mappings.add(IMappingFile.load(file));
         }
-        IMappingFile merged = MappingMerger.mergeMappings(primary, mappings, this.getNoParam().get());
+        IMappingFile merged = MappingMerger.mergeMappings(mappings, this.getNoParam().get());
         merged.write(this.getOutput().getAsFile().get().toPath(), IMappingFile.Format.TSRG2, false);
     }
 }

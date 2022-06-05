@@ -6,13 +6,13 @@ import javax.annotation.Nullable;
 import java.net.URL;
 
 public class McUpdateData {
-    
+
     @Nullable
     public final URL mappings;
 
     @Nullable
     public final URL transformer;
-    
+
     public McUpdateData(JsonObject data) {
         try {
             this.mappings = data.has("mappings") ? new URL(data.get("mappings").getAsString()) : null;

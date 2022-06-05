@@ -1,6 +1,5 @@
 package io.github.noeppi_noeppi.tools.modgradle.mappings;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
@@ -13,8 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OfficialNames {
     
@@ -39,24 +36,7 @@ public class OfficialNames {
         return json;
     }
     
-    public static Map<String, String> readOfficialClassMap(@WillClose InputStream in) throws IOException {
-        IMappingFile mappings = IMappingFile.load(in).reverse();
-        in.close();
-        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-        mappings.getClasses().forEach(cls -> builder.put(cls.getOriginal(), cls.getMapped()));
-        return builder.build();
-    }
-    
-    public static Map<String, String> readOfficialClassMap(@WillClose InputStream client, @WillClose InputStream server) throws IOException {
-        Map<String, String> serverMap = readOfficialClassMap(server);
-        Map<String, String> clientMap = readOfficialClassMap(client);
-        Map<String, String> map = new HashMap<>();
-        map.putAll(serverMap);
-        map.putAll(clientMap);
-        return ImmutableMap.copyOf(map);
-    }
-    
-    public static IMappingFile readOfficialMappings(@WillClose InputStream client, @WillClose InputStream server) throws IOException {
+    private static IMappingFile readOfficialMappings(@WillClose InputStream client, @WillClose InputStream server) throws IOException {
         IMappingFile clientMap = IMappingFile.load(client).reverse();
         IMappingFile serverMap = IMappingFile.load(server).reverse();
         return mergeNoParam(clientMap, serverMap);

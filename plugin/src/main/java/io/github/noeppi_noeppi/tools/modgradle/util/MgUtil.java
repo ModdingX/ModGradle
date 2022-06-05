@@ -4,6 +4,8 @@ import net.minecraftforge.gradle.common.util.Artifact;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
@@ -31,6 +33,14 @@ public class MgUtil {
             }
         } catch (UnknownTaskException | ClassCastException e) {
             return null;
+        }
+    }
+
+    public static String dependencyName(Dependency dependency) {
+        if (dependency instanceof ExternalModuleDependency emd) {
+            return emd.getGroup() + ":" + emd.getName() + ":" + emd.getVersion();
+        } else {
+            return dependency.toString();
         }
     }
     

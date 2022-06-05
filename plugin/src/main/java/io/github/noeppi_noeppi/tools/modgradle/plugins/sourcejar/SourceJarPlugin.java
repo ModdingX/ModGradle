@@ -7,7 +7,7 @@ import io.github.noeppi_noeppi.tools.modgradle.util.JavaHelper;
 import io.github.noeppi_noeppi.tools.modgradle.util.McEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.task.ExtractInheritanceTask;
-import io.github.noeppi_noeppi.tools.modgradle.util.task.MergeMappingsTask;
+import io.github.noeppi_noeppi.tools.modgradle.api.task.MergeMappingsTask;
 import io.github.noeppi_noeppi.tools.modgradle.util.task.SourceMappingsTask;
 import net.minecraftforge.gradle.common.tasks.ApplyRangeMap;
 import net.minecraftforge.gradle.common.tasks.ExtractRangeMap;
@@ -106,7 +106,7 @@ public class SourceJarPlugin implements Plugin<Project> {
             createSourceMappings.getOutput().set(project.file("build").toPath().resolve(createSourceMappings.getName()).resolve("source_mappings.tsrg").toFile());
             
             mergeSourceMappings.getPrimary().set(generateMappings.getOutput());
-            mergeSourceMappings.getMappings().set(project.files(createSourceMappings.getOutput()));
+            mergeSourceMappings.getAdditional().set(project.files(createSourceMappings.getOutput()));
             mergeSourceMappings.getOutput().set(project.file("build").toPath().resolve(mergeSourceMappings.getName()).resolve("source_mappings.tsrg").toFile());
             mergeSourceMappings.getNoParam().set(true);
 

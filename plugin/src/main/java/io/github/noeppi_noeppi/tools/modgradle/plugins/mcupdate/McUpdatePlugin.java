@@ -9,7 +9,7 @@ import io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.task.*;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.task.ExtractInheritanceTask;
-import io.github.noeppi_noeppi.tools.modgradle.util.task.MergeMappingsTask;
+import io.github.noeppi_noeppi.tools.modgradle.api.task.MergeMappingsTask;
 import net.minecraftforge.gradle.common.tasks.ApplyRangeMap;
 import net.minecraftforge.gradle.common.tasks.ExtractRangeMap;
 import org.apache.commons.io.file.PathUtils;
@@ -126,7 +126,7 @@ public class McUpdatePlugin implements Plugin<Project> {
                 // Need to merge the additional mappings with the base mappings
                 MergeMappingsTask mergeMappingsTask = project.getTasks().create("mcupdate_mergeMappings", MergeMappingsTask.class);
                 mergeMappingsTask.getPrimary().set(mappingTask.getMappingOutput());
-                mergeMappingsTask.getMappings().set(project.provider(() -> project.files(transformTask.getOutput())));
+                mergeMappingsTask.getAdditional().set(project.provider(() -> project.files(transformTask.getOutput())));
                 mergeMappingsTask.getNoParam().set(false);
                 mergeMappingsTask.dependsOn(mappingTask, transformTask);
                 nextDependencyTask = mergeMappingsTask;

@@ -8,7 +8,7 @@ import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildCursePa
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildModrinthPackTask;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildServerPackTask;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.task.BuildTargetTask;
-import io.github.noeppi_noeppi.tools.modgradle.util.CurseUtil;
+import io.github.noeppi_noeppi.tools.modgradle.util.curse.CurseUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;

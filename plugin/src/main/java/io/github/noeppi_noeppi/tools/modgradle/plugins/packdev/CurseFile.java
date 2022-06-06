@@ -6,7 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
-import io.github.noeppi_noeppi.tools.modgradle.util.CurseUtil;
+import io.github.noeppi_noeppi.tools.modgradle.util.curse.CurseUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 
 import java.io.BufferedReader;

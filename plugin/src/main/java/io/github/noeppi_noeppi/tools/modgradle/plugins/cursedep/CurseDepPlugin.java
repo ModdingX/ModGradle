@@ -1,7 +1,7 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep;
 
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
-import io.github.noeppi_noeppi.tools.modgradle.util.CurseUtil;
+import io.github.noeppi_noeppi.tools.modgradle.util.curse.CurseUtil;
 import net.minecraftforge.gradle.userdev.DependencyManagementExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

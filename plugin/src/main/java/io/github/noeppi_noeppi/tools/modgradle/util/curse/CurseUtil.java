@@ -1,4 +1,4 @@
-package io.github.noeppi_noeppi.tools.modgradle.util;
+package io.github.noeppi_noeppi.tools.modgradle.util.curse;
 
 import io.github.noeppi_noeppi.tools.cursewrapper.api.CurseWrapper;
 

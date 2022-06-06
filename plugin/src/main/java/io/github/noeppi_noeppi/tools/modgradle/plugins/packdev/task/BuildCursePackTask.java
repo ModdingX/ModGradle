@@ -6,7 +6,7 @@ import io.github.noeppi_noeppi.tools.cursewrapper.api.response.ProjectInfo;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.CurseFile;
 import io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackSettings;
-import io.github.noeppi_noeppi.tools.modgradle.util.CurseUtil;
+import io.github.noeppi_noeppi.tools.modgradle.util.curse.CurseUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import org.apache.commons.io.file.PathUtils;
 

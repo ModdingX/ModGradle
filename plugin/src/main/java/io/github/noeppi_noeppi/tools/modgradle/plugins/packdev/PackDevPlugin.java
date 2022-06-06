@@ -13,10 +13,7 @@ import io.github.noeppi_noeppi.tools.modgradle.util.JavaEnv;
 import io.github.noeppi_noeppi.tools.modgradle.util.MgUtil;
 import io.github.noeppi_noeppi.tools.modgradle.util.Side;
 import net.minecraftforge.gradle.userdev.UserDevExtension;
-import org.gradle.api.Action;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
+import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
@@ -121,7 +118,7 @@ public class PackDevPlugin implements Plugin<Project> {
                     }
                 }
             } catch (Exception e) {
-                throw new RuntimeException("Failed to load modlist", e);
+                throw new RuntimeException("Failed to create data folders.", e);
             }
 
             List<CurseFile> files;
@@ -181,11 +178,13 @@ public class PackDevPlugin implements Plugin<Project> {
         copyTask.setDestinationDir(workingDir);
         copyTask.from(project.fileTree("data/" + Side.COMMON.id));
         if (side != Side.COMMON) copyTask.from(project.fileTree("data/" + side.id));
+        
         // Create some directories because Forge 1.17+ requires it
         JavaCompile jc = MgUtil.task(project, "compileJava", JavaCompile.class);
         if (jc == null) throw new IllegalStateException("Cannot set up PackDev run config: compileJava task not found");
+        Task createDirTask = project.getTasks().create("prepare" + capitalized + "Data", DefaultTask.class);
         //noinspection Convert2Lambda
-        copyTask.doLast(new Action<>() {
+        createDirTask.doLast(new Action<>() {
             @Override
             public void execute(@Nonnull Task task) {
                 try {
@@ -195,10 +194,12 @@ public class PackDevPlugin implements Plugin<Project> {
                 }
             }
         });
+        createDirTask.getOutputs().upToDateWhen(t -> false);
 
         project.getGradle().projectsEvaluated(g -> {
             Task prepareRunsTask = project.getTasks().getByName("prepareRuns");
             prepareRunsTask.dependsOn(copyTask);
+            prepareRunsTask.dependsOn(createDirTask);
         });
     }
 

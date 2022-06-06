@@ -53,21 +53,25 @@ public class IOUtil {
     public static Map<String, String> commonHashes(@WillClose InputStream in) throws IOException {
         MessageDigest sha1;
         MessageDigest sha256;
+        MessageDigest sha512;
         MessageDigest md5;
         try {
             sha1 = MessageDigest.getInstance("SHA1");
             sha256 = MessageDigest.getInstance("SHA256");
+            sha512 = MessageDigest.getInstance("SHA512");
             md5 = MessageDigest.getInstance("MD5");
             try (
                     InputStream in1 = new DigestInputStream(in, sha1);
                     InputStream in2 = new DigestInputStream(in1, sha256);
-                    InputStream in3 = new DigestInputStream(in2, md5)
+                    InputStream in3 = new DigestInputStream(in2, sha512);
+                    InputStream in4 = new DigestInputStream(in3, md5)
             ) {
-                in3.readAllBytes();
+                in4.readAllBytes();
             }
             ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
             map.put("sha1", String.format("%040X", new BigInteger(1, sha1.digest())));
             map.put("sha256", String.format("%064X", new BigInteger(1, sha256.digest())));
+            map.put("sha512", String.format("%128X", new BigInteger(1, sha512.digest())));
             map.put("md5", String.format("%032X", new BigInteger(1, md5.digest())));
             return map.build();
         } catch (NoSuchAlgorithmException e) {

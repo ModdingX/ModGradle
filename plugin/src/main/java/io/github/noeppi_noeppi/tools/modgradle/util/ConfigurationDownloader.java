@@ -17,7 +17,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConfigurationDownloader {
 
     private static final AtomicInteger CONFIGURATION_ID = new AtomicInteger(0);
-
+    
+    @Nullable
+    public static Executable executable(Project project, String dependency) throws IOException {
+        return executable(project, project.getDependencies().create(dependency));
+    }
+    
+    @Nullable
+    public static FileCollection download(Project project, String dependency) {
+        return download(project, project.getDependencies().create(dependency));
+    }
+    
+    @Nullable
+    public static FileCollection download(Project project, String dependency, Action<Configuration> action) {
+        return download(project, project.getDependencies().create(dependency), action);
+    }
+    
+    @Nullable
     public static Executable executable(Project project, Dependency dependency) throws IOException {
         FileCollection files = download(project, dependency);
         if (files == null) return null;

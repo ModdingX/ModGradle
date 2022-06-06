@@ -1,6 +1,8 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.task;
 
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
+import io.github.noeppi_noeppi.tools.modgradle.api.task.ClasspathExec;
+import io.github.noeppi_noeppi.tools.modgradle.util.ArgumentUtil;
 import net.minecraftforge.gradle.common.tasks.JarExec;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
@@ -12,12 +14,11 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
-public abstract class StageLocalTask extends JarExec {
+public abstract class StageLocalTask extends ClasspathExec {
     
     public StageLocalTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
         this.getArgs().addAll("apply", "--sources", "{sources}", "--rename", "{rename}", "--comments");
-        this.setRuntimeJavaVersion(ModGradle.TARGET_JAVA);
         this.getOutputs().upToDateWhen(t -> false);
     }
     
@@ -27,12 +28,11 @@ public abstract class StageLocalTask extends JarExec {
     @InputFiles
     public abstract Property<FileCollection> getSources();
 
-    @Nonnull
     @Override
-    protected List<String> filterArgs(@Nonnull List<String> args) {
-        return this.replaceArgs(args, Map.of(
-                "{sources}", this.getSources().get().getAsPath(),
-                "{rename}", this.getRenameMap().getAsFile().get().toPath().toAbsolutePath().normalize().toString()
-        ), Map.of());
+    protected List<String> processArgs(List<String> args) {
+        return ArgumentUtil.replaceArgs(args, Map.of(
+                "sources", List.of(this.getSources()),
+                "rename", List.of(this.getRenameMap())
+        ));
     }
 }

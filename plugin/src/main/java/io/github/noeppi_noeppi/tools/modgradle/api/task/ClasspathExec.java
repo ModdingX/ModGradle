@@ -88,7 +88,7 @@ public abstract class ClasspathExec extends DefaultTask {
     
     @TaskAction
     public void exec(InputChanges changes) throws IOException {
-        ConfigurationDownloader.Executable executable = ConfigurationDownloader.executable(this.getProject(), this.getProject().getDependencies().create(this.getTool().get()));
+        ConfigurationDownloader.Executable executable = ConfigurationDownloader.executable(this.getProject(), this.getTool().get());
         if (executable == null) throw new IllegalStateException("Could not resolve tool: " + this.getTool().get());
         List<String> arguments = this.processArgs(this.getArgs().get());
         Path logFile = this.getLogFile().get().getAsFile().toPath().toAbsolutePath().normalize();

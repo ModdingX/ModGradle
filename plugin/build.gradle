@@ -87,7 +87,7 @@ publishing {
     }
     repositories {
         maven {
-            url rootProject.file('../MinecraftUtilities/maven')
+            url rootProject.file('../moddingx/maven')
         }
     }
 }

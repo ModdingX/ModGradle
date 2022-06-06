@@ -1,6 +1,8 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.task;
 
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
+import io.github.noeppi_noeppi.tools.modgradle.api.task.ClasspathExec;
+import io.github.noeppi_noeppi.tools.modgradle.util.ArgumentUtil;
 import net.minecraftforge.gradle.common.tasks.JarExec;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.InputFile;
@@ -12,12 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class TransformTask extends JarExec {
+public abstract class TransformTask extends ClasspathExec {
 
     public TransformTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
-        this.getArgs().addAll("transform", "--inheritance", "{inheritance}", "--output", "{output}");
-        this.setRuntimeJavaVersion(ModGradle.TARGET_JAVA);
+        this.getArgs().addAll("transform", "--inheritance", "{inheritance}", "--mapping", "{mappings}", "--transformer", "{transformer}", "--output", "{output}");
         this.getOutput().convention(this.getProject().provider(() -> () -> this.getProject().file("build").toPath().resolve(this.getName()).resolve("mappings.tsrg").toFile()));
     }
     
@@ -35,19 +36,13 @@ public abstract class TransformTask extends JarExec {
     @OutputFile
     public abstract RegularFileProperty getOutput();
 
-    @Nonnull
     @Override
-    protected List<String> filterArgs(@Nonnull List<String> args) {
-        List<String> built = new ArrayList<>(this.replaceArgs(args, Map.of(
-                "{inheritance}", this.getInheritance().getAsFile().get().toPath().toAbsolutePath().normalize().toString(),
-                "{output}", this.getOutput().getAsFile().get().toPath().toAbsolutePath().normalize().toString()
-        ), null));
-        if (this.getMappings().isPresent()) {
-            built.addAll(List.of("--mappings", this.getMappings().get().getAsFile().toPath().toAbsolutePath().normalize().toString()));
-        }
-        if (this.getTransformer().isPresent()) {
-            built.addAll(List.of("--transformer", this.getTransformer().get().getAsFile().toPath().toAbsolutePath().normalize().toString()));
-        }
-        return built;
+    protected List<String> processArgs(List<String> args) {
+        return ArgumentUtil.replaceArgs(args, Map.of(
+                "inheritance", List.of(this.getInheritance()),
+                "mappings", this.getMappings().isPresent() ? List.of(this.getMappings()) : List.of(),
+                "transformer", this.getTransformer().isPresent() ? List.of(this.getTransformer()) : List.of(),
+                "output", List.of(this.getOutput())
+        ));
     }
 }

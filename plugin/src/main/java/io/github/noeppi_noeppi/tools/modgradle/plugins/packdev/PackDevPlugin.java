@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 public class PackDevPlugin implements Plugin<Project> {
 
     @Override
-    public void apply(Project project) {
+    public void apply(@Nonnull Project project) {
         ModGradle.initialiseProject(project);
         if (!project.getPlugins().hasPlugin("net.minecraftforge.gradle"))
             throw new IllegalStateException("The PackDev plugin requires the ForgeGradle userdev plugin.");

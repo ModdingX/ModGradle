@@ -6,12 +6,8 @@ import org.gradle.api.Project;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ModGradle {
-    
-    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:1.1.1:fatjar";
-    public static final String DOCLET_META = "io.github.noeppi_noeppi.tools:JavaDocletMeta:0.0.6:fatjar";
 
     // Target minecraft version. Acts as default
     // ModGradle can still be used with other minecraft versions
@@ -23,31 +19,55 @@ public class ModGradle {
     // not for the toolchain
     public static final int TARGET_JAVA = 17;
 
-    @SuppressWarnings("TrivialFunctionalExpressionUsage")
-    public static final Gson GSON = ((Supplier<Gson>) () -> {
+    public static final String SOURCE_TRANSFORM = "io.github.noeppi_noeppi.tools:SourceTransform:2.0.0";
+    public static final String DOCLET_META = "io.github.noeppi_noeppi.tools:JavaDocletMeta:1.0.0";
+
+    public static final Gson GSON;
+    public static final Gson INTERNAL;
+    
+    static {
         GsonBuilder builder = new GsonBuilder();
         builder.disableHtmlEscaping();
         builder.setLenient();
         builder.setPrettyPrinting();
-        return builder.create();
-    }).get();
+        GSON = builder.create();
+    }
 
-    @SuppressWarnings("TrivialFunctionalExpressionUsage")
-    public static final Gson INTERNAL = ((Supplier<Gson>) () -> {
+    static {
         GsonBuilder builder = new GsonBuilder();
         builder.disableHtmlEscaping();
-        return builder.create();
-    }).get();
-    
+        INTERNAL = builder.create();
+    }
+
     private static final Set<Project> initialised = new HashSet<>();
     
     public static synchronized void initialiseProject(Project project) {
         if (!initialised.contains(project)) {
             initialised.add(project);
+            
+            // MelanX maven is required for tools used by ModGradle
             project.getRepositories().maven(r -> {
-                r.setUrl("https://noeppi-noeppi.github.io/MinecraftUtilities/maven");
+                r.setUrl("https://maven.melanx.de");
                 r.content(c -> c.includeGroup("io.github.noeppi_noeppi.tools"));
             });
+            
+            // Forge Maven is required for dependencies like SrgUtils
+            project.getRepositories().maven(r -> {
+                r.setUrl("https://maven.minecraftforge.net");
+                r.content(c -> c.includeGroup("net.minecraftforge"));
+            });
+            
+            // Parchment Maven is required for dependencies like Feather
+            project.getRepositories().maven(r -> {
+                r.setUrl("https://maven.parchmentmc.org");
+                r.content(c -> {
+                    c.includeGroup("org.parchmentmc");
+                    c.excludeGroup("org.parchmentmc.data");
+                });
+            });
+            
+            // Required for dependencies
+            project.getRepositories().mavenCentral();
         }
     }
 }

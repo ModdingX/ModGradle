@@ -104,7 +104,6 @@ public class McUpdatePlugin implements Plugin<Project> {
             inheritanceTask.getTool().set(ext.getTool());
             inheritanceTask.getClasses().set(compileTask.getDestinationDirectory());
             inheritanceTask.getLibraryPath().set(JavaEnvironment.getLibraryPath(project, compileTask));
-            inheritanceTask.getGenerateLocals().set(true);
             inheritanceTask.dependsOn(compileTask);
 
             TransformTask transformTask = project.getTasks().create("mcupdate_transform", TransformTask.class);

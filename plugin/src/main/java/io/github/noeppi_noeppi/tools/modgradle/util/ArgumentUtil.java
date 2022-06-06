@@ -1,5 +1,9 @@
 package io.github.noeppi_noeppi.tools.modgradle.util;
 
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.provider.Provider;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -8,7 +12,7 @@ import java.util.Map;
 
 public class ArgumentUtil {
 
-    protected final List<String> replaceArgs(List<String> args, Map<String, List<?>> replacements) {
+    public static List<String> replaceArgs(List<String> args, Map<String, List<?>> replacements) {
         if (replacements.isEmpty()) return args;
         ArrayList<String> newArgs = new ArrayList<>();
         for (String arg : args) {
@@ -39,10 +43,16 @@ public class ArgumentUtil {
     public static String toArgString(Object value) {
         if (value instanceof String str) {
             return str;
+        }  else if (value instanceof Provider<?> provider) {
+            return toArgString(provider.get());
         }  else if (value instanceof File file) {
             return file.toPath().toAbsolutePath().normalize().toString();
         } else if (value instanceof Path  path) {
             return path.toAbsolutePath().normalize().toString();
+        } else if (value instanceof FileCollection fc) {
+            return fc.getAsPath();
+        } else if (value instanceof RegularFile file) {
+            return file.getAsFile().toPath().toAbsolutePath().normalize().toString();
         } else {
             return value.toString();
         }

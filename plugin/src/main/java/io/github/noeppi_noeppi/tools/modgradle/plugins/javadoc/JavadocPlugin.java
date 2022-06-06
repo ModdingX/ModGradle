@@ -2,7 +2,7 @@ package io.github.noeppi_noeppi.tools.modgradle.plugins.javadoc;
 
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.api.task.DownloadTask;
-import net.minecraftforge.gradle.common.util.MavenArtifactDownloader;
+import io.github.noeppi_noeppi.tools.modgradle.util.ConfigurationDownloader;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -17,7 +17,6 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class JavadocPlugin implements Plugin<Project> {
@@ -26,7 +25,7 @@ public class JavadocPlugin implements Plugin<Project> {
     public void apply(@Nonnull Project project) {
         ModGradle.initialiseProject(project);
         AtomicReference<DownloadTask> cssTask = new AtomicReference<>(null);
-        AtomicReference<File> docletMetaFile = new AtomicReference<>(null);
+        AtomicReference<FileCollection> docletMetaFiles = new AtomicReference<>(null);
         // Copy to a list first to avoid ConcurrentModificationException
         project.getTasks().withType(Javadoc.class).stream().toList().forEach(jd -> {
             JavadocConfigureTask configureTask = project.getTasks().create(jd.getName() + "Configure", JavadocConfigureTask.class);
@@ -49,10 +48,10 @@ public class JavadocPlugin implements Plugin<Project> {
             }
             jd.dependsOn(cssTask.get());
             
-            if (docletMetaFile.get() == null) {
-                docletMetaFile.set(MavenArtifactDownloader.download(project, ModGradle.DOCLET_META, false));
+            if (docletMetaFiles.get() == null) {
+                docletMetaFiles.set(ConfigurationDownloader.download(project, ModGradle.DOCLET_META));
             }
-            File resolvedDocletMetaFile = docletMetaFile.get();
+            FileCollection resolvedDocletMetaFiles = docletMetaFiles.get();
             
             project.afterEvaluate(p -> {
                 jd.options(o -> {
@@ -89,7 +88,7 @@ public class JavadocPlugin implements Plugin<Project> {
                     MinimalJavadocOptions mjo = jd.getOptions();
                     o.destinationDirectory(new File(jd.getDestinationDir(), "meta"));
                     o.setClasspath(mjo.getClasspath());
-                    o.setDocletpath(List.of(resolvedDocletMetaFile));
+                    o.setDocletpath(resolvedDocletMetaFiles.getFiles().stream().toList());
                     o.setDoclet("io.github.noeppi_noeppi.tools.java_doclet_meta.Main");
                     o.optionFiles(configureTask.getDocletMetaOptions().get().getAsFile());
                 });

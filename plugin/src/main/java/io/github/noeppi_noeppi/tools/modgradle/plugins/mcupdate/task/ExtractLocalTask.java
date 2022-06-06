@@ -1,6 +1,8 @@
 package io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.task;
 
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
+import io.github.noeppi_noeppi.tools.modgradle.api.task.ClasspathExec;
+import io.github.noeppi_noeppi.tools.modgradle.util.ArgumentUtil;
 import net.minecraftforge.gradle.common.tasks.JarExec;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
@@ -15,12 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ExtractLocalTask extends JarExec {
+public abstract class ExtractLocalTask extends ClasspathExec {
     
     public ExtractLocalTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
-        this.getArgs().addAll("local", "--inheritance", "{inheritance}", "--sources", "{sources}", "--classpath", "{classpath}", "--transformer", "{transformer}", "--output", "{output}");
-        this.setRuntimeJavaVersion(ModGradle.TARGET_JAVA);
+        this.getArgs().addAll("local", "--inheritance", "{inheritance}", "--sources", "{sources}", "--classpath", "{classpath}", "--transformer", "{transformer}", "--mappings", "{mappings}", "--output", "{output}");
         this.getOutput().convention(this.getProject().provider(() -> () -> this.getProject().file("build").toPath().resolve(this.getName()).resolve("local.txt").toFile()));
     }
     
@@ -43,19 +44,15 @@ public abstract class ExtractLocalTask extends JarExec {
     @OutputFile
     public abstract RegularFileProperty getOutput();
 
-    @Nonnull
     @Override
-    protected List<String> filterArgs(@Nonnull List<String> args) {
-        List<String> built = new ArrayList<>(this.replaceArgs(args, Map.of(
-                "{inheritance}", this.getInheritance().getAsFile().get().toPath().toAbsolutePath().normalize().toString(),
-                "{sources}", this.getSources().get().getAsPath(),
-                "{classpath}", this.getLibraryPath().get().getAsPath(),
-                "{transformer}", this.getTransformer().get().getAsFile().toPath().toAbsolutePath().normalize().toString(),
-                "{output}", this.getOutput().getAsFile().get().toPath().toAbsolutePath().normalize().toString()
-        ), null));
-        if (this.getMappings().isPresent()) {
-            built.addAll(List.of("--mappings", this.getMappings().get().getAsFile().toPath().toAbsolutePath().normalize().toString()));
-        }
-        return built;
+    protected List<String> processArgs(List<String> args) {
+        return ArgumentUtil.replaceArgs(args, Map.of(
+                "inheritance", List.of(this.getInheritance()),
+                "sources", List.of(this.getSources()),
+                "classpath", List.of(this.getLibraryPath()),
+                "transformer", List.of(this.getTransformer()),
+                "mappings", this.getMappings().isPresent() ? List.of(this.getMappings()) : List.of(),
+                "output", List.of(this.getOutput())
+        ));
     }
 }

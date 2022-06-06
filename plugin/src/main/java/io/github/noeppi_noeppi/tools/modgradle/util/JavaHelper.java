@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class JavaHelper {
     
@@ -35,25 +36,27 @@ public class JavaHelper {
 
         for (Path source : sourceDirs) {
             if (Files.isDirectory(source.toAbsolutePath().normalize())) {
-                //noinspection CodeBlock2Expr
-                Files.walk(source).filter((path) -> {
-                    if (Files.isDirectory(path) && !path.getFileName().toString().equals("META-INF")
-                            && !JavaHelper.isKeyword(path.getFileName().toString())) {
-                        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-                            for (Path content : stream) {
-                                if (Files.isRegularFile(content) && content.getFileName().toString().endsWith(".java"))
-                                    return true;
+                try (Stream<Path> paths = Files.walk(source)) {
+                    //noinspection CodeBlock2Expr
+                    paths.filter((path) -> {
+                        if (Files.isDirectory(path) && !path.getFileName().toString().equals("META-INF")
+                                && !JavaHelper.isKeyword(path.getFileName().toString())) {
+                            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+                                for (Path content : stream) {
+                                    if (Files.isRegularFile(content) && content.getFileName().toString().endsWith(".java"))
+                                        return true;
+                                }
+                                return false;
+                            } catch (IOException e) {
+                                throw new IllegalStateException("Could not read directory " + source.relativize(path).normalize());
                             }
+                        } else {
                             return false;
-                        } catch (IOException e) {
-                            throw new IllegalStateException("Could not read directory " + source.relativize(path).normalize());
                         }
-                    } else {
-                        return false;
-                    }
-                }).forEach((path) -> {
-                    packages.add(source.relativize(path).normalize().toString().replace('/', '.'));
-                });
+                    }).forEach((path) -> {
+                        packages.add(source.relativize(path).normalize().toString().replace('/', '.'));
+                    });
+                }
             }
         }
         

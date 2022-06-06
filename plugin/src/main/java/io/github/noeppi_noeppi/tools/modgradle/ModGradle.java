@@ -3,17 +3,13 @@ package io.github.noeppi_noeppi.tools.modgradle;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.gradle.api.Project;
+import org.gradle.api.invocation.Gradle;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ModGradle {
-
-    // Target minecraft version. Acts as default
-    // ModGradle can still be used with other minecraft versions
-    // For example this is the fallback when using an unknown
-    // version in the Versioning class
-    public static final String TARGET_MINECRAFT = "1.18.2";
 
     // Target java version for ModGradle and external tools
     // not for the toolchain
@@ -40,9 +36,14 @@ public class ModGradle {
     }
 
     private static final Set<Project> initialised = new HashSet<>();
+    private static Gradle gradleInstance = null;
     
     public static synchronized void initialiseProject(Project project) {
         if (!initialised.contains(project)) {
+            if (gradleInstance == null) {
+                gradleInstance = project.getGradle();
+            }
+            
             initialised.add(project);
             
             // MelanX maven is required for tools used by ModGradle
@@ -69,5 +70,10 @@ public class ModGradle {
             // Required for dependencies
             project.getRepositories().mavenCentral();
         }
+    }
+    
+    @Nullable
+    public static Gradle gradle() {
+        return gradleInstance;
     }
 }

@@ -1,64 +1,106 @@
 package io.github.noeppi_noeppi.tools.modgradle.api;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.noeppi_noeppi.tools.modgradle.ModGradle;
 import io.github.noeppi_noeppi.tools.modgradle.util.StringUtil;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.maven.artifact.versioning.*;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.gradle.api.Project;
+import org.gradle.api.invocation.Gradle;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
+import java.io.Reader;
+import java.io.Writer;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.stream.Stream;
 
 /**
  * Utilities for versioning and to get data for a minecraft version..
  */
 public class Versioning {
 
-    private static List<Pair<VersionRange, VersionInfo>> VERSION_MAP = null;
+    private static final Object LOCK = new Object();
+    private static Map<String, VersionInfo> VERSION_MAP = null;
 
-    private static List<Pair<VersionRange, VersionInfo>> versionMap() {
-        if (VERSION_MAP == null) {
-            try {
-                URI uri = URI.create("https://assets.melanx.de/minecraft/versions.json");
-                JsonObject json = ModGradle.GSON.fromJson(new InputStreamReader(uri.toURL().openStream()), JsonObject.class);
-
-                ImmutableList.Builder<Pair<VersionRange, VersionInfo>> builder = ImmutableList.builder();
-                for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-                    VersionRange versionRange = VersionRange.createFromVersionSpec(entry.getKey());
-
-                    JsonObject versionInfo = entry.getValue().getAsJsonObject();
-                    int java = versionInfo.get("java").getAsInt();
-                    int resource = versionInfo.get("resource").getAsInt();
-                    OptionalInt data = versionInfo.has("data") ? OptionalInt.of(versionInfo.get("data").getAsInt()) : OptionalInt.empty();
-                    MixinVersion mixin = null;
-                    if (versionInfo.has("mixin")) {
-                        JsonObject mixinObj = versionInfo.getAsJsonObject("mixin");
-                        String compatibility = mixinObj.get("compatibility").getAsString();
-                        String release = mixinObj.get("release").getAsString();
-                        mixin = new MixinVersion(compatibility, release);
+    private static Map<String, VersionInfo> versionMap() {
+        synchronized (LOCK) {
+            if (VERSION_MAP == null) {
+                try {
+                    URL url = new URL("https://assets.melanx.de/minecraft/versions.json");
+                    
+                    Gradle gradle = ModGradle.gradle();
+                    Path cachePath = null;
+                    if (gradle != null) {
+                        cachePath = gradle.getGradleUserHomeDir().toPath().resolve("caches").resolve("modgradle").resolve("versions.json").toAbsolutePath().normalize();
+                    }
+                    
+                    JsonObject json = null;
+                    try (Reader in = new InputStreamReader(url.openStream())) {
+                        json = ModGradle.INTERNAL.fromJson(in, JsonObject.class);
+                        if (cachePath != null) {
+                            try {
+                                Files.createDirectories(cachePath.getParent());
+                                Writer writer = Files.newBufferedWriter(cachePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                                writer.write(ModGradle.INTERNAL.toJson(json) + "\n");
+                                writer.close();
+                            } catch (IOException e) {
+                                Files.deleteIfExists(cachePath);
+                            }
+                        }
+                    } catch (IOException | JsonSyntaxException e) {
+                        if (json == null && cachePath != null) {
+                            // Failed to load from server, use local cache
+                            try (Reader in = new InputStreamReader(url.openStream())) {
+                                json = ModGradle.INTERNAL.fromJson(in, JsonObject.class);
+                            } catch (IOException | JsonSyntaxException s) {
+                                e.addSuppressed(s);
+                                throw new RuntimeException(e);
+                            }
+                        }
                     }
 
-                    builder.add(Pair.of(versionRange, new VersionInfo(java, resource, data, mixin)));
+                    Objects.requireNonNull(json, "Version data not loaded");
+
+                    ImmutableMap.Builder<String, VersionInfo> builder = ImmutableMap.builder();
+                    for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                        String version = entry.getKey().strip();
+                        
+                        JsonObject versionObj = entry.getValue().getAsJsonObject();
+                        
+                        int java = versionObj.get("java").getAsInt();
+                        int resource = versionObj.get("resource").getAsInt();
+                        OptionalInt data = versionObj.has("data") ? OptionalInt.of(versionObj.get("data").getAsInt()) : OptionalInt.empty();
+                        
+                        MixinVersion mixin = null;
+                        if (versionObj.has("mixin")) {
+                            String compatibility = versionObj.getAsJsonObject("mixin").get("compatibility").getAsString();
+                            String release = versionObj.getAsJsonObject("mixin").get("release").getAsString();
+                            mixin = new MixinVersion(compatibility, release);
+                        }
+
+                        builder.put(version, new VersionInfo(java, resource, data, mixin));
+                    }
+                    
+                    VERSION_MAP = builder.build();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-
-                VERSION_MAP = builder.build();
-            } catch (IOException | InvalidVersionSpecificationException e) {
-                throw new RuntimeException(e);
             }
+            return VERSION_MAP;
         }
-
-        return VERSION_MAP;
     }
 
     /**
@@ -76,18 +118,20 @@ public class Versioning {
             if (!Files.isDirectory(mavenPath)) {
                 return baseVersion + ".0";
             }
-            return baseVersion + "." + Files.walk(mavenPath)
-                    .filter(path -> Files.isRegularFile(path) && path.getFileName().toString().endsWith(".pom"))
-                    .map(path -> {
-                        String fileName = path.getFileName().toString();
-                        return fileName.substring(fileName.indexOf('-', artifact.length()) + 1, fileName.length() - 4);
-                    })
-                    .filter(version -> version.startsWith(baseVersion))
-                    .max(Comparator.comparing(ComparableVersion::new))
-                    .map(ver -> ver.substring(StringUtil.lastIndexWhere(ver, chr -> "0123456789".indexOf(chr) < 0) + 1))
-                    .map(ver -> ver.isEmpty() ? "-1" : ver)
-                    .map(ver -> Integer.toString(Integer.parseInt(ver) + 1))
-                    .orElse("0");
+            try (Stream<Path> paths = Files.walk(mavenPath)) {
+                return baseVersion + "." + paths
+                        .filter(path -> Files.isRegularFile(path) && path.getFileName().toString().endsWith(".pom"))
+                        .map(path -> {
+                            String fileName = path.getFileName().toString();
+                            return fileName.substring(fileName.indexOf('-', artifact.length()) + 1, fileName.length() - 4);
+                        })
+                        .filter(version -> version.startsWith(baseVersion))
+                        .max(Comparator.comparing(ComparableVersion::new))
+                        .map(ver -> ver.substring(StringUtil.lastIndexWhere(ver, chr -> "0123456789".indexOf(chr) < 0) + 1))
+                        .map(ver -> ver.isEmpty() ? "-1" : ver)
+                        .map(ver -> Integer.toString(Integer.parseInt(ver) + 1))
+                        .orElse("0");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -124,17 +168,25 @@ public class Versioning {
     }
 
     private static VersionInfo getMinecraftVersion(String minecraft) {
+        Map<String, VersionInfo> map = versionMap();
+        if (map.containsKey(minecraft)) {
+            return map.get(minecraft);
+        }
+        
+        // No data for that version
+        // For new minor releases, take the data of the previous minor release
         ArtifactVersion v = new DefaultArtifactVersion(minecraft);
-        for (Pair<VersionRange, VersionInfo> pair : versionMap()) {
-            if (pair.getLeft().containsVersion(v)) {
-                return pair.getRight();
+        if (v.getMajorVersion() > 0) {
+            for (int release = v.getIncrementalVersion() - 1; release >= 0; release -= 1) {
+                String ver = v.getMajorVersion() + "." + v.getMinorVersion() + "." + release;
+                if (map.containsKey(ver)) {
+                    return map.get(ver);
+                }
             }
         }
-        if (ModGradle.TARGET_MINECRAFT.equals(minecraft)) {
-            throw new IllegalStateException("Version information missing for default version: " + ModGradle.TARGET_MINECRAFT);
-        } else {
-            return getMinecraftVersion(ModGradle.TARGET_MINECRAFT);
-        }
+        
+        // New non-minor release, fail here, the data needs to be updated.
+        throw new IllegalStateException("Version information missing for " + minecraft);
     }
 
     private record VersionInfo(int java, int resource, OptionalInt data, @Nullable MixinVersion mixin) {}

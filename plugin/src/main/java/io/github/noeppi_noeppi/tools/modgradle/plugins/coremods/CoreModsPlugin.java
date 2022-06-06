@@ -21,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class CoreModsPlugin implements Plugin<Project> {
     
@@ -81,11 +82,13 @@ public class CoreModsPlugin implements Plugin<Project> {
     }
     
     public static List<Path> getRelativeCoreModPaths(Path path) throws IOException {
-        return Files.walk(path)
-                .filter(Files::isRegularFile)
-                .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".ts"))
-                .filter(p -> !p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".d.ts"))
-                .map(p -> path.relativize(p.toAbsolutePath()))
-                .toList();
+        try (Stream<Path> paths = Files.walk(path)) {
+            return paths
+                    .filter(Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".ts"))
+                    .filter(p -> !p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".d.ts"))
+                    .map(p -> path.relativize(p.toAbsolutePath()))
+                    .toList();
+        }
     }
 }

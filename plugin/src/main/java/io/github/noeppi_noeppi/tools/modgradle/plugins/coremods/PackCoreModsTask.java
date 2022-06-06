@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public abstract class PackCoreModsTask extends DefaultTask {
     
@@ -44,11 +45,15 @@ public abstract class PackCoreModsTask extends DefaultTask {
     @TaskAction
     public void packCoreMods(InputChanges changes) throws IOException {
         Path source = this.getSourceDir().get().getAsFile().toPath().toAbsolutePath().normalize();
-        List<Path> coreMods = Files.walk(source)
+        
+        List<Path> coreMods;
+        try (Stream<Path> paths = Files.walk(source)) {
+            coreMods = paths
                 .filter(Files::isRegularFile)
                 .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".js"))
                 .map(p -> source.relativize(p.toAbsolutePath()))
                 .toList();
+        }
         
         Path target = this.getTargetDir().get().getAsFile().toPath();
         Files.createDirectories(target);

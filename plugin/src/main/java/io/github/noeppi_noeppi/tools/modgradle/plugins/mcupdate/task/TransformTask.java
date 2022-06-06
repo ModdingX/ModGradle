@@ -18,7 +18,7 @@ public abstract class TransformTask extends ClasspathExec {
 
     public TransformTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
-        this.getArgs().addAll("transform", "--inheritance", "{inheritance}", "--mapping", "{mappings}", "--transformer", "{transformer}", "--output", "{output}");
+        this.getArgs().addAll("transform", "--inheritance", "{inheritance}", "--mappings", "{mappings}", "--transformer", "{transformer}", "--output", "{output}");
         this.getOutput().convention(this.getProject().provider(() -> () -> this.getProject().file("build").toPath().resolve(this.getName()).resolve("mappings.tsrg").toFile()));
     }
     

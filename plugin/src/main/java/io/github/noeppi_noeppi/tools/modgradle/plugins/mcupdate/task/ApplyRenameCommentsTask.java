@@ -14,7 +14,7 @@ public abstract class ApplyRenameCommentsTask extends ClasspathExec {
     
     public ApplyRenameCommentsTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
-        this.getArgs().addAll("comments", "--sources", "{sources}");
+        this.getArgs().addAll("rename", "--sources", "{sources}", "--comments");
         this.getOutputs().upToDateWhen(t -> false);
     }
 

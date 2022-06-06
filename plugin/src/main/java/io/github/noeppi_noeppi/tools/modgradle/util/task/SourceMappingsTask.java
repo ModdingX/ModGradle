@@ -14,7 +14,7 @@ public abstract class SourceMappingsTask extends ClasspathExec {
     
     public SourceMappingsTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
-        this.getArgs().addAll("transform", "--inheritance", "{inheritance}", "--mappings", "{mappings}", "--output", "{output}");
+        this.getArgs().addAll("transform", "--inheritance", "{inheritance}", "--mappings", "{mappings}", "--noparam", "--output", "{output}");
     }
 
     @InputFile

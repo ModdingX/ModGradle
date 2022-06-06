@@ -18,7 +18,7 @@ public abstract class StageLocalTask extends ClasspathExec {
     
     public StageLocalTask() {
         this.getTool().set(ModGradle.SOURCE_TRANSFORM);
-        this.getArgs().addAll("apply", "--sources", "{sources}", "--rename", "{rename}", "--comments");
+        this.getArgs().addAll("rename", "--sources", "{sources}", "--rename", "{rename}", "--comments");
         this.getOutputs().upToDateWhen(t -> false);
     }
     

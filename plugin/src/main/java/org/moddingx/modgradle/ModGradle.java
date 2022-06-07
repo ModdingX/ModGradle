@@ -62,6 +62,7 @@ public class ModGradle {
                 r.setUrl("https://maven.parchmentmc.org");
                 r.content(c -> {
                     c.includeGroup("org.parchmentmc");
+                    c.includeGroup("org.parchmentmc.feather");
                     c.excludeGroup("org.parchmentmc.data");
                 });
             });

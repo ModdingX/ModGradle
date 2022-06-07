@@ -8,10 +8,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Nested;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.jvm.toolchain.JavaLanguageVersion;
 import org.gradle.jvm.toolchain.JavaLauncher;
 import org.gradle.jvm.toolchain.JavaToolchainService;
@@ -37,9 +34,11 @@ import java.util.List;
 public abstract class ClasspathExec extends DefaultTask {
     
     public ClasspathExec() {
+        // Requires our repositories in most cases. Initialise the project:
+        ModGradle.initialiseProject(this.getProject());
+        
         this.getJavaVersion().convention(ModGradle.TARGET_JAVA);
         this.getJavaLauncher().convention(this.getProject().provider(() -> this.getJavaToolchainService().launcherFor(spec -> spec.getLanguageVersion().set(this.getJavaVersion().map(JavaLanguageVersion::of))).get()));
-        this.getWorkingDirectory().set(this.getProject().file("build").toPath().resolve(this.getName()).toFile());
         this.getLogFile().set(this.getProject().file("build").toPath().resolve(this.getName()).resolve("log.txt").toFile());
     }
 
@@ -58,7 +57,8 @@ public abstract class ClasspathExec extends DefaultTask {
     /**
      * The directory to start the process in.
      */
-    @OutputFile
+    @Optional
+    @InputDirectory
     public abstract DirectoryProperty getWorkingDirectory();
     
     /**
@@ -91,20 +91,29 @@ public abstract class ClasspathExec extends DefaultTask {
         ConfigurationDownloader.Executable executable = ConfigurationDownloader.executable(this.getProject(), this.getTool().get());
         if (executable == null) throw new IllegalStateException("Could not resolve tool: " + this.getTool().get());
         List<String> arguments = this.processArgs(this.getArgs().get());
+        
+        Path workDir;
+        if (this.getWorkingDirectory().isPresent()) {
+            workDir = this.getWorkingDirectory().get().getAsFile().toPath().toAbsolutePath().normalize();
+        } else {
+            workDir = this.getProject().file("build").toPath().resolve(this.getName()).toAbsolutePath().normalize();
+        }
+        
         Path logFile = this.getLogFile().get().getAsFile().toPath().toAbsolutePath().normalize();
         PathUtils.createParentDirectories(logFile);
+        Files.createDirectories(workDir);
         try (PrintStream out = new PrintStream(Files.newOutputStream(logFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
             String java = this.getJavaLauncher().get().getExecutablePath().getAsFile().toPath().toAbsolutePath().normalize().toString();
             out.println("Java: " + java);
             out.println("Classpath: " + executable.classpath().getAsPath());
-            out.println("Working Directory: " + this.getWorkingDirectory().get().getAsFile().toPath().toAbsolutePath().normalize());
+            out.println("Working Directory: " + workDir);
             out.println("Main Class: " + executable.mainClass());
             out.println("Arguments: " + String.join(" ", arguments));
             out.println("\n");
             this.getProject().javaexec(spec -> {
                 spec.setExecutable(java);
                 spec.setClasspath(executable.classpath());
-                spec.setWorkingDir(this.getWorkingDirectory().get().getAsFile());
+                spec.setWorkingDir(workDir.toFile());
                 spec.getMainClass().set(executable.mainClass());
                 spec.setArgs(arguments);
                 

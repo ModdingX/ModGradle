@@ -34,7 +34,11 @@ public class ArgumentUtil {
                             newArgs.add(toArgString(value));
                         }
                     }
+                } else {
+                    newArgs.add(arg);
                 }
+            } else {
+                newArgs.add(arg);
             }
         }
         return newArgs;

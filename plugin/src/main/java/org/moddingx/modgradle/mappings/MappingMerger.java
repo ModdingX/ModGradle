@@ -120,6 +120,14 @@ public class MappingMerger {
         }
     }
 
-    private record MethodKey(String name, String desc) {}
+    private record MethodKey(String name, String desc) implements Comparable<MethodKey> {
+
+        @Override
+        public int compareTo(MethodKey o) {
+            int res = this.name.compareTo(o.name);
+            return res != 0 ? res : this.desc.compareTo(o.desc);
+        }
+    }
+    
     private record MergedMapping<T>(List<T> results, String mappedName) {}
 }

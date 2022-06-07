@@ -63,7 +63,7 @@ public class Versioning {
                     } catch (IOException | JsonSyntaxException e) {
                         if (json == null && cachePath != null) {
                             // Failed to load from server, use local cache
-                            try (Reader in = new InputStreamReader(url.openStream())) {
+                            try (Reader in = Files.newBufferedReader(cachePath)) {
                                 json = ModGradle.INTERNAL.fromJson(in, JsonObject.class);
                             } catch (IOException | JsonSyntaxException s) {
                                 e.addSuppressed(s);

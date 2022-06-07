@@ -7,9 +7,9 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
     mavenCentral()
+    maven { url = 'https://maven.moddingx.org' }
     maven { url = 'https://maven.minecraftforge.net' }
     maven { url = 'https://maven.parchmentmc.org' }
-    maven { url = 'https://noeppi-noeppi.github.io/MinecraftUtilities/maven' }
 }
 
 dependencies {
@@ -24,7 +24,7 @@ dependencies {
     implementation('org.apache.commons:commons-lang3') { version { strictly '[3.12.0,4.0.0)'; prefer '3.12.0' } }
     implementation('commons-io:commons-io') { version { strictly '[2.11.0,)'; prefer '2.11.0' } }
     implementation('org.apache.maven:maven-artifact') { version { strictly '[3.8.5,)'; prefer '3.8.5' } }
-    implementation('io.github.noeppi_noeppi.tools:CurseWrapper') { version { strictly '[1.0,)'; prefer '1.0' } }
+    implementation('org.moddingx:CurseWrapper') { version { strictly '[2.0,)'; prefer '2.0' } }
 
     // See https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228
     implementation('org.apache.logging.log4j:log4j-api') { version { strictly '[2.17.2,)' } }
@@ -34,36 +34,36 @@ dependencies {
 gradlePlugin {
     plugins {
         mapping {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.mapping'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.mapping.MappingPlugin'
+            id = 'org.moddingx.modgradle.mapping'
+            implementationClass = 'org.moddingx.modgradle.plugins.mapping.MappingPlugin'
         }
         javadoc {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.javadoc'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.javadoc.JavadocPlugin'
+            id = 'org.moddingx.modgradle.javadoc'
+            implementationClass = 'org.moddingx.modgradle.plugins.javadoc.JavadocPlugin'
         }
         meta {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.meta'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.meta.MetaPlugin'
+            id = 'org.moddingx.modgradle.meta'
+            implementationClass = 'org.moddingx.modgradle.plugins.meta.MetaPlugin'
         }
         sourcejar {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.sourcejar'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.sourcejar.SourceJarPlugin'
+            id = 'org.moddingx.modgradle.sourcejar'
+            implementationClass = 'org.moddingx.modgradle.plugins.sourcejar.SourceJarPlugin'
         }
         cursedep {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.cursedep'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.cursedep.CurseDepPlugin'
+            id = 'org.moddingx.modgradle.cursedep'
+            implementationClass = 'org.moddingx.modgradle.plugins.cursedep.CurseDepPlugin'
         }
         packdev {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.packdev'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.packdev.PackDevPlugin'
+            id = 'org.moddingx.modgradle.packdev'
+            implementationClass = 'org.moddingx.modgradle.plugins.packdev.PackDevPlugin'
         }
         coremods {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.coremods'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.coremods.CoreModsPlugin'
+            id = 'org.moddingx.modgradle.coremods'
+            implementationClass = 'org.moddingx.modgradle.plugins.coremods.CoreModsPlugin'
         }
         mcupdate {
-            id = 'io.github.noeppi_noeppi.tools.modgradle.mcupdate'
-            implementationClass = 'io.github.noeppi_noeppi.tools.modgradle.plugins.mcupdate.McUpdatePlugin'
+            id = 'org.moddingx.modgradle.mcupdate'
+            implementationClass = 'org.moddingx.modgradle.plugins.mcupdate.McUpdatePlugin'
         }
     }
 }

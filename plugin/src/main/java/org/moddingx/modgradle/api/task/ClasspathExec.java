@@ -109,6 +109,7 @@ public abstract class ClasspathExec extends DefaultTask {
                 spec.setArgs(arguments);
                 
                 spec.setStandardInput(new InputStream() {
+
                     @Override
                     public int read() throws IOException {
                         return -1;
@@ -116,7 +117,7 @@ public abstract class ClasspathExec extends DefaultTask {
                 });
                 
                 spec.setStandardOutput(new OutputStream() {
-                    
+
                     @Override
                     public void write(int data) throws IOException {
                         out.write(data);
@@ -134,7 +135,7 @@ public abstract class ClasspathExec extends DefaultTask {
                 });
                 
                 spec.setErrorOutput(new OutputStream() {
-                    
+
                     @Override
                     public void write(int data) throws IOException {
                         System.err.write(data);

@@ -19,7 +19,7 @@ public class McUpdateExtension {
     private final Project project;
 
     private String mcv = null;
-    private URL configuration = null;
+    private URL config = null;
     
     private String tool = null;
     private final Set<URL> additionalMappings;
@@ -33,17 +33,17 @@ public class McUpdateExtension {
         this.mcv = mcv;
     }
     
-    public void configuration(String configuration) {
-        this.configuration(toURL(configuration));
+    public void config(String config) {
+        this.config(toURL(config));
         
     }
     
-    public void configuration(File configuration) {
-        this.configuration(toURL(configuration));
+    public void config(File config) {
+        this.config(toURL(config));
     }
         
-    public void configuration(URL configuration) {
-        this.configuration = configuration;
+    public void config(URL config) {
+        this.config = config;
     }
     
     public void tool(String tool) {
@@ -72,8 +72,8 @@ public class McUpdateExtension {
     }
     
     @Internal
-    public URL getConfiguration() throws MalformedURLException {
-        return this.configuration == null ? new URL("https://assets.moddingx.org/mcupdate/" + this.getMinecraft() + "/mcupdate.json") : this.configuration;
+    public URL getConfig() throws MalformedURLException {
+        return this.config == null ? new URL("https://assets.moddingx.org/mcupdate/" + this.getMinecraft() + "/mcupdate.json") : this.config;
     }
     
     @Internal

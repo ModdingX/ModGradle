@@ -59,7 +59,7 @@ public class McUpdatePlugin implements Plugin<Project> {
     
     private static McUpdateData loadMcUpdateData(McUpdateExtension ext) {
         try {
-            URL url = ext.getConfiguration();
+            URL url = ext.getConfig();
             Reader reader = new InputStreamReader(url.openStream());
             JsonObject json = ModGradle.GSON.fromJson(reader, JsonObject.class);
             reader.close();

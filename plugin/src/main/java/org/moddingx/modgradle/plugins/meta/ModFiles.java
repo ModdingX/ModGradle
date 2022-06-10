@@ -10,10 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class ModFiles {
 
@@ -30,7 +29,8 @@ public class ModFiles {
                 loaderVersion = forgeVersion;
                 requiredForgeVersion = forgeVersion;
             }
-            List<String> lines = new ArrayList<>(List.of(
+
+            Files.write(path, Stream.of(
                     "modLoader=\"javafml\"",
                     "loaderVersion=\"[" + loaderVersion + ",)\"",
                     "license=\"" + license + "\"",
@@ -40,10 +40,10 @@ public class ModFiles {
                     "modId=\"" + modid + "\"",
                     "version=\"${file.jarVersion}\"",
                     "displayName=\"" + name + "\"",
+                    Versioning.getDataVersion(minecraftVersion).stream().anyMatch(data -> data >= 10) ? "displayTest=\"MATCH_VERSION\"" : "\0",
                     "displayURL=\"\"",
                     "updateJSONURL=\"\"",
                     "authors=\"\"",
-                    Versioning.getDataVersion(minecraftVersion).stream().anyMatch(data -> data >= 10) ? "displayTest=\"MATCH_VERSION\"" : "\0",
                     "description=\"\"\"",
                     "\"\"\"",
                     "",
@@ -61,9 +61,7 @@ public class ModFiles {
                     "    ordering=\"NONE\"",
                     "    side=\"BOTH\"",
                     ""
-            ));
-            lines.remove("\0");
-            Files.write(path, lines, StandardOpenOption.CREATE);
+            ).filter(line -> !"\0".equals(line)).toList(), StandardOpenOption.CREATE_NEW);
         }
     }
 

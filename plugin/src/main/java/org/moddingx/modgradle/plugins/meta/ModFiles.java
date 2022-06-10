@@ -10,14 +10,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ModFiles {
-    
+
     public static final Pattern MIN_MIXIN = Pattern.compile("(\\d+\\.\\d+)(?:\\.\\d+)*");
-    
+
     public static void createToml(Path path, String modid, String name, String minecraftVersion, String forgeVersion, String license) throws IOException {
         if (!Files.exists(path)) {
             String loaderVersion;
@@ -29,7 +30,7 @@ public class ModFiles {
                 loaderVersion = forgeVersion;
                 requiredForgeVersion = forgeVersion;
             }
-            Files.write(path, List.of(
+            List<String> lines = new ArrayList<>(List.of(
                     "modLoader=\"javafml\"",
                     "loaderVersion=\"[" + loaderVersion + ",)\"",
                     "license=\"" + license + "\"",
@@ -42,6 +43,7 @@ public class ModFiles {
                     "displayURL=\"\"",
                     "updateJSONURL=\"\"",
                     "authors=\"\"",
+                    Versioning.getDataVersion(minecraftVersion).stream().anyMatch(data -> data >= 10) ? "displayTest=\"MATCH_VERSION\"" : "\0",
                     "description=\"\"\"",
                     "\"\"\"",
                     "",
@@ -59,21 +61,23 @@ public class ModFiles {
                     "    ordering=\"NONE\"",
                     "    side=\"BOTH\"",
                     ""
-            ), StandardOpenOption.CREATE);
+            ));
+            lines.remove("\0");
+            Files.write(path, lines, StandardOpenOption.CREATE);
         }
     }
-    
+
     public static void createPackFile(Path path, String name, String minecraftVersion) throws IOException {
         if (!Files.exists(path)) {
-            int formatVersion = Math.max(Versioning.getResourceVersion(minecraftVersion), Versioning.getDataVersion(minecraftVersion).orElse(0));
+            int formatVersion = Versioning.getDataVersion(minecraftVersion).orElse(Versioning.getResourceVersion(minecraftVersion));
             JsonObject json = new JsonObject();
             JsonObject pack = new JsonObject();
             pack.addProperty("description", name + " resources");
             pack.addProperty("pack_format", formatVersion);
-            Versioning.getDataVersion(minecraftVersion).stream().filter(v -> v >= 9).forEach(dataVersion -> {
+            if (formatVersion >= 9) {
                 pack.addProperty("forge:resource_pack_format", Versioning.getResourceVersion(minecraftVersion));
-                pack.addProperty("forge:data_pack_format", dataVersion);
-            });
+                pack.addProperty("forge:data_pack_format", formatVersion);
+            }
             json.add("pack", pack);
             Files.writeString(path, ModGradle.GSON.toJson(json) + "\n", StandardOpenOption.CREATE);
         }

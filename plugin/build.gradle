@@ -53,10 +53,10 @@ gradlePlugin {
             id = 'org.moddingx.modgradle.cursedep'
             implementationClass = 'org.moddingx.modgradle.plugins.cursedep.CurseDepPlugin'
         }
-        packdev {
-            id = 'org.moddingx.modgradle.packdev'
-            implementationClass = 'org.moddingx.modgradle.plugins.packdev.PackDevPlugin'
-        }
+//        packdev {
+//            id = 'org.moddingx.modgradle.packdev'
+//            implementationClass = 'org.moddingx.modgradle.plugins.packdev.PackDevPlugin'
+//        }
         coremods {
             id = 'org.moddingx.modgradle.coremods'
             implementationClass = 'org.moddingx.modgradle.plugins.coremods.CoreModsPlugin'

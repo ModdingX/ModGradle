@@ -1,6 +1,5 @@
 package org.moddingx.modgradle.plugins.mcupdate;
 
-import com.google.gson.JsonObject;
 import net.minecraftforge.gradle.common.tasks.ApplyRangeMap;
 import net.minecraftforge.gradle.common.tasks.ExtractRangeMap;
 import org.apache.commons.io.file.PathUtils;
@@ -25,7 +24,6 @@ import org.moddingx.modgradle.util.task.ExtractInheritanceTask;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.Set;
 
@@ -41,8 +39,8 @@ public class McUpdatePlugin implements Plugin<Project> {
             McUpdateData data = loadMcUpdateData(ext);
 
             Task remapSourcesTask = null;
-            boolean hasMappings = data.mappings != null || !ext.getAdditionalMappings().isEmpty();
-            boolean hasTransformer = data.transformer != null;
+            boolean hasMappings = data.mappings() != null || !ext.getAdditionalMappings().isEmpty();
+            boolean hasTransformer = data.transformer() != null;
             if (hasMappings || hasTransformer) {
                 remapSourcesTask = this.addSourceRemapTasks(project, ext, data, hasMappings, hasTransformer);
             }
@@ -59,18 +57,14 @@ public class McUpdatePlugin implements Plugin<Project> {
     
     private static McUpdateData loadMcUpdateData(McUpdateExtension ext) {
         try {
-            URL url = ext.getConfig();
-            Reader reader = new InputStreamReader(url.openStream());
-            JsonObject json = ModGradle.GSON.fromJson(reader, JsonObject.class);
-            reader.close();
-            return new McUpdateData(json);
+            return McUpdateData.load(ext.getConfig());
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Mcupdate metadata not available for minecraft version " + ext.getMinecraft() + ":" + e);
+            throw new RuntimeException("mcupdate metadata not available for minecraft version " + ext.getMinecraft(), e);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load mcupdate metadata: " + e);
         }
     }
-    
+
     @Nullable
     private Task addSourceRemapTasks(Project project, McUpdateExtension ext, McUpdateData data, boolean hasMappings, boolean hasTransformer) {
         JavaCompile compileTask = MgUtil.task(project, "compileJava", JavaCompile.class);
@@ -89,13 +83,13 @@ public class McUpdatePlugin implements Plugin<Project> {
 
             if (hasMappings) {
                 mappingTask = project.getTasks().create("mcupdate_baseMappings", BuildBaseMappingsTask.class);
-                if (data.mappings != null) mappingTask.getMainMappings().set(data.mappings);
+                if (data.mappings() != null) mappingTask.getMainMappings().set(data.mappings());
                 mappingTask.getAdditionalMappings().set(ext.getAdditionalMappings());
             }
 
             if (hasTransformer) {
                 transformerTask = project.getTasks().create("mcupdate_downloadTransformer", DownloadTask.class);
-                transformerTask.getUrl().set(data.transformer);
+                transformerTask.getUrl().set(data.transformer());
                 transformerTask.getOutput().set(project.file("build").toPath().resolve(transformerTask.getName()).resolve("transformer.json").toFile());
                 transformerTask.redownload();
             }

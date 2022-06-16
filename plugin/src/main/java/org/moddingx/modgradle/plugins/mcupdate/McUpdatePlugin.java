@@ -3,10 +3,7 @@ package org.moddingx.modgradle.plugins.mcupdate;
 import net.minecraftforge.gradle.common.tasks.ApplyRangeMap;
 import net.minecraftforge.gradle.common.tasks.ExtractRangeMap;
 import org.apache.commons.io.file.PathUtils;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
+import org.gradle.api.*;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
@@ -162,12 +159,16 @@ public class McUpdatePlugin implements Plugin<Project> {
             ExtractZipTask extractRemapped = project.getTasks().create("mcupdate_extractRemapped", ExtractZipTask.class);
             extractRemapped.getInput().set(remapTask.getOutput());
             extractRemapped.getOutput().set(primarySourceDir);
-            extractRemapped.doFirst(t -> {
-                if (Files.exists(extractRemapped.getOutput().get().getAsFile().toPath())) {
-                    try {
-                        PathUtils.deleteDirectory(extractRemapped.getOutput().get().getAsFile().toPath());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            //noinspection Convert2Lambda
+            extractRemapped.doFirst(new Action<>() {
+                @Override
+                public void execute(@Nonnull Task t) {
+                    if (Files.exists(extractRemapped.getOutput().get().getAsFile().toPath())) {
+                        try {
+                            PathUtils.deleteDirectory(extractRemapped.getOutput().get().getAsFile().toPath());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             });

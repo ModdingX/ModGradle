@@ -5,5 +5,5 @@ The Meta plugin adds miscellaneous stuff. Most of this is made to be used in Mod
 ### Apply the plugin
 
 ```groovy
-apply plugin: 'io.github.noeppi_noeppi.tools.modgradle.meta'
+apply plugin: 'org.moddingx.modgradle.meta'
 ```

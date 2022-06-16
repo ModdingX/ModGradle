@@ -5,7 +5,7 @@ The mapping plugin adds some more mapping channels to [ForgeGradle](https://gith
 ### Apply the plugin
 
 ```groovy
-apply plugin: 'io.github.noeppi_noeppi.tools.modgradle.mapping'
+apply plugin: 'org.moddingx.modgradle.mapping'
 ```
 
 ### Channels

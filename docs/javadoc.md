@@ -5,7 +5,7 @@ The javadoc plugin handles javadoc links for mods. It uses the javadoc link file
 ### Apply the plugin
 
 ```groovy
-apply plugin: 'io.github.noeppi_noeppi.tools.modgradle.javadoc'
+apply plugin: 'org.moddingx.modgradle.javadoc'
 ```
 
 ### Tasks

@@ -7,5 +7,5 @@ Most stuff should be configured automatically. The `sourceJar` task will build t
 ### Apply the plugin
 
 ```groovy
-apply plugin: 'io.github.noeppi_noeppi.tools.modgradle.sourcejar'
+apply plugin: 'org.moddingx.modgradle.sourcejar'
 ```

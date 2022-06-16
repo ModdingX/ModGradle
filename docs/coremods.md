@@ -5,7 +5,7 @@ The CoreMods plugin allows to build coremods written in [TypeScript](https://www
 ### Apply the plugin
 
 ```groovy
-apply plugin: 'io.github.noeppi_noeppi.tools.modgradle.coremods'
+apply plugin: 'org.moddingx.modgradle.coremods'
 ```
 
 ### Use the plugin
@@ -14,11 +14,11 @@ Specify the [CoreModTypes](https://github.com/noeppi-noeppi/CoreModTypes) depend
 
 ```groovy
 repositories {
-    maven { url = 'file:///home/tux/dev/util/MinecraftUtilities/maven/' }
+    maven { url = 'https://maven.moddingx.org' }
 }
 
 dependencies {
-    coremods 'io.github.noeppi_noeppi.misc:CoreModTypes:5.0.1-1'
+    coremods 'org.moddingx:CoreModTypes:5.0.2-2'
 }
 ```
 

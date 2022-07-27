@@ -9,6 +9,7 @@ import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.Objects;
 
 public class MgUtil {
@@ -52,5 +53,13 @@ public class MgUtil {
             // Auto detection
             return System.getenv("JENKINS_URL") != null;
         });
+    }
+    
+    public static String capitalize(String str) {
+        if (str.isEmpty()) {
+            return "";
+        } else {
+            return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1).toLowerCase(Locale.ROOT);
+        }
     }
 }

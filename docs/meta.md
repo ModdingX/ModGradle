@@ -1,4 +1,4 @@
-# McUpdate plugin
+# Meta plugin
 
 The Meta plugin adds miscellaneous stuff. Most of this is made to be used in ModUtils. For a list of features, see the source code.
 

@@ -14,8 +14,8 @@ def setup_server():
     mods = []
     with open('server.txt') as file:
         for entry in file.read().split('\n'):
-            if not entry.strip() == '':
-                mods.append([x.strip() for x in entry.split('/')])
+            if not entry.strip() == '' and '/' in entry:
+                mods.append([entry[:entry.index('/')], entry[entry.index('/') + 1:]])
 
     try:
         os.remove('run.sh')
@@ -85,13 +85,11 @@ def setup_server():
         attempts = 0
         while attempts < 10:
             try:
-                project_id = mod[0]
-                file_id = mod[1]
-                download_url = f'https://www.cursemaven.com/curse/maven/O-{project_id}/{file_id}/O-{project_id}-{file_id}.jar'
-                file_name = get_file_name(project_id, file_id)
+                file_name = mod[0]
+                download_url = mod[1]
+                print('Downloading mod %s...' % file_name)
                 request = make_request(urllib.parse.quote(download_url, safe='/:@?=&'))
                 response = urlopen(request)
-                print('Downloading mod %s...' % file_name)
                 with open('mods' + os.path.sep + file_name, mode='wb') as target:
                     target.write(response.read())
                 break

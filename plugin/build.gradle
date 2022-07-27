@@ -24,7 +24,7 @@ dependencies {
     implementation('org.apache.commons:commons-lang3') { version { strictly '[3.12.0,4.0.0)'; prefer '3.12.0' } }
     implementation('commons-io:commons-io') { version { strictly '[2.11.0,)'; prefer '2.11.0' } }
     implementation('org.apache.maven:maven-artifact') { version { strictly '[3.8.5,)'; prefer '3.8.5' } }
-    implementation('org.moddingx:CurseWrapper') { version { strictly '[2.0,)'; prefer '2.0' } }
+    implementation('org.moddingx:CurseWrapper') { version { strictly '[3.0,)'; prefer '3.0' } }
 
     // See https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228
     implementation('org.apache.logging.log4j:log4j-api') { version { strictly '[2.17.2,)' } }
@@ -53,10 +53,10 @@ gradlePlugin {
             id = 'org.moddingx.modgradle.cursedep'
             implementationClass = 'org.moddingx.modgradle.plugins.cursedep.CurseDepPlugin'
         }
-//        packdev {
-//            id = 'org.moddingx.modgradle.packdev'
-//            implementationClass = 'org.moddingx.modgradle.plugins.packdev.PackDevPlugin'
-//        }
+        packdev {
+            id = 'org.moddingx.modgradle.packdev'
+            implementationClass = 'org.moddingx.modgradle.plugins.packdev.PackDevPlugin'
+        }
         coremods {
             id = 'org.moddingx.modgradle.coremods'
             implementationClass = 'org.moddingx.modgradle.plugins.coremods.CoreModsPlugin'

@@ -5,7 +5,7 @@ The PackDev plugin can build forge modpacks using ForgeGradle.
 ### Apply the plugin
 
 ```groovy
-apply plugin: 'org.moddingx.modgradle.mapping'
+apply plugin: 'org.moddingx.modgradle.packdev'
 ```
 
 PackDev will load information on your modlist from a file name `modlist.json` in your project directory. That file can be generated using the [Moonstone IntelliJ plugin](https://github.com/ModdingX/Moonstone).

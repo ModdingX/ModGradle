@@ -148,8 +148,10 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         });
 
         UserDevExtension mcExt = getMcExt(project, "minecraft", UserDevExtension.class);
-        addRunConfig(project, mcExt, "client", Side.CLIENT, JavaEnv.getJavaSources(project).get(), clientDepSources);
-        addRunConfig(project, mcExt, "server", Side.SERVER, JavaEnv.getJavaSources(project).get(), serverDepSources);
+        // Pass modListMcVersion as minecraft version here as pack settings are not yet available
+        // modListMcVersion will always match the actual minecraft version or an exception will be thrown later in afterEvaluate
+        addRunConfig(project, mcExt, "client", Side.CLIENT, JavaEnv.getJavaSources(project).get(), clientDepSources, modListMcVersion);
+        addRunConfig(project, mcExt, "server", Side.SERVER, JavaEnv.getJavaSources(project).get(), serverDepSources, modListMcVersion);
 
         PackDevExtension ext = project.getExtensions().create(PackDevExtension.EXTENSION_NAME, PackDevExtension.class);
 
@@ -179,17 +181,19 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         }
     }
 
-    private static void addRunConfig(Project project, UserDevExtension ext, String name, Side side, SourceSet commonMods, SourceSet additionalMods) {
+    private static void addRunConfig(Project project, UserDevExtension ext, String name, Side side, SourceSet commonMods, SourceSet additionalMods, String mcVersion) {
         String capitalized = MgUtil.capitalize(name);
         String taskName = "run" + capitalized;
         File workingDir = project.file(taskName);
         ext.getRuns().create(name, run -> {
             run.workingDirectory(workingDir);
             run.property("forge.logging.console.level", "info");
-            GenerateSRG generateMappings = MgUtil.task(project, "createMcpToSrg", GenerateSRG.class);
-            if (generateMappings != null) {
-                run.property("mixin.env.remapRefMap", "true");
-                run.property("mixin.env.refMapRemappingFile", generateMappings.getOutput().get().getAsFile().toPath().toAbsolutePath().normalize().toString());
+            if (Versioning.getMixinVersion(mcVersion) != null) {
+                GenerateSRG generateMappings = MgUtil.task(project, "createMcpToSrg", GenerateSRG.class);
+                if (generateMappings != null) {
+                    run.property("mixin.env.remapRefMap", "true");
+                    run.property("mixin.env.refMapRemappingFile", generateMappings.getOutput().get().getAsFile().toPath().toAbsolutePath().normalize().toString());
+                }
             }
             run.jvmArg("-Dproduction=true");
             run.getMods().create("packdev_dummy_mod", mod -> {

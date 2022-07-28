@@ -3,6 +3,7 @@ package org.moddingx.modgradle.plugins.packdev;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import net.minecraftforge.gradle.mcp.tasks.GenerateSRG;
 import net.minecraftforge.gradle.userdev.DependencyManagementExtension;
 import net.minecraftforge.gradle.userdev.UserDevExtension;
 import org.gradle.api.*;
@@ -35,11 +36,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public abstract class PackDevPlugin implements Plugin<Project> {
-    
+
     @Inject
     @SuppressWarnings("UnstableApiUsage")
     public abstract BuildEventsListenerRegistry getEventRegistry();
-    
+
     @Override
     public void apply(@Nonnull Project project) {
         ModGradle.initialiseProject(project);
@@ -47,7 +48,7 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         if (!project.getPlugins().hasPlugin("net.minecraftforge.gradle")) {
             throw new IllegalStateException("The PackDev plugin requires the ForgeGradle userdev plugin.");
         }
-        
+
         try {
             for (Side side : Side.values()) {
                 if (!Files.exists(project.file("data").toPath().resolve(side.id))) {
@@ -69,14 +70,14 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         List<JsonElement> fileData;
         try (Reader in = Files.newBufferedReader(project.file("modlist.json").toPath())) {
             JsonObject json = ModGradle.GSON.fromJson(in, JsonObject.class);
-            
+
             int api = Objects.requireNonNull(json.get("api"), "No modlist.json API version found.").getAsInt();
             if (api != 2) {
                 throw new IllegalStateException("Unsupported modlist.json API: " + api + ". This version of PackDev requires api version 2.");
             }
-            
+
             platform = PackDevRegistry.getPlatform(Objects.requireNonNull(json.get("platform"), "No modding platform set.").getAsString());
-            
+
             String loader = Objects.requireNonNull(json.get("loader"), "No mod loader set.").getAsString();
             if (!loader.toLowerCase(Locale.ROOT).equals("forge")) throw new IllegalStateException("PackDev can only build forge modpacks, " + loader + " is not supported.");
             modListMcVersion = Objects.requireNonNull(json.get("minecraft"), "No minecraft version set.").getAsString();
@@ -96,7 +97,7 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
+
         platform.initialise(project);
         PackDevCache cache = new PackDevCache(project, platform);
         //noinspection UnstableApiUsage
@@ -151,13 +152,13 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         addRunConfig(project, mcExt, "server", Side.SERVER, JavaEnv.getJavaSources(project).get(), serverDepSources);
 
         PackDevExtension ext = project.getExtensions().create(PackDevExtension.EXTENSION_NAME, PackDevExtension.class);
-        
+
         project.afterEvaluate(p -> {
             PackSettings settings = ext.getSettings();
             if (!Objects.equals(settings.minecraft(), modListMcVersion)) {
                 throw new IllegalStateException("Minecraft version from modlist does not match installed version: modlist=" + modListMcVersion + ", installed=" + settings.minecraft());
             }
-            
+
             JavaEnv.getJavaExtension(project).get().getToolchain().getLanguageVersion().set(JavaLanguageVersion.of(Versioning.getJavaVersion(settings.minecraft())));
 
             Map<String, Optional<Object>> targets = ext.getAllTargets();
@@ -186,7 +187,10 @@ public abstract class PackDevPlugin implements Plugin<Project> {
             run.workingDirectory(workingDir);
             run.property("forge.logging.console.level", "info");
             run.property("mixin.env.remapRefMap", "true");
-            run.property("mixin.env.refMapRemappingFile", project.getRootDir().toPath().toAbsolutePath().normalize() + "/build/createSrgToMcp/output.srg");
+            GenerateSRG generateMappings = MgUtil.task(project, "createMcpToSrg", GenerateSRG.class);
+            if (generateMappings != null) {
+                run.property("mixin.env.refMapRemappingFile", generateMappings.getOutput().get().getAsFile().toPath().toAbsolutePath().normalize().toString());
+            }
             run.jvmArg("-Dproduction=true");
             run.getMods().create("packdev_dummy_mod", mod -> {
                 mod.source(commonMods);

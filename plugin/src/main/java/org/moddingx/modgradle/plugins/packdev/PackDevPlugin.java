@@ -186,9 +186,9 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         ext.getRuns().create(name, run -> {
             run.workingDirectory(workingDir);
             run.property("forge.logging.console.level", "info");
-            run.property("mixin.env.remapRefMap", "true");
             GenerateSRG generateMappings = MgUtil.task(project, "createMcpToSrg", GenerateSRG.class);
             if (generateMappings != null) {
+                run.property("mixin.env.remapRefMap", "true");
                 run.property("mixin.env.refMapRemappingFile", generateMappings.getOutput().get().getAsFile().toPath().toAbsolutePath().normalize().toString());
             }
             run.jvmArg("-Dproduction=true");

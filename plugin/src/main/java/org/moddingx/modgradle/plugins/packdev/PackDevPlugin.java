@@ -12,6 +12,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.compile.JavaCompile;
+import org.gradle.build.event.BuildEventsListenerRegistry;
 import org.gradle.jvm.toolchain.JavaLanguageVersion;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.api.Versioning;
@@ -24,6 +25,7 @@ import org.moddingx.modgradle.util.Side;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -32,8 +34,12 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
-public class PackDevPlugin implements Plugin<Project> {
-
+public abstract class PackDevPlugin implements Plugin<Project> {
+    
+    @Inject
+    @SuppressWarnings("UnstableApiUsage")
+    public abstract BuildEventsListenerRegistry getEventRegistry();
+    
     @Override
     public void apply(@Nonnull Project project) {
         ModGradle.initialiseProject(project);
@@ -93,6 +99,8 @@ public class PackDevPlugin implements Plugin<Project> {
         
         platform.initialise(project);
         PackDevCache cache = new PackDevCache(project, platform);
+        //noinspection UnstableApiUsage
+        this.getEventRegistry().onTaskCompletion(project.provider(() -> e -> cache.save()));
         List<? extends ModFile> files = List.copyOf(platform.readModList(project, cache, fileData));
 
         Configuration clientMods = project.getConfigurations().create("clientMods", c -> {

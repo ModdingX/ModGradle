@@ -22,6 +22,8 @@ import java.util.Map;
 
 public class PackDevCache {
     
+    private static final int VERSION = 1;
+    
     private final Path basePath;
     private final Path path;
     
@@ -33,7 +35,7 @@ public class PackDevCache {
     public PackDevCache(Project project, ModdingPlatform<?> platform) {
         this.basePath = project.getGradle().getGradleUserHomeDir().toPath()
                 .resolve("caches").resolve("modgradle")
-                .resolve("packdev").resolve("platform_v1")
+                .resolve("packdev").resolve("platform_v" + VERSION)
                 .resolve(platform.id())
                 .toAbsolutePath().normalize();
         this.path = this.basePath.resolve("index.json").toAbsolutePath().normalize();
@@ -100,7 +102,7 @@ public class PackDevCache {
     }
     
     public synchronized void save() {
-        if (!this.saved) {
+        if (this.loaded && !this.saved) {
             try {
                 if (!Files.isDirectory(this.basePath)) {
                     Files.createDirectories(this.basePath);

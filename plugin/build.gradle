@@ -15,7 +15,7 @@ repositories {
 dependencies {
     implementation('com.google.code.findbugs:jsr305') { version { strictly '[3.0.2,)'; prefer '3.0.2' } }
     implementation('net.minecraftforge:srgutils') { version { strictly '[0.4.11,)'; prefer '0.4.11' } }
-    implementation('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.41,5.2)"; prefer '5.1.41' } }
+    implementation('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.52,5.2)"; prefer '5.1.52' } }
     implementation('net.minecraftforge:artifactural') { version { strictly '[3.0.8,)'; prefer '3.0.8' } }
     compileOnly('org.parchmentmc:librarian') { version { strictly '[1.2.0,)'; prefer '1.2.0' } }
     implementation('de.siegmar:fastcsv') { version { strictly '[2.1.0,)'; prefer '2.1.0' } }

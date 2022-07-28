@@ -185,6 +185,8 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         ext.getRuns().create(name, run -> {
             run.workingDirectory(workingDir);
             run.property("forge.logging.console.level", "info");
+            run.property("mixin.env.remapRefMap", "true");
+            run.property("mixin.env.refMapRemappingFile", project.getRootDir().toPath().toAbsolutePath().normalize() + "/build/createSrgToMcp/output.srg");
             run.jvmArg("-Dproduction=true");
             run.getMods().create("packdev_dummy_mod", mod -> {
                 mod.source(commonMods);

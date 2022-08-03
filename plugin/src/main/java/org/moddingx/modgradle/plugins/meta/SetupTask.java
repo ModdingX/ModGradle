@@ -28,8 +28,8 @@ public abstract class SetupTask extends DefaultTask {
     public SetupTask() {
         this.getMinecraftVersion().convention(McEnv.findMinecraftVersion(this.getProject()));
         this.getForgeVersion().convention(McEnv.findForgeVersion(this.getProject()));
-        this.getLicense().convention("The Apache License, Version 2.0");
         this.getMixin().convention(false);
+        this.getLicense().convention("The Apache License, Version 2.0");
         try {
             this.getLicenseUrl().convention(new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"));
         } catch (MalformedURLException e) {
@@ -79,15 +79,21 @@ public abstract class SetupTask extends DefaultTask {
             throw new IllegalStateException("Failed to clone repository: " + this.getRepo());
         }
 
+        String modId = this.getModid().get();
+        String minecraftVersion = this.getMinecraftVersion().get();
+        String forgeVersion = this.getForgeVersion().get();
+        String loaderVersion = forgeVersion.contains(".") ? forgeVersion.substring(0, forgeVersion.indexOf('.')) : forgeVersion;
+        
         ImmutableMap.Builder<String, String> replaceBuilder = ImmutableMap.builder();
         replaceBuilder.put("name", this.getProject().getName());
-        replaceBuilder.put("modid", this.getModid().get());
-        replaceBuilder.put("minecraft", this.getMinecraftVersion().get());
-        replaceBuilder.put("forge", this.getForgeVersion().get());
+        replaceBuilder.put("modid", modId);
+        replaceBuilder.put("minecraft", minecraftVersion);
+        replaceBuilder.put("forge", forgeVersion);
+        replaceBuilder.put("fml", loaderVersion);
         replaceBuilder.put("license", this.getLicense().get());
-        replaceBuilder.put("jdk", Integer.toString(Versioning.getJavaVersion(this.getMinecraftVersion().get())));
-        replaceBuilder.put("resource", Integer.toString(Versioning.getResourceVersion(this.getMinecraftVersion().get())));
-        Versioning.getDataVersion(this.getMinecraftVersion().get()).ifPresent(v -> replaceBuilder.put("data", Integer.toString(v)));
+        replaceBuilder.put("jdk", Integer.toString(Versioning.getJavaVersion(minecraftVersion)));
+        replaceBuilder.put("resource", Integer.toString(Versioning.getResourceVersion(minecraftVersion)));
+        Versioning.getDataVersion(minecraftVersion).ifPresent(v -> replaceBuilder.put("data", Integer.toString(v)));
         Map<String, String> replaces = replaceBuilder.build();
         
         this.copyDir(clone, "runClient");
@@ -101,12 +107,12 @@ public abstract class SetupTask extends DefaultTask {
 
         Files.createDirectories(this.getProject().file("src/main/java").toPath()
                 .resolve(this.getProject().getGroup().toString().replace('.', '/'))
-                .resolve(this.getModid().get()));
+                .resolve(modId));
         Files.createDirectories(this.getProject().file("src/main/resources/META-INF").toPath());
         Files.createDirectories(this.getProject().file("src/main/resources/assets").toPath()
-                .resolve(this.getModid().get()).resolve("lang"));
+                .resolve(modId).resolve("lang"));
         Files.createDirectories(this.getProject().file("src/main/resources/data").toPath()
-                .resolve(this.getModid().get()));
+                .resolve(modId));
         Files.createDirectories(this.getProject().file("src/generated/resources").toPath());
 
         if (!Files.exists(this.getProject().file("src/main/resources/META-INF/accesstransformer.cfg").toPath())) {
@@ -115,17 +121,17 @@ public abstract class SetupTask extends DefaultTask {
 
         ModFiles.createToml(
                 this.getProject().file("src/main/resources/META-INF/mods.toml").toPath(),
-                this.getModid().get(), this.getProject().getName(), this.getMinecraftVersion().get(),
-                this.getForgeVersion().get(), this.getLicense().get()
+                modId, this.getProject().getName(), minecraftVersion,
+                forgeVersion, this.getLicense().get()
         );
         ModFiles.createPackFile(
                 this.getProject().file("src/main/resources/pack.mcmeta").toPath(),
-                this.getProject().getName(), this.getMinecraftVersion().get()
+                this.getProject().getName(), minecraftVersion
         );
         if (this.getMixin().get()) {
             ModFiles.createMixinFile(
-                    this.getProject().file("src/main/resources/" + this.getModid() + ".mixins.json").toPath(),
-                    this.getModid().get(), this.getProject().getGroup().toString(), this.getMinecraftVersion().get()
+                    this.getProject().file("src/main/resources/" + modId + ".mixins.json").toPath(),
+                    modId, this.getProject().getGroup().toString(), minecraftVersion
             );
         }
 

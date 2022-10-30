@@ -3,11 +3,13 @@ package org.moddingx.modgradle.plugins.packdev;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import net.minecraftforge.gradle.common.util.Artifact;
 import net.minecraftforge.gradle.mcp.tasks.GenerateSRG;
 import net.minecraftforge.gradle.userdev.DependencyManagementExtension;
 import net.minecraftforge.gradle.userdev.UserDevExtension;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -122,7 +124,9 @@ public abstract class PackDevPlugin implements Plugin<Project> {
                 case CLIENT -> "clientMods";
                 case SERVER -> "serverMods";
             };
-            project.getDependencies().add(cfg, fgExt.deobf(file.createDependency(project)));
+            Artifact artifact = file.createDependency();
+            ExternalModuleDependency dependency = (ExternalModuleDependency) project.getDependencies().create(artifact.getDescriptor());
+            project.getDependencies().add(cfg, fgExt.deobf(dependency));
         }
 
         SourceSetContainer sourceSets = JavaEnv.getJavaExtension(project).get().getSourceSets();

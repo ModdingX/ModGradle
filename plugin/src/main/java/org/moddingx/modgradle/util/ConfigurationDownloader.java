@@ -9,7 +9,6 @@ import org.gradle.api.file.FileCollection;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,7 +18,7 @@ public class ConfigurationDownloader {
     private static final AtomicInteger CONFIGURATION_ID = new AtomicInteger(0);
     
     @Nullable
-    public static Executable executable(Project project, String dependency) throws IOException {
+    public static Executable executable(Project project, String dependency) {
         return executable(project, project.getDependencies().create(dependency));
     }
     
@@ -34,7 +33,7 @@ public class ConfigurationDownloader {
     }
     
     @Nullable
-    public static Executable executable(Project project, Dependency dependency) throws IOException {
+    public static Executable executable(Project project, Dependency dependency) {
         FileCollection files = download(project, dependency);
         if (files == null) return null;
         // Need to find out main class:

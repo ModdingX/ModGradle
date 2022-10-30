@@ -1,7 +1,7 @@
 package org.moddingx.modgradle.plugins.packdev.platform.modrinth;
 
+import net.minecraftforge.gradle.common.util.Artifact;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
 import org.moddingx.modgradle.plugins.packdev.platform.BaseModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.modrinth.api.ModrinthAPI;
@@ -80,8 +80,8 @@ public class ModrinthFile extends BaseModFile {
     }
 
     @Override
-    public ExternalModuleDependency createDependency(Project project) {
-        return (ExternalModuleDependency) project.getDependencies().create("maven.modrinth:" + this.projectSlug() + ":" + this.versionInfo().versionNumber());
+    public Artifact createDependency() {
+        return Artifact.from("maven.modrinth:" + this.projectSlug() + ":" + this.versionInfo().versionNumber());
     }
 
     @Override

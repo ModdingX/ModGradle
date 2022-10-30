@@ -14,12 +14,12 @@ import java.util.jar.Manifest;
 public class JarUtil {
     
     @Nullable
-    public static String mainClass(File jarFile) throws IOException {
+    public static String mainClass(File jarFile) {
         return mainClass(jarFile.toPath());
     }
     
     @Nullable
-    public static String mainClass(Path jarFile) throws IOException {
+    public static String mainClass(Path jarFile) {
         try (FileSystem fs = IOUtil.getFileSystem(URI.create("jar:" + jarFile.toAbsolutePath().normalize().toUri()))) {
             Path manifestPath = fs.getPath("/META-INF/MANIFEST.MF");
             if (Files.isRegularFile(manifestPath)) {
@@ -44,6 +44,8 @@ public class JarUtil {
             }
 
             return null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

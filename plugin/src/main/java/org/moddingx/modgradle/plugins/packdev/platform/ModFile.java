@@ -1,7 +1,6 @@
 package org.moddingx.modgradle.plugins.packdev.platform;
 
-import org.gradle.api.Project;
-import org.gradle.api.artifacts.ExternalModuleDependency;
+import net.minecraftforge.gradle.common.util.Artifact;
 import org.moddingx.modgradle.util.ComputedHash;
 import org.moddingx.modgradle.util.Side;
 
@@ -23,7 +22,7 @@ public interface ModFile {
     URI downloadURL();
     URI projectURL();
     Optional<Owner> projectOwner();
-    ExternalModuleDependency createDependency(Project project);
+    Artifact createDependency();
     
     Map<String, ComputedHash> hashes(Set<String> hashes) throws NoSuchAlgorithmException, IOException;
     

@@ -1,7 +1,7 @@
 package org.moddingx.modgradle.plugins.packdev.platform.curse;
 
+import net.minecraftforge.gradle.common.util.Artifact;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.moddingx.cursewrapper.api.response.FileInfo;
 import org.moddingx.cursewrapper.api.response.ProjectInfo;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
@@ -83,8 +83,8 @@ public class CurseFile extends BaseModFile {
     }
 
     @Override
-    public ExternalModuleDependency createDependency(Project project) {
-        return (ExternalModuleDependency) project.getDependencies().create("curse.maven:" + this.projectSlug() + "-" + this.projectId + ":" + this.fileId);
+    public Artifact createDependency() {
+        return Artifact.from("curse.maven:" + this.projectSlug() + "-" + this.projectId + ":" + this.fileId);
     }
 
     @Override

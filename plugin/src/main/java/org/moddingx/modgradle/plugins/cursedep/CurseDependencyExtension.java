@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import groovy.lang.GroovyObjectSupport;
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader;
 import net.minecraftforge.gradle.userdev.DependencyManagementExtension;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
@@ -64,38 +63,37 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
             return this.project.getDependencies().create(cache);
         }
 
-        NamedDomainObjectProvider<Configuration> config = this.project.getConfigurations().register(configName, cfg -> {
-            File file = MavenArtifactDownloader.download(this.project, CurseDepPlugin.curseArtifact("O", projectId, fileId, "zip"), false);
-            if (file == null) {
-                throw new IllegalStateException("Cannot create curse ModPack dependency: Failed to download manifest");
-            } else try {
-                ZipFile zipFile = new ZipFile(file);
-                ZipEntry entry = zipFile.getEntry("manifest.json");
-                if (entry == null) entry = zipFile.getEntry("/manifest.json");
-                if (entry == null) {
-                    throw new IllegalStateException("Cannot create curse ModPack dependency: Pack file contains no manifest");
-                }
+        File file = MavenArtifactDownloader.manual(this.project, CurseDepPlugin.curseArtifact("O", projectId, fileId, "zip"), false);
+        if (file == null) {
+            throw new IllegalStateException("Cannot create curse ModPack dependency: Failed to download manifest");
+        } else try {
+            ZipFile zipFile = new ZipFile(file);
+            ZipEntry entry = zipFile.getEntry("manifest.json");
+            if (entry == null) entry = zipFile.getEntry("/manifest.json");
+            if (entry == null) {
+                throw new IllegalStateException("Cannot create curse ModPack dependency: Pack file contains no manifest");
+            }
 
-                InputStreamReader reader = new InputStreamReader(zipFile.getInputStream(entry));
-                JsonElement json = ModGradle.GSON.fromJson(reader, JsonElement.class);
-                reader.close();
+            InputStreamReader reader = new InputStreamReader(zipFile.getInputStream(entry));
+            JsonElement json = ModGradle.GSON.fromJson(reader, JsonElement.class);
+            reader.close();
+            Configuration config = this.project.getConfigurations().create(configName);
 
-                for (JsonElement fileJson : json.getAsJsonObject().get("files").getAsJsonArray()) {
-                    int p = fileJson.getAsJsonObject().get("projectID").getAsInt();
-                    if (!idExcludes.contains(p)) {
-                        int f = fileJson.getAsJsonObject().get("fileID").getAsInt();
-                        String slug = CurseDepPlugin.getSlug(p);
-                        if (!slugExcludes.contains(slug)) {
-                            cfg.getDependencies().add(this.createDependency(CurseDepPlugin.curseArtifact(slug, p, f)));
-                        }
+            for (JsonElement fileJson : json.getAsJsonObject().get("files").getAsJsonArray()) {
+                int p = fileJson.getAsJsonObject().get("projectID").getAsInt();
+                if (!idExcludes.contains(p)) {
+                    int f = fileJson.getAsJsonObject().get("fileID").getAsInt();
+                    String slug = CurseDepPlugin.getSlug(p);
+                    if (!slugExcludes.contains(slug)) {
+                        config.getDependencies().add(this.createDependency(CurseDepPlugin.curseArtifact(slug, p, f)));
                     }
                 }
-            } catch (IOException e) {
-                throw new IllegalStateException("Cannot create curse ModPack dependency: " + e.getMessage(), e);
             }
-        });
-        
-        return this.project.getDependencies().create(config);
+
+            return this.project.getDependencies().create(config);
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot create curse ModPack dependency: " + e.getMessage(), e);
+        }
     }
 
     private Dependency createDependency(Object obj) {

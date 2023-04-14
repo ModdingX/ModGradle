@@ -1,7 +1,6 @@
 package org.moddingx.modgradle.plugins.mcupdate.task;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
@@ -11,6 +10,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.InputChanges;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.api.Versioning;
+import org.moddingx.modgradle.plugins.meta.ModFiles;
 import org.moddingx.modgradle.util.JavaEnv;
 
 import java.io.File;
@@ -49,13 +49,7 @@ public abstract class UpdateMetaTask extends DefaultTask {
             JsonElement json = ModGradle.GSON.fromJson(in, JsonElement.class);
             in.close();
             if (json.isJsonObject() && json.getAsJsonObject().has("pack")) {
-                int formatVersion = Math.max(Versioning.getResourceVersion(minecraft), Versioning.getDataVersion(minecraft).orElse(0));
-                JsonObject pack = json.getAsJsonObject().getAsJsonObject("pack");
-                pack.addProperty("pack_format", formatVersion);
-                Versioning.getDataVersion(minecraft).stream().filter(v -> v >= 9).forEach(dataVersion -> {
-                    pack.addProperty("forge:resource_pack_format", Versioning.getResourceVersion(minecraft));
-                    pack.addProperty("forge:data_pack_format", dataVersion);
-                });
+                ModFiles.addPackVersions(json.getAsJsonObject(), minecraft);
                 Writer out = Files.newBufferedWriter(resourcePackPath, StandardOpenOption.TRUNCATE_EXISTING);
                 ModGradle.GSON.toJson(json, out);
                 out.write("\n");
@@ -65,7 +59,7 @@ public abstract class UpdateMetaTask extends DefaultTask {
     }
     
     private void processJenkinsfile(String minecraft, Path path) throws IOException {
-        Pattern pattern = Pattern.compile("(tools[\\s\n]*\\{[.\\s]*?jdk\s*['\"]java)\\d+(['\"][.\\s]*?})");
+        Pattern pattern = Pattern.compile("(tools[\\s\n]*\\{[.\\s]*?jdk\\s*['\"]java)\\d+(['\"][.\\s]*?})");
         String file = Files.readString(path);
         String replaced = pattern.matcher(file).replaceAll(r -> r.group(1) + Versioning.getJavaVersion(minecraft) + r.group(2));
         if (!file.equals(replaced)) {

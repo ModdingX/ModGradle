@@ -66,21 +66,12 @@ public class ConfigurationDownloader {
         project.getConfigurations().remove(configuration);
         return files;
     }
-
-    @Nullable
-    public static FileCollection download(Project project, Configuration configuration) {
-        return download(project, configuration, false);
-    }
-    
-    @Nullable
-    public static FileCollection download(Project project, Configuration configuration, boolean removeConfiguration) {
-        FileCollection files = download(project, configuration);
-        if (removeConfiguration) project.getConfigurations().remove(configuration);
-        return files;
-    }
     
     @Nullable
     private static FileCollection download(Project project, Configuration configuration, String name) {
+        if (!project.getState().getExecuted()) {
+            throw new IllegalStateException("Can't download configuration " + configuration + " during evaluation.");
+        }
         Set<File> files;
         try {
             files = configuration.resolve();

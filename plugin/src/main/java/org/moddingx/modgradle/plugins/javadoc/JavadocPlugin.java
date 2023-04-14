@@ -48,12 +48,11 @@ public class JavadocPlugin implements Plugin<Project> {
             }
             jd.dependsOn(cssTask.get());
             
-            if (docletMetaFiles.get() == null) {
-                docletMetaFiles.set(ConfigurationDownloader.download(project, ModGradle.DOCLET_META));
-            }
-            FileCollection resolvedDocletMetaFiles = docletMetaFiles.get();
-            
             project.afterEvaluate(p -> {
+                if (docletMetaFiles.get() == null) {
+                    docletMetaFiles.set(ConfigurationDownloader.download(project, ModGradle.DOCLET_META));
+                }
+                FileCollection resolvedDocletMetaFiles = docletMetaFiles.get();
                 jd.options(o -> {
                     //noinspection Convert2Lambda
                     jd.doFirst(new Action<>() {

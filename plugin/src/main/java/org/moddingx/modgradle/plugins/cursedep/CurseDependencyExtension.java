@@ -63,6 +63,8 @@ public class CurseDependencyExtension extends GroovyObjectSupport {
             return this.project.getDependencies().create(cache);
         }
 
+        // Must be manual, so we don't include the DeobfuscatingRepo
+        // see https://github.com/MinecraftForge/ForgeGradle/pull/911 and https://github.com/MinecraftForge/ForgeGradle/issues/912
         File file = MavenArtifactDownloader.manual(this.project, CurseDepPlugin.curseArtifact("O", projectId, fileId, "zip"), false);
         if (file == null) {
             throw new IllegalStateException("Cannot create curse ModPack dependency: Failed to download manifest");

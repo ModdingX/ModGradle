@@ -4,10 +4,10 @@ import net.minecraftforge.gradle.common.util.Artifact;
 import org.gradle.api.Project;
 import org.moddingx.cursewrapper.api.response.FileInfo;
 import org.moddingx.cursewrapper.api.response.ProjectInfo;
+import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
 import org.moddingx.modgradle.plugins.packdev.platform.BaseModFile;
 import org.moddingx.modgradle.util.ComputedHash;
-import org.moddingx.modgradle.util.Side;
 import org.moddingx.modgradle.util.curse.CurseUtil;
 
 import javax.annotation.Nullable;

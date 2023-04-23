@@ -87,7 +87,7 @@ public abstract class ClasspathExec extends DefaultTask {
     }
     
     @TaskAction
-    public void exec(InputChanges changes) throws IOException {
+    public void exec(InputChanges inputs) throws IOException {
         ConfigurationDownloader.Executable executable = ConfigurationDownloader.executable(this.getProject(), this.getTool().get());
         if (executable == null) throw new IllegalStateException("Could not resolve tool: " + this.getTool().get());
         List<String> arguments = this.processArgs(this.getArgs().get());

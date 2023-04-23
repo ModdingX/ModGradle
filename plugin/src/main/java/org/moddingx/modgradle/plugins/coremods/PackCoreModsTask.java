@@ -43,7 +43,7 @@ public abstract class PackCoreModsTask extends DefaultTask {
     public abstract DirectoryProperty getTargetDir();
 
     @TaskAction
-    public void packCoreMods(InputChanges changes) throws IOException {
+    public void packCoreMods(InputChanges inputs) throws IOException {
         Path source = this.getSourceDir().get().getAsFile().toPath().toAbsolutePath().normalize();
         
         List<Path> coreMods;

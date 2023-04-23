@@ -8,10 +8,10 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.work.InputChanges;
+import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.plugins.packdev.PackSettings;
 import org.moddingx.modgradle.plugins.packdev.platform.ModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
-import org.moddingx.modgradle.util.Side;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,7 +66,7 @@ public abstract class BaseTargetTask<T extends ModFile> extends AbstractArchiveT
     }
 
     @TaskAction
-    public void generateOutput(InputChanges changes) throws IOException {
+    public void generateOutput(InputChanges inputs) throws IOException {
         Path target = this.getArchiveFile().get().getAsFile().toPath().toAbsolutePath().normalize();
         if (!Files.exists(target.getParent())) Files.createDirectories(target.getParent());
         if (Files.exists(target)) Files.delete(target);

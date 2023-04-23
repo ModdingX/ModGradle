@@ -52,7 +52,7 @@ public abstract class BuildCoreModsTask extends DefaultTask {
     }
 
     @TaskAction
-    public void compileCoreMods(InputChanges changes) throws IOException {
+    public void compileCoreMods(InputChanges inputs) throws IOException {
         FileCollection sources = this.getCoreModSources().get();
         Path install = this.getTargetDir().get().getAsFile().toPath();
         Path target = install.resolve("ts");

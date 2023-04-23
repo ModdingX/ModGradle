@@ -1,8 +1,8 @@
 package org.moddingx.modgradle.plugins.packdev.platform;
 
 import net.minecraftforge.gradle.common.util.Artifact;
+import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.util.ComputedHash;
-import org.moddingx.modgradle.util.Side;
 
 import java.io.IOException;
 import java.io.InputStream;

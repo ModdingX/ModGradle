@@ -117,7 +117,6 @@ public class McUpdatePlugin implements Plugin<Project> {
                 MergeMappingsTask mergeMappingsTask = project.getTasks().create("mcupdate_mergeMappings", MergeMappingsTask.class);
                 mergeMappingsTask.getPrimary().set(mappingTask.getMappingOutput());
                 mergeMappingsTask.getAdditional().set(project.provider(() -> project.files(transformTask.getOutput())));
-                mergeMappingsTask.getNoParam().set(false);
                 mergeMappingsTask.dependsOn(mappingTask, transformTask);
                 nextDependencyTask = mergeMappingsTask;
                 finalMappings = mergeMappingsTask.getOutput();

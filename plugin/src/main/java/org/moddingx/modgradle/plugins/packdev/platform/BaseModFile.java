@@ -3,8 +3,8 @@ package org.moddingx.modgradle.plugins.packdev.platform;
 import org.apache.commons.io.input.CountingInputStream;
 import org.gradle.api.Project;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
-import org.moddingx.modgradle.util.ComputedHash;
-import org.moddingx.modgradle.util.HashAlgorithm;
+import org.moddingx.modgradle.util.hash.ComputedHash;
+import org.moddingx.modgradle.util.hash.HashAlgorithm;
 import org.moddingx.modgradle.util.curse.MurmurHasher;
 
 import java.io.IOException;

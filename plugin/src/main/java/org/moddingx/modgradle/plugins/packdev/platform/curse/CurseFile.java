@@ -7,7 +7,7 @@ import org.moddingx.cursewrapper.api.response.ProjectInfo;
 import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
 import org.moddingx.modgradle.plugins.packdev.platform.BaseModFile;
-import org.moddingx.modgradle.util.ComputedHash;
+import org.moddingx.modgradle.util.hash.ComputedHash;
 import org.moddingx.modgradle.util.curse.CurseUtil;
 
 import javax.annotation.Nullable;

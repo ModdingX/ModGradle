@@ -8,7 +8,7 @@ import org.moddingx.modgradle.plugins.packdev.platform.BaseModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.modrinth.api.ModrinthAPI;
 import org.moddingx.modgradle.plugins.packdev.platform.modrinth.api.ProjectInfo;
 import org.moddingx.modgradle.plugins.packdev.platform.modrinth.api.VersionInfo;
-import org.moddingx.modgradle.util.ComputedHash;
+import org.moddingx.modgradle.util.hash.ComputedHash;
 
 import javax.annotation.Nullable;
 import java.io.IOException;

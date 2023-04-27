@@ -7,7 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import org.moddingx.launcherlib.util.Either;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.plugins.packdev.platform.ModFile;
-import org.moddingx.modgradle.util.ComputedHash;
+import org.moddingx.modgradle.util.hash.ComputedHash;
 
 import javax.annotation.Nullable;
 import java.io.IOException;

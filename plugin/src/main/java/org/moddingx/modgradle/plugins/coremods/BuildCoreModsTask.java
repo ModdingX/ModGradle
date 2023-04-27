@@ -11,7 +11,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.*;
 import org.gradle.work.InputChanges;
-import org.moddingx.modgradle.util.HashCache;
+import org.moddingx.modgradle.util.hash.HashCache;
 import org.moddingx.modgradle.util.IOUtil;
 import org.moddingx.modgradle.util.MgUtil;
 import org.moddingx.modgradle.util.ProcessUtil;

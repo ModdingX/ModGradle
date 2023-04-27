@@ -10,7 +10,7 @@ import org.moddingx.modgradle.plugins.packdev.api.CurseProperties;
 import org.moddingx.modgradle.plugins.packdev.platform.ModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
 import org.moddingx.modgradle.plugins.packdev.platform.curse.CurseFile;
-import org.moddingx.modgradle.util.ComputedHash;
+import org.moddingx.modgradle.util.hash.ComputedHash;
 import org.moddingx.modgradle.util.curse.CurseUtil;
 
 import javax.inject.Inject;

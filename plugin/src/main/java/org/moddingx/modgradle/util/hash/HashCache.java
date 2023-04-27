@@ -1,4 +1,4 @@
-package org.moddingx.modgradle.util;
+package org.moddingx.modgradle.util.hash;
 
 import org.apache.commons.io.file.PathUtils;
 

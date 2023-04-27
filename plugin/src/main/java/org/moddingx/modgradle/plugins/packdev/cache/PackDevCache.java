@@ -7,7 +7,7 @@ import com.google.gson.JsonPrimitive;
 import org.gradle.api.Project;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
-import org.moddingx.modgradle.util.ComputedHash;
+import org.moddingx.modgradle.util.hash.ComputedHash;
 
 import javax.annotation.Nullable;
 import java.io.IOException;

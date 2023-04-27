@@ -1,4 +1,4 @@
-package org.moddingx.modgradle.util;
+package org.moddingx.modgradle.util.hash;
 
 import javax.annotation.Nullable;
 import java.security.MessageDigest;

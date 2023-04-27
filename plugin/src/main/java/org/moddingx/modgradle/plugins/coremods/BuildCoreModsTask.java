@@ -11,7 +11,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.*;
 import org.gradle.work.InputChanges;
-import org.moddingx.modgradle.util.HashCache;
+import org.moddingx.modgradle.util.hash.HashCache;
 import org.moddingx.modgradle.util.IOUtil;
 import org.moddingx.modgradle.util.MgUtil;
 import org.moddingx.modgradle.util.ProcessUtil;
@@ -52,7 +52,7 @@ public abstract class BuildCoreModsTask extends DefaultTask {
     }
 
     @TaskAction
-    public void compileCoreMods(InputChanges changes) throws IOException {
+    public void compileCoreMods(InputChanges inputs) throws IOException {
         FileCollection sources = this.getCoreModSources().get();
         Path install = this.getTargetDir().get().getAsFile().toPath();
         Path target = install.resolve("ts");

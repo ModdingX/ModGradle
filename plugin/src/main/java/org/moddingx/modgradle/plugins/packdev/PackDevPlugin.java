@@ -17,6 +17,7 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.build.event.BuildEventsListenerRegistry;
 import org.gradle.jvm.toolchain.JavaLanguageVersion;
+import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.api.Versioning;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
@@ -24,7 +25,6 @@ import org.moddingx.modgradle.plugins.packdev.platform.ModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
 import org.moddingx.modgradle.util.JavaEnv;
 import org.moddingx.modgradle.util.MgUtil;
-import org.moddingx.modgradle.util.Side;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

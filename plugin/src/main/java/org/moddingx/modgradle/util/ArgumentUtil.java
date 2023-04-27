@@ -1,5 +1,6 @@
 package org.moddingx.modgradle.util;
 
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
@@ -57,6 +58,8 @@ public class ArgumentUtil {
             return fc.getAsPath();
         } else if (value instanceof RegularFile file) {
             return file.getAsFile().toPath().toAbsolutePath().normalize().toString();
+        } else if (value instanceof Directory dir) {
+            return dir.getAsFile().toPath().toAbsolutePath().normalize().toString();
         } else {
             return value.toString();
         }

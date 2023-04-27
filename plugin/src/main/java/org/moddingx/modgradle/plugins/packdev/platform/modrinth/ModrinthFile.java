@@ -2,13 +2,13 @@ package org.moddingx.modgradle.plugins.packdev.platform.modrinth;
 
 import net.minecraftforge.gradle.common.util.Artifact;
 import org.gradle.api.Project;
+import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
 import org.moddingx.modgradle.plugins.packdev.platform.BaseModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.modrinth.api.ModrinthAPI;
 import org.moddingx.modgradle.plugins.packdev.platform.modrinth.api.ProjectInfo;
 import org.moddingx.modgradle.plugins.packdev.platform.modrinth.api.VersionInfo;
-import org.moddingx.modgradle.util.ComputedHash;
-import org.moddingx.modgradle.util.Side;
+import org.moddingx.modgradle.util.hash.ComputedHash;
 
 import javax.annotation.Nullable;
 import java.io.IOException;

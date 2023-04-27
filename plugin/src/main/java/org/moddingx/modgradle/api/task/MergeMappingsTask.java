@@ -8,7 +8,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.work.InputChanges;
-import org.moddingx.modgradle.mappings.MappingMerger;
+import org.moddingx.launcherlib.mappings.MappingHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public abstract class MergeMappingsTask extends DefaultTask {
 
     public MergeMappingsTask() {
         this.getAdditional().convention(this.getProject().provider(() -> this.getProject().files()));
-        this.getNoParam().convention(this.getProject().provider(() -> false));
+        this.getRemoveParameters().convention(this.getProject().provider(() -> false));
         this.getFormat().convention("tsrg2");
         this.getOutput().convention(this.getProject().provider(() -> () -> this.getProject().file("build").toPath().resolve(this.getName()).resolve("mappings.tsrg").toFile()));
     }
@@ -58,10 +58,10 @@ public abstract class MergeMappingsTask extends DefaultTask {
     public abstract RegularFileProperty getOutput();
 
     /**
-     * Whether params should be left out of the merged mappings. Default is {@code false}.
+     * Whether params should be removed from the merged mappings. Default is {@code false}.
      */
     @Input
-    public abstract Property<Boolean> getNoParam();
+    public abstract Property<Boolean> getRemoveParameters();
 
     @TaskAction
     protected void mergeMappings(InputChanges inputs) throws IOException {
@@ -77,7 +77,8 @@ public abstract class MergeMappingsTask extends DefaultTask {
         for (File file : this.getAdditional().get()) {
             mappings.add(IMappingFile.load(file));
         }
-        IMappingFile merged = MappingMerger.mergeMappings(mappings, this.getNoParam().get());
-        merged.write(this.getOutput().getAsFile().get().toPath(), IMappingFile.Format.TSRG2, false);
+        IMappingFile merged = MappingHelper.merge(mappings);
+        if (this.getRemoveParameters().get()) merged = MappingHelper.removeParameters(merged);
+        merged.write(this.getOutput().getAsFile().get().toPath(), format, false);
     }
 }

@@ -2,11 +2,11 @@ package org.moddingx.modgradle.plugins.packdev.target;
 
 import com.google.gson.JsonObject;
 import groovy.json.StringEscapeUtils;
+import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.plugins.packdev.PackSettings;
 import org.moddingx.modgradle.plugins.packdev.platform.ModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
-import org.moddingx.modgradle.util.Side;
 import org.moddingx.modgradle.util.multimc.MultiMcAPI;
 
 import javax.inject.Inject;

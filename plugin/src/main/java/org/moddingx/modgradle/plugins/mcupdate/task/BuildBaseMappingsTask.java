@@ -1,6 +1,6 @@
 package org.moddingx.modgradle.plugins.mcupdate.task;
 
-import com.google.common.collect.Streams;
+import net.minecraftforge.srgutils.IMappingBuilder;
 import net.minecraftforge.srgutils.IMappingFile;
 import org.apache.commons.io.file.PathUtils;
 import org.gradle.api.DefaultTask;
@@ -12,14 +12,13 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.InputChanges;
-import org.moddingx.modgradle.mappings.MappingMerger;
+import org.moddingx.launcherlib.mappings.MappingHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
 public abstract class BuildBaseMappingsTask extends DefaultTask {
 
@@ -40,15 +39,23 @@ public abstract class BuildBaseMappingsTask extends DefaultTask {
     public abstract RegularFileProperty getMappingOutput();
 
     @TaskAction
-    public void buildMappings(InputChanges changes) throws IOException {
+    public void buildMappings(InputChanges inputs) throws IOException {
         Path path = this.getMappingOutput().get().getAsFile().toPath();
         PathUtils.createParentDirectories(path);
 
-        IMappingFile merged = MappingMerger.mergeMappings(Streams.concat(
-                Stream.ofNullable(this.getMainMappings().getOrNull()).map(this::loadMappings),
-                this.getAdditionalMappings().get().stream().map(this::loadMappings)
-        ).toList(), false);
-        merged.write(path, IMappingFile.Format.TSRG2, false);
+        IMappingFile main = this.getMainMappings().map(this::loadMappings).getOrNull();
+        if (main == null) main = IMappingBuilder.create("from", "to").build().getMap("from", "to");
+
+        IMappingFile builtMappings = main;
+        if (!this.getAdditionalMappings().get().isEmpty()) {
+            IMappingFile mergedAdditional = MappingHelper.merge(this.getAdditionalMappings().get().stream().map(this::loadMappings).toList());
+            
+            // Do combination of chain and merge
+            IMappingFile chainedMain = main.chain(mergedAdditional);
+            builtMappings = MappingHelper.merge(mergedAdditional, chainedMain);
+        }
+        
+        builtMappings.write(path, IMappingFile.Format.TSRG2, false);
     }
 
     private IMappingFile loadMappings(URL url) {

@@ -2,9 +2,9 @@ package org.moddingx.modgradle.plugins.packdev.platform.modrinth;
 
 import com.google.gson.JsonElement;
 import org.gradle.api.Project;
+import org.moddingx.launcherlib.util.Side;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
-import org.moddingx.modgradle.util.Side;
 
 import java.util.Comparator;
 import java.util.List;

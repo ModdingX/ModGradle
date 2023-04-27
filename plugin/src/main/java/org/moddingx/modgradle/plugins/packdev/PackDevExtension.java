@@ -1,6 +1,7 @@
 package org.moddingx.modgradle.plugins.packdev;
 
 import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import groovy.lang.GroovyObjectSupport;
 import groovy.transform.Internal;
 import org.gradle.api.Action;
@@ -31,7 +32,7 @@ public class PackDevExtension extends GroovyObjectSupport {
         this.author = author;
     }
     
-    public void targets(Closure<?> closure) {
+    public void targets(@DelegatesTo(value = TargetBuilder.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
         closure.setDelegate(this.targets);
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
         if (closure.getMaximumNumberOfParameters() == 0) {

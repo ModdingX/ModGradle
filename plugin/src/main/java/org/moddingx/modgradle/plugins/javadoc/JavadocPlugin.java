@@ -40,7 +40,7 @@ public class JavadocPlugin implements Plugin<Project> {
                 try {
                     cssTask.set(project.getTasks().create("javadocDownloadThemeCss", DownloadTask.class));
                     cssTask.get().redownload();
-                    cssTask.get().getUrl().set(new URL("https://gist.githubusercontent.com/noeppi-noeppi/56bb978ef90a61bbc749dee17d3ad98b/raw/darkmode.css"));
+                    cssTask.get().getUrl().set(new URL("https://assets.moddingx.org/javadoc/darkTheme.css"));
                     cssTask.get().getOutput().set(project.file("build").toPath().resolve(cssTask.get().getName()).resolve("darkTheme.css").toFile());
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to configure javadoc theme download task", e);

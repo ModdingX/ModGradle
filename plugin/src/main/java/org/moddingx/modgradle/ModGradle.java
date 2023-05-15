@@ -3,11 +3,13 @@ package org.moddingx.modgradle;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.repositories.RepositoryContentDescriptor;
 import org.gradle.api.invocation.Gradle;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ModGradle {
 
@@ -48,31 +50,33 @@ public class ModGradle {
             
             project.getRepositories().maven(r -> {
                 r.setUrl("https://maven.moddingx.org");
-                r.content(c -> c.includeGroup("org.moddingx"));
+                r.content(c -> includeAll(c, "org.moddingx"));
             });
             
             // Forge Maven is required for dependencies like SrgUtils
             project.getRepositories().maven(r -> {
                 r.setUrl("https://maven.minecraftforge.net");
-                r.content(c -> c.includeGroup("cpw.mods"));
-                r.content(c -> c.includeGroup("de.oceanlabs.mcp"));
-                r.content(c -> c.includeGroup("net.minecraftforge"));
-                r.content(c -> c.includeGroup("org.mcmodlauncher"));
+                r.content(c -> {
+                    includeAll(c, "cpw.mods");
+                    includeAll(c, "de.oceanlabs");
+                    includeAll(c, "net.minecraftforge");
+                    includeAll(c, "org.mcmodlauncher");
+                });
             });
             
             // Parchment Maven is required for dependencies like Feather
             project.getRepositories().maven(r -> {
                 r.setUrl("https://maven.parchmentmc.org");
-                r.content(c -> {
-                    c.includeGroup("org.parchmentmc");
-                    c.includeGroup("org.parchmentmc.feather");
-                    c.excludeGroup("org.parchmentmc.data");
-                });
+                r.content(c -> includeAll(c, "org.parchmentmc"));
             });
             
             // Required for dependencies
             project.getRepositories().mavenCentral();
         }
+    }
+    
+    private static void includeAll(RepositoryContentDescriptor content, String group) {
+        content.includeGroupByRegex(Pattern.quote(group) + "(?:\\..+)?");
     }
     
     @Nullable

@@ -64,13 +64,13 @@ public class SugarcaneProvider extends ParchmentChannelProvider {
 
     @Override
     protected File getParchmentZip(Project project, ParchmentMappingVersion version) {
-        return MavenArtifactDownloader.download(project, "org.moddingx.sugarcane:sugarcane-" + version.queryMcVersion() + ":" + version.parchmentVersion() + "@zip", false);
+        return this.getDependency(project, "org.moddingx.sugarcane:sugarcane-" + version.queryMcVersion() + ":" + version.parchmentVersion() + "@zip");
     }
 
     @Override
     protected synchronized File getDependency(Project project, String dependencyNotation) {
         // We don't need snapshot handling as SugarCane will only build on releases
-        return MavenArtifactDownloader.manual(project, dependencyNotation, false);
+        return MavenArtifactDownloader.generate(project, dependencyNotation, false);
     }
 
     @Override

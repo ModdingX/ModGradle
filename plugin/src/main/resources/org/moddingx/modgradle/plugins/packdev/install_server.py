@@ -116,12 +116,6 @@ def download_file(file_url, file_name):
         file.write(response.read())
 
 
-def get_file_name(project_id, file_id):
-    file_info = make_request(f'https://curse.melanx.de/project/{project_id}/file/{file_id}')
-    data = json.loads(urlopen(file_info).read().decode('utf-8'))
-    return data['name']
-
-
 def make_request(file_url):
     return Request(file_url, headers={'Accept': '*/*', 'User-Agent': 'python3/modgradle server installer'})
 

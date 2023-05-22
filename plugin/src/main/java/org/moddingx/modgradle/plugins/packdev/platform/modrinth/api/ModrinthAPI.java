@@ -160,7 +160,7 @@ public class ModrinthAPI {
                             return HttpResponse.BodySubscribers.replacing(Either.right(new IOException("HTTP Status Code: " + resp.statusCode())));
                         }
                     }
-            ).body().getOrThrowChecked(Function.identity(), Function.identity());
+            ).body().getOrThrow(Function.identity(), Function.identity());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Interrupted", e);

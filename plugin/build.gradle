@@ -18,7 +18,7 @@ dependencies {
     implementation('org.apache.maven:maven-repository-metadata') { version { strictly '[3.9.2,)'; prefer '3.9.2' } }
     implementation('net.minecraftforge:srgutils') { version { strictly '[0.5.1,)'; prefer '0.5.1' } }
     implementation('net.minecraftforge.gradle:ForgeGradle') { version { strictly "[5.1.76,5.2)"; prefer '5.1.76' } }
-    implementation('net.minecraftforge:artifactural') { version { strictly '[3.0.15,)'; prefer '3.0.15' } }
+    implementation('net.minecraftforge:artifactural') { version { strictly '[3.0.14,)'; prefer '3.0.14' } }
     compileOnly('org.parchmentmc:librarian') { version { strictly '[1.2.0,)'; prefer '1.2.0' } }
     implementation('de.siegmar:fastcsv') { version { strictly '[2.2.2,)'; prefer '2.2.2' } }
     implementation('com.google.code.gson:gson') { version { strictly '[2.10.1,)'; prefer '2.10.1' } }

@@ -6,8 +6,8 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
 import org.moddingx.modgradle.ModGradle;
-import org.moddingx.modgradle.util.IOUtil;
-import org.moddingx.modgradle.util.JavaEnv;
+import org.moddingx.modgradle.util.io.IOUtil;
+import org.moddingx.modgradle.util.java.JavaEnv;
 import org.moddingx.modgradle.util.MgUtil;
 
 import javax.annotation.Nonnull;

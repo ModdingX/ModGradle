@@ -11,8 +11,8 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.InputChanges;
-import org.moddingx.modgradle.util.JavaEnv;
-import org.moddingx.modgradle.util.JavaHelper;
+import org.moddingx.modgradle.util.java.JavaEnv;
+import org.moddingx.modgradle.util.java.JavaHelper;
 import org.moddingx.modgradle.util.PackageMatcher;
 
 import java.io.BufferedWriter;

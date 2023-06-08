@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.moddingx.modgradle.util.java.JarUtil;
 
 import javax.annotation.Nullable;
 import java.io.File;

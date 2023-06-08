@@ -1,4 +1,6 @@
-package org.moddingx.modgradle.util;
+package org.moddingx.modgradle.util.java;
+
+import org.moddingx.modgradle.util.io.IOUtil;
 
 import javax.annotation.Nullable;
 import java.io.File;

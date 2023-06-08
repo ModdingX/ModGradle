@@ -10,8 +10,8 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.InputChanges;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.api.Versioning;
-import org.moddingx.modgradle.plugins.meta.ModFiles;
-import org.moddingx.modgradle.util.JavaEnv;
+import org.moddingx.modgradle.util.ModFiles;
+import org.moddingx.modgradle.util.java.JavaEnv;
 
 import java.io.File;
 import java.io.IOException;

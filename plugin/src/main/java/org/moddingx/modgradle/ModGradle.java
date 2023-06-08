@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.RepositoryContentDescriptor;
 import org.gradle.api.invocation.Gradle;
+import org.moddingx.modgradle.api.ModGradleExtension;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -47,6 +48,8 @@ public class ModGradle {
             }
             
             initialised.add(project);
+            
+            project.getExtensions().create(ModGradleExtension.EXTENSION_NAME, ModGradleExtension.class);
             
             project.getRepositories().maven(r -> {
                 r.setUrl("https://maven.moddingx.org");

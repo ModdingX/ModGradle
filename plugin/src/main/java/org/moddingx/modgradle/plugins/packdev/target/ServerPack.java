@@ -1,12 +1,11 @@
 package org.moddingx.modgradle.plugins.packdev.target;
 
 import org.moddingx.launcherlib.util.Side;
-import org.moddingx.modgradle.api.Versioning;
 import org.moddingx.modgradle.plugins.packdev.PackDevPlugin;
 import org.moddingx.modgradle.plugins.packdev.PackSettings;
 import org.moddingx.modgradle.plugins.packdev.platform.ModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
-import org.moddingx.modgradle.util.IOUtil;
+import org.moddingx.modgradle.util.io.CopyHelper;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -55,9 +54,7 @@ public class ServerPack<T extends ModFile> extends BaseTargetTask<T> {
             if (dockerFile == null) {
                 throw new IllegalStateException("Can't build server pack: Dockerfile not found in ModGradle.");
             }
-            IOUtil.copyFile(dockerFile, fs.getPath("Dockerfile"), Map.of(
-                    "jdk", Integer.toString(Versioning.getJavaVersion(this.settings.minecraft()))
-            ), true);
+            CopyHelper.copy(this.getProject(), dockerFile, fs.getPath("Dockerfile"));
             dockerFile.close();
 
             this.generateServerInfo(fs.getPath("server.txt"));

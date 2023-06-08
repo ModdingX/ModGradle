@@ -21,10 +21,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -162,9 +159,8 @@ public class Versioning {
     /**
      * Gets the mixin version for a given version of minecraft.
      */
-    @Nullable
-    public static MixinVersion getMixinVersion(String minecraft) {
-        return getMinecraftVersion(minecraft).mixin();
+    public static Optional<MixinVersion> getMixinVersion(String minecraft) {
+        return Optional.ofNullable(getMinecraftVersion(minecraft).mixin());
     }
 
     private static VersionInfo getMinecraftVersion(String minecraft) {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 public class McEnv {
 
+    // Must be used in afterEvaluate
     public static Provider<String> findMinecraftVersion(Project project) {
         return project.provider(() -> {
             Object mcpVersion = project.getExtensions().getExtraProperties().get("MCP_VERSION");
@@ -25,6 +26,7 @@ public class McEnv {
         });
     }
 
+    // Must be used in afterEvaluate
     public static Provider<String> findForgeVersion(Project project) {
         return findForge(project).map(artifact -> {
             String ver = artifact.getVersion();
@@ -41,6 +43,7 @@ public class McEnv {
         });
     }
 
+    // Must be used in afterEvaluate
     public static Provider<Artifact> findForge(Project project) {
         return project.provider(() -> {
             if (!project.getPlugins().hasPlugin("net.minecraftforge.gradle")) {

@@ -8,9 +8,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class McUpdateExtension {
 
@@ -22,11 +20,11 @@ public class McUpdateExtension {
     private URL config = null;
     
     private String tool = null;
-    private final Set<URL> additionalMappings;
+    private final List<URL> additionalMappings;
 
     public McUpdateExtension(Project project) {
         this.project = project;
-        this.additionalMappings = new HashSet<>();
+        this.additionalMappings = new ArrayList<>();
     }
 
     public void version(String mcv) {
@@ -82,8 +80,8 @@ public class McUpdateExtension {
     }
     
     @Internal
-    public Set<URL> getAdditionalMappings() {
-        return Collections.unmodifiableSet(this.additionalMappings);
+    public List<URL> getAdditionalMappings() {
+        return List.copyOf(this.additionalMappings);
     }
     
     private static URL toURL(String string) {

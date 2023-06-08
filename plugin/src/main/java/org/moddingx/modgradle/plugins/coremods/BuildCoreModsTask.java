@@ -12,9 +12,9 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.*;
 import org.gradle.work.InputChanges;
 import org.moddingx.modgradle.util.hash.HashCache;
-import org.moddingx.modgradle.util.IOUtil;
+import org.moddingx.modgradle.util.io.IOUtil;
 import org.moddingx.modgradle.util.MgUtil;
-import org.moddingx.modgradle.util.ProcessUtil;
+import org.moddingx.modgradle.util.io.ProcessUtil;
 
 import java.io.File;
 import java.io.IOException;

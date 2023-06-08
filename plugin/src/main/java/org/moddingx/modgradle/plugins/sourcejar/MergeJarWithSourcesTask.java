@@ -13,7 +13,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.work.InputChanges;
 import org.moddingx.modgradle.plugins.coremods.CoreModsPlugin;
-import org.moddingx.modgradle.util.JavaEnv;
+import org.moddingx.modgradle.util.java.JavaEnv;
 import org.moddingx.modgradle.util.StringUtil;
 
 import javax.annotation.Nonnull;

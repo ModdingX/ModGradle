@@ -11,7 +11,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.InputChanges;
 import org.moddingx.modgradle.ModGradle;
-import org.moddingx.modgradle.util.IOUtil;
+import org.moddingx.modgradle.util.io.IOUtil;
 
 import java.io.IOException;
 import java.io.Writer;

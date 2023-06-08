@@ -1,4 +1,4 @@
-package org.moddingx.modgradle.util;
+package org.moddingx.modgradle.util.io;
 
 import org.apache.commons.io.IOUtils;
 

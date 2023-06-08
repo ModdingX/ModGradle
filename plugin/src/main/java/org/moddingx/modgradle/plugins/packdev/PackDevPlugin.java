@@ -23,7 +23,7 @@ import org.moddingx.modgradle.api.Versioning;
 import org.moddingx.modgradle.plugins.packdev.cache.PackDevCache;
 import org.moddingx.modgradle.plugins.packdev.platform.ModFile;
 import org.moddingx.modgradle.plugins.packdev.platform.ModdingPlatform;
-import org.moddingx.modgradle.util.JavaEnv;
+import org.moddingx.modgradle.util.java.JavaEnv;
 import org.moddingx.modgradle.util.MgUtil;
 
 import javax.annotation.Nonnull;
@@ -40,7 +40,6 @@ import java.util.*;
 public abstract class PackDevPlugin implements Plugin<Project> {
 
     @Inject
-    @SuppressWarnings("UnstableApiUsage")
     public abstract BuildEventsListenerRegistry getEventRegistry();
 
     @Override
@@ -102,7 +101,6 @@ public abstract class PackDevPlugin implements Plugin<Project> {
 
         platform.initialise(project);
         PackDevCache cache = new PackDevCache(project, platform);
-        //noinspection UnstableApiUsage
         this.getEventRegistry().onTaskCompletion(project.provider(() -> e -> cache.save()));
         List<? extends ModFile> files = List.copyOf(platform.readModList(project, cache, fileData));
 
@@ -117,7 +115,7 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         Configuration compileOnly = project.getConfigurations().getByName("compileOnly");
         compileOnly.extendsFrom(clientMods, serverMods);
 
-        DependencyManagementExtension fgExt = getMcExt(project, "fg", DependencyManagementExtension.class);
+        DependencyManagementExtension fgExt = MgUtil.getExtension(project, "fg", DependencyManagementExtension.class);
         for (ModFile file : files) {
             String cfg = switch (file.fileSide()) {
                 case COMMON -> "implementation";
@@ -151,7 +149,7 @@ public abstract class PackDevPlugin implements Plugin<Project> {
             set.setRuntimeClasspath(serverMods);
         });
 
-        UserDevExtension mcExt = getMcExt(project, "minecraft", UserDevExtension.class);
+        UserDevExtension mcExt = MgUtil.getExtension(project, "minecraft", UserDevExtension.class);
         // Pass modListMcVersion as minecraft version here as pack settings are not yet available
         // modListMcVersion will always match the actual minecraft version or an exception will be thrown later in afterEvaluate
         addRunConfig(project, mcExt, "client", Side.CLIENT, JavaEnv.getJavaSources(project).get(), clientDepSources, modListMcVersion);
@@ -177,14 +175,6 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         });
     }
 
-    private static <T> T getMcExt(Project project, String name, Class<T> cls) {
-        try {
-            return project.getExtensions().getByType(cls);
-        } catch (Exception e) {
-            throw new IllegalStateException(name + " extension not found.");
-        }
-    }
-
     private static void addRunConfig(Project project, UserDevExtension ext, String name, Side side, SourceSet commonMods, SourceSet additionalMods, String mcVersion) {
         String capitalized = MgUtil.capitalize(name);
         String taskName = "run" + capitalized;
@@ -192,7 +182,7 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         ext.getRuns().create(name, run -> {
             run.workingDirectory(workingDir);
             run.property("forge.logging.console.level", "info");
-            if (Versioning.getMixinVersion(mcVersion) != null) {
+            if (Versioning.getMixinVersion(mcVersion).isPresent()) {
                 GenerateSRG generateMappings = MgUtil.task(project, "createMcpToSrg", GenerateSRG.class);
                 if (generateMappings != null) {
                     run.property("mixin.env.remapRefMap", "true");

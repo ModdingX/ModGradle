@@ -14,7 +14,7 @@ import org.moddingx.modgradle.api.task.DownloadTask;
 import org.moddingx.modgradle.api.task.ExtractZipTask;
 import org.moddingx.modgradle.api.task.MergeMappingsTask;
 import org.moddingx.modgradle.plugins.mcupdate.task.*;
-import org.moddingx.modgradle.util.JavaEnv;
+import org.moddingx.modgradle.util.java.JavaEnv;
 import org.moddingx.modgradle.util.MgUtil;
 import org.moddingx.modgradle.util.task.ExtractInheritanceTask;
 

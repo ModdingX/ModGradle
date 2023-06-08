@@ -15,7 +15,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.work.InputChanges;
 import org.moddingx.modgradle.ModGradle;
-import org.moddingx.modgradle.util.IOUtil;
+import org.moddingx.modgradle.util.io.IOUtil;
 import org.moddingx.modgradle.util.McEnv;
 import org.moddingx.modgradle.util.StringUtil;
 

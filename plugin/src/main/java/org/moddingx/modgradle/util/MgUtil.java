@@ -36,6 +36,18 @@ public class MgUtil {
             return null;
         }
     }
+    
+    public static <T> T getExtension(Project project, String name, Class<T> cls) {
+        Object ext = project.getExtensions().findByName(name);
+        if (ext == null) {
+            throw new IllegalStateException(name + " extension not found.");
+        } else if (cls.isAssignableFrom(ext.getClass())) {
+            //noinspection unchecked
+            return (T) ext;
+        } else {
+            throw new ClassCastException("Extension has wrong type, expected " + cls + ", got " + ext.getClass().getName());
+        }
+    }
 
     public static String dependencyName(Dependency dependency) {
         if (dependency instanceof ExternalModuleDependency emd) {

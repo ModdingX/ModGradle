@@ -6,7 +6,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.jvm.toolchain.JavaCompiler;
-import org.moddingx.modgradle.util.JavaHelper;
+import org.moddingx.modgradle.util.java.JavaHelper;
 
 import java.nio.file.Paths;
 

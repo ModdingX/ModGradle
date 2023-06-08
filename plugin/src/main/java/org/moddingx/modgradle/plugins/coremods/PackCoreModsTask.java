@@ -16,6 +16,7 @@ import org.moddingx.modgradle.util.io.IOUtil;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,7 +61,7 @@ public abstract class PackCoreModsTask extends DefaultTask {
         
         String baseJs;
         try (FileSystem fs = IOUtil.getFileSystem(URI.create("jar:" + this.getCoreModTypes().get().getAsFile().toPath().toUri()))) {
-            baseJs = Files.readString(fs.getPath("coremods.js")) + "\n";
+            baseJs = Files.readString(fs.getPath("coremods.js"), StandardCharsets.UTF_8) + "\n";
         }
 
         JsonObject json = new JsonObject();
@@ -69,7 +70,7 @@ public abstract class PackCoreModsTask extends DefaultTask {
             PathUtils.createParentDirectories(dest);
             Writer writer = Files.newBufferedWriter(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             writer.write(baseJs + "\n");
-            writer.write(Files.readString(source.resolve(loc)) + "\n");
+            writer.write(Files.readString(source.resolve(loc), StandardCharsets.UTF_8) + "\n");
             writer.close();
             
             String name = loc.getFileName() == null ? "" : loc.getFileName().toString();

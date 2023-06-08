@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -60,7 +61,7 @@ public abstract class UpdateMetaTask extends DefaultTask {
     
     private void processJenkinsfile(String minecraft, Path path) throws IOException {
         Pattern pattern = Pattern.compile("(tools[\\s\n]*\\{[.\\s]*?jdk\\s*['\"]java)\\d+(['\"][.\\s]*?})");
-        String file = Files.readString(path);
+        String file = Files.readString(path, StandardCharsets.UTF_8);
         String replaced = pattern.matcher(file).replaceAll(r -> r.group(1) + Versioning.getJavaVersion(minecraft) + r.group(2));
         if (!file.equals(replaced)) {
             Files.writeString(path, replaced, StandardOpenOption.TRUNCATE_EXISTING);

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class DynamicObject extends GroovyObjectSupport {
 
     private static final Set<String> RESERVED_METHODS = Set.of(
-            "getAt", "putAt", "isCase", "getProperty", "setProperty", "invokeMethod", "equals", "hashCode", "toString"
+            "getAt", "putAt", "isCase", "getProperty", "setProperty", "invokeMethod", "equals", "hashCode", "toString", "toMap"
     );
     
     private final Map<String, Object> properties;

@@ -13,18 +13,18 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.work.InputChanges;
 import org.moddingx.modgradle.plugins.coremods.CoreModsPlugin;
+import org.moddingx.modgradle.util.io.zip.ZipBuilder;
 import org.moddingx.modgradle.util.java.JavaEnv;
 import org.moddingx.modgradle.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -68,40 +68,42 @@ public abstract class MergeJarWithSourcesTask extends AbstractArchiveTask {
 
     @TaskAction
     protected void mergeJars(InputChanges inputs) throws IOException {
-        ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(this.getArchiveFile().get().getAsFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
+        ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(this.getArchiveFile().get().getAsFile().toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
+        ZipBuilder zip = ZipBuilder.create(zipOut, this.isPreserveFileTimestamps(), this.isReproducibleFileOrder());
         Set<String> dirs = new HashSet<>();
-        this.processJar(out, this.getBase().getAsFile().get().toPath(), dirs, false);
-        this.processJar(out, this.getSources().getAsFile().get().toPath(), dirs, true);
+        this.processJar(zip, this.getBase().getAsFile().get().toPath(), dirs, false);
+        this.processJar(zip, this.getSources().getAsFile().get().toPath(), dirs, true);
         if (this.getCoreModSources().isPresent()) {
             for (File srcDir : this.getCoreModSources().get().getFiles()) {
                 for (Path loc : CoreModsPlugin.getRelativeCoreModPaths(srcDir.toPath())) {
-                    out.putNextEntry(new ZipEntry(loc.normalize().toString()));
-                    Files.copy(srcDir.toPath().resolve(loc), out);
-                    out.closeEntry();
+                    try (OutputStream out = zip.addEntry(loc.normalize().toString())) {
+                        Files.copy(srcDir.toPath().resolve(loc), out);
+                    }
                 }
             }
         }
-        out.close();
+        zip.close();
+        zipOut.close();
     }
     
-    private void processJar(ZipOutputStream out, Path jarFile, Set<String> dirs, boolean sources) throws IOException {
+    private void processJar(ZipBuilder zip, Path jarFile, Set<String> dirs, boolean sources) throws IOException {
         ZipInputStream zin = new ZipInputStream(Files.newInputStream(jarFile));
         for (ZipEntry entry = zin.getNextEntry(); entry != null; entry = zin.getNextEntry()) {
             String name = entry.getName().substring(StringUtil.indexWhere(entry.getName(), c -> c != '/'));
             if (entry.isDirectory()) {
                 if (!dirs.contains(name)) {
                     dirs.add(name);
-                    out.putNextEntry(new ZipEntry(name));
-                    out.closeEntry();
+                    //noinspection EmptyTryBlock
+                    try (OutputStream ignored = zip.addEntry(name, entry)) {}
                 }
             } else if (sources && name.toLowerCase(Locale.ROOT).endsWith(".java")) {
-                out.putNextEntry(new ZipEntry(name));
-                IOUtils.copy(zin, out);
-                out.closeEntry();
+                try (OutputStream out = zip.addEntry(name, entry)) {
+                    IOUtils.copy(zin, out);
+                }
             } else if (!sources && !name.toLowerCase(Locale.ROOT).endsWith(".java") && !name.toLowerCase(Locale.ROOT).endsWith(".class")) {
-                out.putNextEntry(new ZipEntry(name));
-                IOUtils.copy(zin, out);
-                out.closeEntry();
+                try (OutputStream out = zip.addEntry(name, entry)) {
+                    IOUtils.copy(zin, out);
+                }
             }
         }
         zin.close();

@@ -83,7 +83,7 @@ def setup_server():
         os.makedirs('mods')
     for mod in mods[1:]:
         attempts = 0
-        while attempts < 10:
+        while True:
             try:
                 file_name = mod[0]
                 download_url = mod[1]
@@ -93,8 +93,10 @@ def setup_server():
                 with open('mods' + os.path.sep + file_name, mode='wb') as target:
                     target.write(response.read())
                 break
-            except:
+            except Exception as e:
                 attempts += 1
+                if attempts > 10:
+                    raise e
                 print('Retry download')
 
 

@@ -21,7 +21,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
@@ -59,20 +58,19 @@ public abstract class SetupTask extends DefaultTask {
 
     @TaskAction
     protected void runSetup(InputChanges inputs) throws IOException {
-//        Path clone = Files.createTempDirectory("modgradle-meta-setup");
-//        ProcessBuilder process = new ProcessBuilder().inheritIO().command("git", "clone", "-b", this.getRepoBranch().get(), this.getRepo().get().toString(), clone.toAbsolutePath().normalize().toString());
-//        process.redirectError(ProcessBuilder.Redirect.INHERIT);
-//        int exitCode;
-//        try {
-//            exitCode = process.start().waitFor();
-//        } catch (InterruptedException e) {
-//            Thread.currentThread().interrupt();
-//            throw new RuntimeException("Unexpected interrupt", e);
-//        }
-//        if (exitCode != 0) {
-//            throw new IllegalStateException("Failed to clone repository: " + this.getRepo());
-//        }
-        Path clone = Paths.get("/home/tux/dev/util/ModUtils");
+        Path clone = Files.createTempDirectory("modgradle-meta-setup");
+        ProcessBuilder process = new ProcessBuilder().inheritIO().command("git", "clone", "-b", this.getRepoBranch().get(), this.getRepo().get().toString(), clone.toAbsolutePath().normalize().toString());
+        process.redirectError(ProcessBuilder.Redirect.INHERIT);
+        int exitCode;
+        try {
+            exitCode = process.start().waitFor();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Unexpected interrupt", e);
+        }
+        if (exitCode != 0) {
+            throw new IllegalStateException("Failed to clone repository: " + this.getRepo());
+        }
 
         Map<String, Object> replacements = Map.of(
                 "modid", this.getModid().get(),

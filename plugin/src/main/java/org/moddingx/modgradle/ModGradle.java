@@ -18,8 +18,8 @@ public class ModGradle {
     // not for the toolchain
     public static final int TARGET_JAVA = 17;
 
-    public static final String SOURCE_TRANSFORM = "org.moddingx:SourceTransform:2.0.2";
-    public static final String DOCLET_META = "org.moddingx:JavaDocletMeta:1.0.0";
+    public static final String SOURCE_TRANSFORM = "org.moddingx:SourceTransform:2.1.3";
+    public static final String DOCLET_META = "org.moddingx:JavaDocletMeta:1.1.0";
 
     public static final Gson GSON;
     public static final Gson INTERNAL;

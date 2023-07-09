@@ -104,6 +104,10 @@ public abstract class PackDevPlugin implements Plugin<Project> {
         this.getEventRegistry().onTaskCompletion(project.provider(() -> e -> cache.save()));
         List<? extends ModFile> files = List.copyOf(platform.readModList(project, cache, fileData));
 
+        // toolchain version must be set outside of afterEvaluate
+        // Use the version from modlist.json here, if it differs from the actual version, the build will fail later on anyway.
+        JavaEnv.getJavaExtension(project).get().getToolchain().getLanguageVersion().set(JavaLanguageVersion.of(Versioning.getJavaVersion(modListMcVersion)));
+        
         Configuration clientMods = project.getConfigurations().create("clientMods", c -> {
             c.setCanBeConsumed(false);
             c.setCanBeResolved(true);
@@ -162,8 +166,6 @@ public abstract class PackDevPlugin implements Plugin<Project> {
             if (!Objects.equals(settings.minecraft(), modListMcVersion)) {
                 throw new IllegalStateException("Minecraft version from modlist does not match installed version: modlist=" + modListMcVersion + ", installed=" + settings.minecraft());
             }
-
-            JavaEnv.getJavaExtension(project).get().getToolchain().getLanguageVersion().set(JavaLanguageVersion.of(Versioning.getJavaVersion(settings.minecraft())));
 
             Map<String, Optional<Object>> targets = ext.getAllTargets();
             if (targets.isEmpty()) {

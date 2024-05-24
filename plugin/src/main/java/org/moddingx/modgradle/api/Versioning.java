@@ -16,10 +16,7 @@ import org.w3c.dom.NodeList;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -164,6 +161,10 @@ public class Versioning {
             }
 
             return baseVersion + "." + (Integer.parseInt(latestVersion.substring(latestVersion.lastIndexOf('.') + 1)) + 1);
+        } catch (FileNotFoundException e) {
+            // This exception is thrown if the maven-metadata.xml file doesn't exist at the provided URL,
+            // which would be the case if there were no previous publications to this Maven repository with this project
+            return baseVersion + ".0";
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

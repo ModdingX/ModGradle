@@ -1,3 +1,61 @@
-allprojects {
-    group 'org.moddingx'
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+group 'org.moddingx'
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    maven { url = 'https://maven.neoforged.net/releases' }
+    maven { url = 'https://maven.moddingx.org/release' }
+}
+
+dependencies {
+    api('jakarta.annotation:jakarta.annotation-api') { version { strictly '[3.0.0,)'; prefer '3.0.0' } }
+    api('net.neoforged:srgutils') { version { strictly '[1.0.9,)'; prefer '1.0.9' } }
+    api('net.neoforged.gradle:userdev') { version { strictly "[7.0.180,8.0.0)"; prefer '7.0.180' } }
+    api('org.moddingx:LauncherLib') { version { strictly '[2.1.0,2.2.0)'; prefer '2.1.0' } }
+    api('com.google.code.gson:gson') { version { strictly '[2.11.0,)'; prefer '2.11.0' } }
+    api('commons-io:commons-io') { version { strictly '[2.17.0,)'; prefer '2.17.0' } }
+    api('org.apache.maven:maven-repository-metadata') { version { strictly '[3.9.9,)'; prefer '3.9.9' } }
+    implementation('net.darkhax.curseforgegradle:CurseForgeGradle') { version { strictly '[1.1.25,)'; prefer '1.1.25' } }
+    implementation('com.modrinth.minotaur:Minotaur') { version { strictly '[2.8.7,)'; prefer '2.8.7' } }
+}
+
+gradlePlugin {
+    plugins {
+        meta {
+            id = 'org.moddingx.modgradle.meta'
+            implementationClass = 'org.moddingx.modgradle.plugins.meta.MetaPlugin'
+        }
+        javadoc {
+            id = 'org.moddingx.modgradle.javadoc'
+            implementationClass = 'org.moddingx.modgradle.plugins.javadoc.JavadocPlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        pluginMaven(MavenPublication) {
+            pom {
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name 'moddingx'
+            url 'https://maven.moddingx.org/release'
+            credentials(PasswordCredentials)
+        }
+    }
 }

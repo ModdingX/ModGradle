@@ -35,7 +35,7 @@ public class ModGitConfig {
         }
 
         public void issues(String issues) throws URISyntaxException {
-            this.clone(new URI(issues));
+            this.issues(new URI(issues));
         }
 
         public void issues(URI issues) {

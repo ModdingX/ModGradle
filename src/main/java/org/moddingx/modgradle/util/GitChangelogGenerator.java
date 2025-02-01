@@ -33,9 +33,9 @@ public class GitChangelogGenerator {
 
     private static String getLogFormat(@Nullable String commitFormat) {
         if (commitFormat == null) {
-            return "--pretty=tformat:- %s - *%aN*";
+            return "--pretty=tformat:- %s - %aN";
         } else {
-            return "--pretty=tformat:- [%s](" + commitFormat + ") - *%aN*";
+            return "--pretty=tformat:- [%s](" + commitFormat + ") - %aN";
         }
     }
 

@@ -8,6 +8,7 @@ import org.moddingx.launcherlib.util.LazyValue;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.plugins.meta.delegate.ModConfig;
 import org.moddingx.modgradle.plugins.meta.delegate.ModVersionConfig;
+import org.moddingx.modgradle.plugins.meta.prop.ChangelogGenerationProperties;
 import org.moddingx.modgradle.util.GitChangelogGenerator;
 import org.moddingx.modgradle.util.GitTagVersionResolver;
 import org.moddingx.modgradle.util.GitTimestampUtils;
@@ -45,13 +46,7 @@ public final class ModContext extends ProjectContext {
         this.resource = ModGradle.versions().resource(this.minecraft);
         this.data = ModGradle.versions().data(this.minecraft);
         this.timestamp = GitTimestampUtils.tryGetCommitTimestamp(this.project());
-        if (config.changelog == null) {
-            String commitFormat = config.git.commitFormat;
-            this.changelog = new LazyValue<>(() -> GitChangelogGenerator.generateChangelog(this.project(), commitFormat));
-        } else {
-            Closure<String> closure = config.changelog;
-            this.changelog = new LazyValue<>(() -> Objects.toString(closure.call()));
-        }
+        this.changelog = getChangelogProvider(this.project(), config.git.commitFormat, config.changelog);
         this.additionalModSources = config.additionalModSources.stream().distinct().toList();
 
         this.project().setGroup(this.group);
@@ -74,6 +69,17 @@ public final class ModContext extends ProjectContext {
             case ModVersionConfig.Strategy.Maven maven -> MavenVersionResolver.getVersion(project, maven.repository(), group, project.getName(), delegate.base);
             case ModVersionConfig.Strategy.GitTag.INSTANCE -> GitTagVersionResolver.getVersion(project, delegate.base);
         };
+    }
+
+    private static LazyValue<String> getChangelogProvider(Project project, @Nullable String commitFormat, @Nullable Closure<String> customChangelog) throws IOException {
+        LazyValue<String> defaultChangelog = new LazyValue<>(() -> GitChangelogGenerator.generateChangelog(project, commitFormat));
+        if (customChangelog == null) return defaultChangelog;
+        return new LazyValue<>(() -> {
+            ChangelogGenerationProperties properties = new ChangelogGenerationProperties(commitFormat, defaultChangelog);
+            customChangelog.setDelegate(properties);
+            customChangelog.setResolveStrategy(Closure.DELEGATE_FIRST);
+            return customChangelog.call();
+        });
     }
 
     public String modid() {

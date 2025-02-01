@@ -5,6 +5,7 @@ import groovy.lang.DelegatesTo;
 import jakarta.annotation.Nullable;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.tasks.SourceSet;
+import org.moddingx.modgradle.plugins.meta.prop.ChangelogGenerationProperties;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -102,7 +103,7 @@ public class ModConfig {
             ModConfig.configure(closure, ModConfig.this.mappings.delegate());
         }
         
-        public void changelog(Closure<String> closure) {
+        public void changelog(@DelegatesTo(value = ChangelogGenerationProperties.class, strategy = Closure.DELEGATE_FIRST) Closure<String> closure) {
             ModConfig.this.changelog = Objects.requireNonNull(closure);
         }
         

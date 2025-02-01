@@ -39,7 +39,7 @@ public class ModUploadSetup {
 
                 if (config.curseforge.inferDefaultVersions) {
                     mainFile.addModLoader("NeoForge");
-                    mainFile.addJavaVersion("Java" + mod.java());
+                    mainFile.addJavaVersion("Java " + mod.java());
                     if (config.curseforge.versions.isEmpty()) {
                         mainFile.addGameVersion(mod.minecraft());
                     }

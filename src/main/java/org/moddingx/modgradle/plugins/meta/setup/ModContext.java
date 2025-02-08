@@ -63,12 +63,14 @@ public final class ModContext extends ProjectContext {
     }
 
     private static String resolveVersion(Project project, String group, ModVersionConfig delegate) throws IOException {
-        return switch (delegate.strategy) {
+        String resolvedVersion = switch (delegate.strategy) {
             case ModVersionConfig.Strategy.Constant.INSTANCE -> delegate.base == null ? project.getVersion().toString() : delegate.base;
             case ModVersionConfig.Strategy.Maven maven when delegate.base == null -> throw new IllegalStateException("Needs a base version to get version from a maven repository.");
             case ModVersionConfig.Strategy.Maven maven -> MavenVersionResolver.getVersion(project, maven.repository(), group, project.getName(), delegate.base);
             case ModVersionConfig.Strategy.GitTag.INSTANCE -> GitTagVersionResolver.getVersion(project, delegate.base);
         };
+        if (delegate.suffix != null) resolvedVersion += "-" + delegate.suffix;
+        return resolvedVersion;
     }
 
     private static LazyValue<String> getChangelogProvider(Project project, @Nullable String commitFormat, @Nullable Closure<String> customChangelog) throws IOException {

@@ -9,6 +9,7 @@ import java.util.Objects;
 public class ModVersionConfig {
 
     @Nullable public String base;
+    @Nullable public String suffix;
     public Strategy strategy = Strategy.Constant.INSTANCE;
 
     public Delegate delegate() {
@@ -30,6 +31,10 @@ public class ModVersionConfig {
 
         public void base(String version) {
             ModVersionConfig.this.base = Objects.requireNonNull(version);
+        }
+
+        public void suffix(String suffix) {
+            ModVersionConfig.this.suffix = Objects.requireNonNull(suffix);
         }
         
         public void maven(String repository) throws URISyntaxException {

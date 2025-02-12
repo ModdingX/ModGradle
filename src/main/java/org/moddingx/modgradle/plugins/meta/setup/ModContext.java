@@ -69,7 +69,7 @@ public final class ModContext extends ProjectContext {
             case ModVersionConfig.Strategy.Maven maven -> MavenVersionResolver.getVersion(project, maven.repository(), group, project.getName(), delegate.base);
             case ModVersionConfig.Strategy.GitTag.INSTANCE -> GitTagVersionResolver.getVersion(project, delegate.base);
         };
-        if (delegate.suffix != null) resolvedVersion += "-" + delegate.suffix;
+        if (delegate.suffix != null && !delegate.suffix.isBlank()) resolvedVersion += "-" + delegate.suffix;
         return resolvedVersion;
     }
 

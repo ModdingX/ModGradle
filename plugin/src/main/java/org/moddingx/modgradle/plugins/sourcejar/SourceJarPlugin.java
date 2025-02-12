@@ -114,13 +114,11 @@ public class SourceJarPlugin implements Plugin<Project> {
             createRangeMap.getDependencies().from(classpath);
             createRangeMap.getOutput().set(project.file("build").toPath().resolve(createRangeMap.getName()).resolve("rangemap.txt").toFile());
             createRangeMap.getSourceCompatibility().set(java.map(jv -> jv <= 8 ? "JAVA_1_" + jv : "JAVA_" + jv));
-            createRangeMap.setRuntimeJavaToolchain(JavaEnv.getJavaExtension(project).get().getToolchain());
 
             applyRangeMap.getSources().from(sources);
             applyRangeMap.getSrgFiles().from(mergeSourceMappings.getOutput());
             applyRangeMap.getRangeMap().set(createRangeMap.getOutput());
             applyRangeMap.getOutput().set(project.file("build").toPath().resolve(applyRangeMap.getName()).resolve("srg_sources.zip").toFile());
-            applyRangeMap.setRuntimeJavaToolchain(JavaEnv.getJavaExtension(project).get().getToolchain());
             
             if (jarTask != null) {
                 mergeJars.getBase().set(jarTask.getArchiveFile());

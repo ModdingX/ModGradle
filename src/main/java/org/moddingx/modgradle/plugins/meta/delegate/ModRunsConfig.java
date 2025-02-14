@@ -12,7 +12,8 @@ public class ModRunsConfig {
     public boolean autoConfig = true;
     public List<Closure<?>> client = new ArrayList<>();
     public List<Closure<?>> server = new ArrayList<>();
-    public List<Closure<?>> data = new ArrayList<>();
+    public List<Closure<?>> clientData = new ArrayList<>();
+    public List<Closure<?>> serverData = new ArrayList<>();
     public List<Closure<?>> gameTestServer = new ArrayList<>();
     
     public Delegate delegate() {
@@ -28,7 +29,8 @@ public class ModRunsConfig {
         public void all(@DelegatesTo(Run.class) Closure<?> closure) {
             ModRunsConfig.this.client.add(closure);
             ModRunsConfig.this.server.add(closure);
-            ModRunsConfig.this.data.add(closure);
+            ModRunsConfig.this.clientData.add(closure);
+            ModRunsConfig.this.serverData.add(closure);
             ModRunsConfig.this.gameTestServer.add(closure);
         }
         
@@ -41,7 +43,16 @@ public class ModRunsConfig {
         }
         
         public void data(@DelegatesTo(Run.class) Closure<?> closure) {
-            ModRunsConfig.this.data.add(closure);
+            ModRunsConfig.this.clientData.add(closure);
+            ModRunsConfig.this.serverData.add(closure);
+        }
+        
+        public void clientData(@DelegatesTo(Run.class) Closure<?> closure) {
+            ModRunsConfig.this.clientData.add(closure);
+        }
+        
+        public void serverData(@DelegatesTo(Run.class) Closure<?> closure) {
+            ModRunsConfig.this.serverData.add(closure);
         }
         
         public void gameTestServer(@DelegatesTo(Run.class) Closure<?> closure) {

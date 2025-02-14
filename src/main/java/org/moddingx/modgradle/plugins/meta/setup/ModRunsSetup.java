@@ -15,7 +15,12 @@ public class ModRunsSetup {
         RunManager runs = mod.project().getExtensions().getByType(RunManager.class);
         configure(mod, runs.maybeCreate("client"), config.autoConfig, config.client);
         configure(mod, runs.maybeCreate("server"), config.autoConfig, config.server);
-        configure(mod, runs.maybeCreate("data"), config.autoConfig, config.data);
+        if (mod.data() >= 61) { // 1.21.4
+            configure(mod, runs.maybeCreate("clientData"), config.autoConfig, config.clientData);
+            configure(mod, runs.maybeCreate("serverData"), config.autoConfig, config.serverData);
+        } else {
+            configure(mod, runs.maybeCreate("data"), config.autoConfig, config.clientData);
+        }
         configure(mod, runs.maybeCreate("gameTestServer"), config.autoConfig, config.gameTestServer);
         JavaGradlePluginUtils.getJavaSources(mod.project()).get().resources(dirs -> dirs.srcDir(mod.project().file("src/generated/resources")));
     }
@@ -33,7 +38,7 @@ public class ModRunsSetup {
             if ("server".equals(run.getName())) {
                 run.getArguments().add("--nogui");
             }
-            if ("data".equals(run.getName())) {
+            if ("data".equals(run.getName()) || "clientData".equals(run.getName()) || "serverData".equals(run.getName())) {
                 run.getArguments().addAll(
                         "--mod", mod.modid(), "--all",
                         "--output", mod.project().file("src/generated/resources").getAbsolutePath(),

@@ -64,7 +64,7 @@ public class ModUploadSetup {
         }
         if (config.modrinth.projectId != null) {
             mod.project().getPlugins().apply("com.modrinth.minotaur");
-            String changelog = mod.changelog().substring(0, 4096);
+            String changelog = trimChangelog(mod.changelog(), 4096);
             ModrinthExtension ext = mod.project().getExtensions().getByType(ModrinthExtension.class);
 
             String secret = System.getenv(config.modrinth.secretEnv);
@@ -104,5 +104,19 @@ public class ModUploadSetup {
 
             mod.project().afterEvaluate(p -> uploadTask.configure(task -> task.dependsOn(p.getTasks().named("modrinth"))));
         }
+    }
+
+    private static String trimChangelog(String changelog, int maxLength) {
+        if (changelog.length() <= maxLength) {
+            return changelog;
+        }
+
+        int lastNewlineIndex = changelog.lastIndexOf('\n', maxLength);
+
+        if (lastNewlineIndex != -1) {
+            return changelog.substring(0, lastNewlineIndex);
+        }
+
+        return changelog.substring(0, maxLength);
     }
 }

@@ -64,7 +64,7 @@ public class ModUploadSetup {
         }
         if (config.modrinth.projectId != null) {
             mod.project().getPlugins().apply("com.modrinth.minotaur");
-            String changelog = mod.changelog();
+            String changelog = mod.changelog().substring(0, 4096);
             ModrinthExtension ext = mod.project().getExtensions().getByType(ModrinthExtension.class);
 
             String secret = System.getenv(config.modrinth.secretEnv);

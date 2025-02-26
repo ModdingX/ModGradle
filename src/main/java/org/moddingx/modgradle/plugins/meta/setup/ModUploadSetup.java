@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class ModUploadSetup {
+    
+    private static final int MODRINTH_CHANGELOG_MAX_LENGTH = 4096;
 
     public static void configureBuild(ModContext mod, ModArtifactSetup.ConfiguredArtifacts artifacts, ModUploadsConfig config) {
         TaskProvider<Task> uploadTask = mod.project().getTasks().register("upload", task -> task.setGroup("publishing"));
@@ -64,7 +66,7 @@ public class ModUploadSetup {
         }
         if (config.modrinth.projectId != null) {
             mod.project().getPlugins().apply("com.modrinth.minotaur");
-            String changelog = trimChangelog(mod.changelog(), 4096);
+            String changelog = cutChangelogForModrinthUpload(mod.changelog());
             ModrinthExtension ext = mod.project().getExtensions().getByType(ModrinthExtension.class);
 
             String secret = System.getenv(config.modrinth.secretEnv);
@@ -106,17 +108,10 @@ public class ModUploadSetup {
         }
     }
 
-    private static String trimChangelog(String changelog, int maxLength) {
-        if (changelog.length() <= maxLength) {
-            return changelog;
-        }
-
-        int lastNewlineIndex = changelog.lastIndexOf('\n', maxLength);
-
-        if (lastNewlineIndex != -1) {
-            return changelog.substring(0, lastNewlineIndex);
-        }
-
-        return changelog.substring(0, maxLength);
+    private static String cutChangelogForModrinthUpload(String changelog) {
+        if (changelog.length() <= MODRINTH_CHANGELOG_MAX_LENGTH) return changelog;
+        int lastNewlineIndex = changelog.lastIndexOf('\n', MODRINTH_CHANGELOG_MAX_LENGTH);
+        if (lastNewlineIndex != -1) return changelog.substring(0, lastNewlineIndex);
+        return changelog.substring(0, MODRINTH_CHANGELOG_MAX_LENGTH);
     }
 }

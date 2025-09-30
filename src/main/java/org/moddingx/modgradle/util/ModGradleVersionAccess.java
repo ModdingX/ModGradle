@@ -24,13 +24,6 @@ import java.util.zip.ZipInputStream;
 
 public class ModGradleVersionAccess {
 
-    public static void main(String[] args) {
-        ModGradleVersionAccess versions = new ModGradleVersionAccess(Path.of("/tmp/mgc/versions.json"), new Launcher(Path.of("/tmp/mgc/launcher")));
-        System.out.println(versions.java("1.21.1"));
-        System.out.println(versions.resource("1.21.1"));
-        System.out.println(versions.data("1.21.1"));
-    }
-
     private static final Gson GSON;
     static {
         GsonBuilder builder = new GsonBuilder();

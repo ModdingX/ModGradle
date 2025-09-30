@@ -100,8 +100,12 @@ public class ModGradleVersionAccess {
                     if (path.equals("version.json")) {
                         Reader reader = new InputStreamReader(zin, StandardCharsets.UTF_8);
                         JsonObject json = GSON.fromJson(reader, JsonObject.class);
-                        if (json.has("pack_version") && json.get("pack_version").isJsonObject() && json.get("pack_version") instanceof JsonObject packVersionObj && packVersionObj.has("resource")) {
-                            packVersions = new PackVersions(packVersionObj.get("resource").getAsInt(), packVersionObj.has("data") ? Optional.of(packVersionObj.get("data").getAsInt()) : Optional.empty());
+                        if (json.has("pack_version") && json.get("pack_version").isJsonObject() && json.get("pack_version") instanceof JsonObject packVersionObj) {
+                            if (packVersionObj.has("resource")) {
+                                packVersions = new PackVersions(packVersionObj.get("resource").getAsInt(), packVersionObj.has("data") ? Optional.of(packVersionObj.get("data").getAsInt()) : Optional.empty());
+                            } else if (packVersionObj.has("resource_major")) {
+                                packVersions = new PackVersions(packVersionObj.get("resource_major").getAsInt(), packVersionObj.has("data_major") ? Optional.of(packVersionObj.get("data_major").getAsInt()) : Optional.empty());
+                            }
                         }
                     }
                 }

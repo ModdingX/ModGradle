@@ -57,6 +57,5 @@ publishing {
             url 'https://maven.moddingx.org/release'
             credentials(PasswordCredentials)
         }
-        mavenLocal()
     }
 }

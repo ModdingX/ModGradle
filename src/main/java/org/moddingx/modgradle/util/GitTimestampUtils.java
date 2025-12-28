@@ -16,7 +16,7 @@ public class GitTimestampUtils {
             String commitEnv = System.getenv("GIT_COMMIT");
             String ref = (commitEnv == null || commitEnv.isEmpty()) ? "HEAD" : commitEnv;
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            ExecResult result = project.exec(spec -> {
+            ExecResult result = ExecUtils.execOps(project).exec(spec -> {
                 spec.commandLine("git", "show", "-s", "--format=%cd", "--date=iso-strict", ref);
                 spec.setStandardOutput(output);
                 spec.setErrorOutput(System.err);

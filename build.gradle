@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'org.moddingx'
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
     mavenCentral()
@@ -16,7 +16,7 @@ repositories {
 dependencies {
     api('jakarta.annotation:jakarta.annotation-api') { version { strictly '[3.0.0,)'; prefer '3.0.0' } }
     api('net.neoforged:srgutils') { version { strictly '[1.0.9,)'; prefer '1.0.9' } }
-    api('net.neoforged.gradle:userdev') { version { strictly "[7.0.180,8.0.0)"; prefer '7.0.180' } }
+    api('net.neoforged.gradle:userdev') { version { strictly "[7.1.16,8.0.0)"; prefer '7.1.16' } }
     api('org.moddingx:LauncherLib') { version { strictly '[2.1.0,2.2.0)'; prefer '2.1.0' } }
     api('com.google.code.gson:gson') { version { strictly '[2.12.1,)'; prefer '2.12.1' } }
     api('commons-io:commons-io') { version { strictly '[2.18.0,)'; prefer '2.18.0' } }
@@ -57,5 +57,6 @@ publishing {
             url 'https://maven.moddingx.org/release'
             credentials(PasswordCredentials)
         }
+        mavenLocal()
     }
 }

@@ -18,7 +18,7 @@ public class GitChangelogGenerator {
             String commitRange = getCommitRange(project);
             errorDiagnostic.append(" commits=").append(commitRange);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            project.exec(spec -> {
+            ExecUtils.execOps(project).exec(spec -> {
                 spec.commandLine("git", "log", logFormat, commitRange);
                 spec.setStandardOutput(output);
                 spec.setErrorOutput(System.err);
@@ -58,7 +58,7 @@ public class GitChangelogGenerator {
 
         // Git tag-based versioning: if a tag points to the HEAD commit, take all commits since the last tag.
         ByteArrayOutputStream currentTagOut = new ByteArrayOutputStream();
-        ExecResult currentTagResult = project.exec(spec -> {
+        ExecResult currentTagResult = ExecUtils.execOps(project).exec(spec -> {
             spec.commandLine("git", "describe", "--tags", "--exact-match", "HEAD");
             spec.setStandardOutput(currentTagOut);
             spec.setErrorOutput(NullOutputStream.nullOutputStream());
@@ -68,7 +68,7 @@ public class GitChangelogGenerator {
         if (currentTagResult.getExitValue() == 0) {
             String currentTag = currentTagOut.toString(StandardCharsets.UTF_8).strip();
             ByteArrayOutputStream lastTagOut = new ByteArrayOutputStream();
-            ExecResult lastTagResult = project.exec(spec -> {
+            ExecResult lastTagResult = ExecUtils.execOps(project).exec(spec -> {
                 spec.commandLine("git", "describe", "--tags", "--abbrev=0", "HEAD^");
                 spec.setStandardOutput(lastTagOut);
                 spec.setErrorOutput(NullOutputStream.nullOutputStream());

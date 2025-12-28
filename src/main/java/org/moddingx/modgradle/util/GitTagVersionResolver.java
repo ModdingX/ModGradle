@@ -36,7 +36,7 @@ public class GitTagVersionResolver {
 
     private static Optional<String> getVersionFromDescribe(Project project) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        ExecResult result = project.exec(spec -> {
+        ExecResult result = ExecUtils.execOps(project).exec(spec -> {
             spec.commandLine("git", "describe", "--tags", "--exact-match", "HEAD");
             spec.setStandardOutput(output);
             spec.setErrorOutput(System.err);
@@ -51,7 +51,7 @@ public class GitTagVersionResolver {
 
     private static Set<String> listAllTags(Project project) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        ExecResult result = project.exec(spec -> {
+        ExecResult result = ExecUtils.execOps(project).exec(spec -> {
             spec.commandLine("git", "tag", "--list");
             spec.setStandardOutput(output);
             spec.setErrorOutput(System.err);

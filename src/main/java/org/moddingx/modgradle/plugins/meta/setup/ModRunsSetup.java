@@ -3,6 +3,7 @@ package org.moddingx.modgradle.plugins.meta.setup;
 import groovy.lang.Closure;
 import net.neoforged.gradle.dsl.common.runs.run.Run;
 import net.neoforged.gradle.dsl.common.runs.run.RunManager;
+import org.gradle.api.Action;
 import org.gradle.api.tasks.SourceSet;
 import org.moddingx.modgradle.plugins.meta.delegate.ModRunsConfig;
 import org.moddingx.modgradle.util.JavaGradlePluginUtils;
@@ -25,7 +26,7 @@ public class ModRunsSetup {
         JavaGradlePluginUtils.getJavaSources(mod.project()).get().resources(dirs -> dirs.srcDir(mod.project().file("src/generated/resources")));
     }
 
-    private static void configure(ModContext mod, Run run, boolean autoConfig, List<Closure<?>> actions) {
+    private static void configure(ModContext mod, Run run, boolean autoConfig, List<Action<Run>> actions) {
         if (autoConfig) {
             run.workingDirectory(mod.project().file("runs").toPath().resolve(run.getName()).toFile());
             run.systemProperty("forge.logging.console.level", "debug");
@@ -46,7 +47,7 @@ public class ModRunsSetup {
                 );
             }
         }
-        for (Closure<?> action : actions) {
+        for (Action<Run> action : actions) {
             run.configure(action);
         }
     }

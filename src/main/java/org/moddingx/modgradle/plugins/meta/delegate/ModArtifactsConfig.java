@@ -8,9 +8,7 @@ public class ModArtifactsConfig {
     
     @Nullable public ArtifactConfig sources = null;
     @Nullable public ArtifactConfig javadoc = null;
-    public String mainJarTaskName = "jar";
-    public String jarClassifier = "";
-    public String jarJarClassifier = "all";
+    public boolean useJarJar = false;
 
     public Delegate delegate() {
         return new Delegate();
@@ -45,15 +43,7 @@ public class ModArtifactsConfig {
         }
 
         public void useJarJar() {
-            this.useJarJar(false);
-        }
-
-        public void useJarJar(boolean switchClassifier) {
-            ModArtifactsConfig.this.mainJarTaskName = "jarJar";
-            if (switchClassifier) {
-                ModArtifactsConfig.this.jarClassifier = "thin";
-                ModArtifactsConfig.this.jarJarClassifier = "";
-            }
+            ModArtifactsConfig.this.useJarJar = true;
         }
     }
     

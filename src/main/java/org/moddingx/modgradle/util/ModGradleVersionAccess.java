@@ -13,10 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -56,16 +53,26 @@ public class ModGradleVersionAccess {
             Set<File> files = configuration.resolve();
             if (files.size() != 1) throw new IllegalStateException(neoforgeUniversal + " resolved to more than one file.");
             File file = files.iterator().next();
-            String specVersion;
+            String minecraftVersion;
             try (JarFile zf = new JarFile(file)) {
-                Attributes neoformAttributes = zf.getManifest().getAttributes("net/neoforged/neoforge/versions/neoform/");
-                if (neoformAttributes == null) throw new IllegalStateException(neoforgeUniversal + " does not contain a neoform section in its manifest.");
-                specVersion = neoformAttributes.getValue("Specification-Version");
-                if (specVersion == null) throw new IllegalStateException("neoform manifest section has no specification version in " + neoforgeUniversal);
+                ZipEntry propsEntry = zf.getEntry("net/neoforged/neoforge/common/version.properties");
+                if (propsEntry != null) {
+                    Properties props = new Properties();
+                    try (InputStream in = zf.getInputStream(propsEntry)) {
+                        props.load(in);
+                    }
+                    minecraftVersion = props.getProperty("minecraft_version");
+                    if (minecraftVersion == null || minecraftVersion.isBlank()) throw new IllegalStateException("version.properties has no minecraft_version in " + neoforgeUniversal);
+                } else { // before NeoForge 21.10.34-beta
+                    Attributes neoformAttributes = zf.getManifest().getAttributes("net/neoforged/neoforge/versions/neoform/");
+                    if (neoformAttributes == null) throw new IllegalStateException(neoforgeUniversal + " does not contain a neoform section in its manifest.");
+                    minecraftVersion = neoformAttributes.getValue("Specification-Version");
+                    if (minecraftVersion == null) throw new IllegalStateException("neoform manifest section has no specification version in " + neoforgeUniversal);
+                }
             }
-            this.neoforgeMinecraftVersions.put(neoforge, specVersion);
+            this.neoforgeMinecraftVersions.put(neoforge, minecraftVersion);
             this.save();
-            return specVersion;
+            return minecraftVersion;
         } catch (Exception e) {
             throw new RuntimeException("Can't infer minecraft version", e);
         }

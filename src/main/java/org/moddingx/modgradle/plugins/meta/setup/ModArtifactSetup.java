@@ -16,8 +16,19 @@ public class ModArtifactSetup {
     public static ConfiguredArtifacts configureBuild(ModContext mod, ModArtifactsConfig config) {
         BuildableArtifact sourceArtifact = null;
         BuildableArtifact javadocArtifact = null;
-        TaskProvider<Jar> jar = mod.project().getTasks().named("jar", Jar.class);
+
+        TaskProvider<Jar> thinJar = mod.project().getTasks().named("jar", Jar.class);
+        TaskProvider<Jar> jar;
+        if (config.useJarJar) {
+            jar = mod.project().getTasks().named("jarJar", Jar.class);
+            thinJar.configure(task -> task.getArchiveClassifier().set("thin"));
+            jar.configure(task -> task.getArchiveClassifier().set(""));
+        } else {
+            jar = thinJar;
+        }
+
         TaskProvider<Task> build = mod.project().getTasks().named("build");
+        build.configure(task -> task.dependsOn(jar));
         if (config.sources != null) {
             TaskProvider<Jar> sourceJarTask = mod.project().getTasks().register("sourcesJar", Jar.class, task -> {
                 task.setGroup("build");

@@ -8,7 +8,8 @@ public class ModArtifactsConfig {
     
     @Nullable public ArtifactConfig sources = null;
     @Nullable public ArtifactConfig javadoc = null;
-    
+    public boolean useJarJar = false;
+
     public Delegate delegate() {
         return new Delegate();
     }
@@ -39,6 +40,10 @@ public class ModArtifactsConfig {
                 ModArtifactsConfig.this.javadoc = new ArtifactConfig();
             }
             ModConfig.configure(closure, ModArtifactsConfig.this.javadoc.delegate());
+        }
+
+        public void useJarJar() {
+            ModArtifactsConfig.this.useJarJar = true;
         }
     }
     

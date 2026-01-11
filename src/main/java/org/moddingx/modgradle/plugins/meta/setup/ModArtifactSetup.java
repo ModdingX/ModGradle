@@ -16,8 +16,18 @@ public class ModArtifactSetup {
     public static ConfiguredArtifacts configureBuild(ModContext mod, ModArtifactsConfig config) {
         BuildableArtifact sourceArtifact = null;
         BuildableArtifact javadocArtifact = null;
-        TaskProvider<Jar> jar = mod.project().getTasks().named("jar", Jar.class);
+        mod.project().getTasks().withType(Jar.class).configureEach(task -> {
+            String taskName = task.getName();
+            if (taskName.equals("jar")) {
+                task.getArchiveClassifier().convention(config.jarClassifier);
+            } else if (taskName.equals("jarJar")) {
+                task.getArchiveClassifier().convention(config.jarJarClassifier);
+            }
+        });
+        String mainJarTaskName = config.mainJarTaskName;
+        TaskProvider<Jar> jar = mod.project().getTasks().named(mainJarTaskName, Jar.class);
         TaskProvider<Task> build = mod.project().getTasks().named("build");
+        build.configure(task -> task.dependsOn(jar));
         if (config.sources != null) {
             TaskProvider<Jar> sourceJarTask = mod.project().getTasks().register("sourcesJar", Jar.class, task -> {
                 task.setGroup("build");

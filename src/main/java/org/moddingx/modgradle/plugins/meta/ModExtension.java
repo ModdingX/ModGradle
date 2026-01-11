@@ -4,6 +4,7 @@ import groovy.lang.*;
 import jakarta.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.process.ExecOperations;
 import org.moddingx.launcherlib.util.LazyValue;
 import org.moddingx.modgradle.plugins.meta.setup.ModBuildSetup;
 import org.moddingx.modgradle.plugins.meta.delegate.ModConfig;
@@ -18,13 +19,15 @@ import java.util.NoSuchElementException;
 public class ModExtension extends GroovyObjectSupport {
 
     private final Project project;
+    private final ExecOperations execOps;
     private final ModPropertyAccess propertyAccess;
 
     @Nullable
     private Map<String, Object> properties;
 
-    public ModExtension(Project project) {
+    public ModExtension(Project project, ExecOperations execOps) {
         this.project = project;
+        this.execOps = execOps;
         this.properties = null;
         this.propertyAccess = new ModPropertyAccess(this);
     }
@@ -34,7 +37,7 @@ public class ModExtension extends GroovyObjectSupport {
         ModConfig config = ModConfig.configure(closure, new ModConfig(), ModConfig::delegate);
         this.properties = new HashMap<>();
         try {
-            ModBuildSetup.configureBuild(new ProjectContext(this.project, this.propertyAccess, this.properties::put, this::dependsOnProperties), config);
+            ModBuildSetup.configureBuild(new ProjectContext(this.project, this.execOps, this.propertyAccess, this.properties::put, this::dependsOnProperties), config);
         } catch (RuntimeException e) {
             throw new RuntimeException("Mod configuration failed.", e);
         }
@@ -63,7 +66,7 @@ public class ModExtension extends GroovyObjectSupport {
     }
 
     private void dependsOnProperties(TaskProvider<?> taskProvider) {
-        this.project.afterEvaluate(p -> {
+        this.project.afterEvaluate(_ -> {
             if (this.properties != null) {
                 taskProvider.configure(task -> {
                     if (this.project.getGroup() instanceof String group) {

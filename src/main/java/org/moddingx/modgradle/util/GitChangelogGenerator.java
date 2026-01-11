@@ -3,6 +3,7 @@ package org.moddingx.modgradle.util;
 import jakarta.annotation.Nullable;
 import org.apache.commons.io.output.NullOutputStream;
 import org.gradle.api.Project;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
 
 import java.io.ByteArrayOutputStream;
@@ -11,18 +12,19 @@ import java.nio.charset.StandardCharsets;
 
 public class GitChangelogGenerator {
 
-    public static String generateChangelog(Project project, @Nullable String commitFormat) {
+    public static String generateChangelog(Project project, ExecOperations execOps, @Nullable String commitFormat) {
         StringBuilder errorDiagnostic = new StringBuilder();
         try {
             String logFormat = getLogFormat(commitFormat);
-            String commitRange = getCommitRange(project);
+            String commitRange = getCommitRange(project, execOps);
             errorDiagnostic.append(" commits=").append(commitRange);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            project.exec(spec -> {
+            execOps.exec(spec -> {
                 spec.commandLine("git", "log", logFormat, commitRange);
                 spec.setStandardOutput(output);
                 spec.setErrorOutput(System.err);
                 spec.setIgnoreExitValue(false);
+                spec.setWorkingDir(project.getProjectDir());
             });
             output.close();
             return output.toString(StandardCharsets.UTF_8).strip();
@@ -39,7 +41,7 @@ public class GitChangelogGenerator {
         }
     }
 
-    private static String getCommitRange(Project project) throws IOException {
+    private static String getCommitRange(Project project, ExecOperations execOps) throws IOException {
         // Jenkins
         String jenkinsCommit = System.getenv("GIT_COMMIT");
         String jenkinsPrevCommit = System.getenv("GIT_PREVIOUS_COMMIT");
@@ -58,21 +60,23 @@ public class GitChangelogGenerator {
 
         // Git tag-based versioning: if a tag points to the HEAD commit, take all commits since the last tag.
         ByteArrayOutputStream currentTagOut = new ByteArrayOutputStream();
-        ExecResult currentTagResult = project.exec(spec -> {
+        ExecResult currentTagResult = execOps.exec(spec -> {
             spec.commandLine("git", "describe", "--tags", "--exact-match", "HEAD");
             spec.setStandardOutput(currentTagOut);
             spec.setErrorOutput(NullOutputStream.nullOutputStream());
             spec.setIgnoreExitValue(true);
+            spec.setWorkingDir(project.getProjectDir());
         });
         currentTagOut.close();
         if (currentTagResult.getExitValue() == 0) {
             String currentTag = currentTagOut.toString(StandardCharsets.UTF_8).strip();
             ByteArrayOutputStream lastTagOut = new ByteArrayOutputStream();
-            ExecResult lastTagResult = project.exec(spec -> {
+            ExecResult lastTagResult = execOps.exec(spec -> {
                 spec.commandLine("git", "describe", "--tags", "--abbrev=0", "HEAD^");
                 spec.setStandardOutput(lastTagOut);
                 spec.setErrorOutput(NullOutputStream.nullOutputStream());
                 spec.setIgnoreExitValue(true);
+                spec.setWorkingDir(project.getProjectDir());
             });
             lastTagOut.close();
             if (lastTagResult.getExitValue() == 0) {

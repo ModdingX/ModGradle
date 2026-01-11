@@ -2,6 +2,7 @@ package org.moddingx.modgradle.util;
 
 import jakarta.annotation.Nullable;
 import org.gradle.api.Project;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
 
 import java.io.*;
@@ -16,10 +17,10 @@ public class GitTagVersionResolver {
             "GITHUB_REF", "GITHUB_REF_NAME", "GIT_COMMIT_TAG", "CI_COMMIT_REF_NAME"
     );
 
-    public static String getVersion(Project project, @Nullable String defaultVersion) throws IOException {
-        Optional<String> describeTag = getVersionFromDescribe(project);
+    public static String getVersion(Project project, ExecOperations execOps, @Nullable String defaultVersion) throws IOException {
+        Optional<String> describeTag = getVersionFromDescribe(project, execOps);
         if (describeTag.isPresent()) return describeTag.get();
-        Set<String> tags = listAllTags(project);
+        Set<String> tags = listAllTags(project, execOps);
         for (String env : GIT_REF_NAME_ENVIRONMENT) {
             String value = System.getenv(env);
             if (value == null) continue;
@@ -34,13 +35,14 @@ public class GitTagVersionResolver {
         }
     }
 
-    private static Optional<String> getVersionFromDescribe(Project project) throws IOException {
+    private static Optional<String> getVersionFromDescribe(Project project, ExecOperations execOps) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        ExecResult result = project.exec(spec -> {
+        ExecResult result = execOps.exec(spec -> {
             spec.commandLine("git", "describe", "--tags", "--exact-match", "HEAD");
             spec.setStandardOutput(output);
             spec.setErrorOutput(System.err);
             spec.setIgnoreExitValue(true);
+            spec.setWorkingDir(project.getProjectDir());
         });
         output.close();
         if (result.getExitValue() != 0) return Optional.empty(); // No tag
@@ -49,13 +51,14 @@ public class GitTagVersionResolver {
         }
     }
 
-    private static Set<String> listAllTags(Project project) throws IOException {
+    private static Set<String> listAllTags(Project project, ExecOperations execOps) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        ExecResult result = project.exec(spec -> {
+        ExecResult result = execOps.exec(spec -> {
             spec.commandLine("git", "tag", "--list");
             spec.setStandardOutput(output);
             spec.setErrorOutput(System.err);
             spec.setIgnoreExitValue(true);
+            spec.setWorkingDir(project.getProjectDir());
         });
         output.close();
         if (result.getExitValue() != 0) {

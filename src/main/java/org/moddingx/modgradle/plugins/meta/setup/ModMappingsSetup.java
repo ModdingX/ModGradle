@@ -26,7 +26,6 @@ public class ModMappingsSetup {
                 Subsystems subsystems = mod.project().getExtensions().getByType(Subsystems.class);
                 subsystems.parchment(parchment -> {
                     if (parchmentConfig.artifact() != null) {
-                        parchment.enabled(true);
                         parchment.addRepository(true);
                         parchment.parchmentArtifact(parchmentConfig.artifact().getDescriptor());
                     } else {
@@ -34,7 +33,6 @@ public class ModMappingsSetup {
                         String parchmentVersion = parchmentConfig.version();
                         if (parchmentVersion == null) parchmentVersion = latestParchmentVersion(mod.project(), minecraftVersion, parchmentConfig.minecraft() == null);
                         if (parchmentVersion != null) {
-                            parchment.enabled(true);
                             parchment.addRepository(true);
                             parchment.minecraftVersion(minecraftVersion);
                             parchment.mappingsVersion(parchmentVersion);

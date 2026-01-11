@@ -4,6 +4,7 @@ import groovy.lang.Closure;
 import jakarta.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.process.ExecOperations;
 import org.moddingx.launcherlib.util.LazyValue;
 import org.moddingx.modgradle.ModGradle;
 import org.moddingx.modgradle.plugins.meta.delegate.ModConfig;
@@ -38,15 +39,15 @@ public final class ModContext extends ProjectContext {
 
         this.modid = Objects.requireNonNull(config.modid, "modid not set.");
         this.group = config.group != null ? config.group : this.project().getGroup().toString();
-        this.version = resolveVersion(this.project(), this.group, config.version);
+        this.version = resolveVersion(this.project(), this.execOperations(), this.group, config.version);
         this.neoforge = Objects.requireNonNull(config.neoforge, "neoforge version not set.");
         this.license = Objects.requireNonNull(config.license, "license not set.");
         this.minecraft = config.minecraft != null ? config.minecraft : ModGradle.versions().neoforgeMinecraft(this.project(), this.neoforge);
         this.java = config.java != 0 ? config.java : ModGradle.versions().java(this.minecraft);
         this.resource = ModGradle.versions().resource(this.minecraft);
         this.data = ModGradle.versions().data(this.minecraft);
-        this.timestamp = GitTimestampUtils.tryGetCommitTimestamp(this.project());
-        this.changelog = getChangelogProvider(this.project(), config.git.commitFormat, config.changelog);
+        this.timestamp = GitTimestampUtils.tryGetCommitTimestamp(this.project(), this.execOperations());
+        this.changelog = getChangelogProvider(this.project(), this.execOperations(), config.git.commitFormat, config.changelog);
         this.additionalModSources = config.additionalModSources.stream().distinct().toList();
 
         this.project().setGroup(this.group);
@@ -62,17 +63,17 @@ public final class ModContext extends ProjectContext {
         this.modProperty("changelog", this.changelog);
     }
 
-    private static String resolveVersion(Project project, String group, ModVersionConfig delegate) throws IOException {
+    private static String resolveVersion(Project project, ExecOperations execOps, String group, ModVersionConfig delegate) throws IOException {
         return switch (delegate.strategy) {
             case ModVersionConfig.Strategy.Constant.INSTANCE -> delegate.base == null ? project.getVersion().toString() : delegate.base;
-            case ModVersionConfig.Strategy.Maven maven when delegate.base == null -> throw new IllegalStateException("Needs a base version to get version from a maven repository.");
+            case ModVersionConfig.Strategy.Maven _ when delegate.base == null -> throw new IllegalStateException("Needs a base version to get version from a maven repository.");
             case ModVersionConfig.Strategy.Maven maven -> MavenVersionResolver.getVersion(project, maven.repository(), group, project.getName(), delegate.base);
-            case ModVersionConfig.Strategy.GitTag.INSTANCE -> GitTagVersionResolver.getVersion(project, delegate.base);
+            case ModVersionConfig.Strategy.GitTag.INSTANCE -> GitTagVersionResolver.getVersion(project, execOps, delegate.base);
         };
     }
 
-    private static LazyValue<String> getChangelogProvider(Project project, @Nullable String commitFormat, @Nullable Closure<String> customChangelog) throws IOException {
-        LazyValue<String> defaultChangelog = new LazyValue<>(() -> GitChangelogGenerator.generateChangelog(project, commitFormat));
+    private static LazyValue<String> getChangelogProvider(Project project, ExecOperations execOps, @Nullable String commitFormat, @Nullable Closure<String> customChangelog) {
+        LazyValue<String> defaultChangelog = new LazyValue<>(() -> GitChangelogGenerator.generateChangelog(project, execOps, commitFormat));
         if (customChangelog == null) return defaultChangelog;
         return new LazyValue<>(() -> {
             ChangelogGenerationProperties properties = new ChangelogGenerationProperties(commitFormat, defaultChangelog);

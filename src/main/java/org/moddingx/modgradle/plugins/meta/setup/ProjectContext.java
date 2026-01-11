@@ -2,6 +2,7 @@ package org.moddingx.modgradle.plugins.meta.setup;
 
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.process.ExecOperations;
 import org.moddingx.modgradle.plugins.meta.ModPropertyAccess;
 
 import java.util.function.BiConsumer;
@@ -10,16 +11,18 @@ import java.util.function.Consumer;
 public sealed class ProjectContext permits ModContext {
     
     private final Project project;
+    private final ExecOperations execOps;
     private final ModPropertyAccess properties;
     private final BiConsumer<String, Object> modPropertySetter;
     private final Consumer<TaskProvider<?>> dependsOnProperties;
 
     protected ProjectContext(ProjectContext context) {
-        this(context.project, context.properties, context.modPropertySetter, context.dependsOnProperties);
+        this(context.project, context.execOps, context.properties, context.modPropertySetter, context.dependsOnProperties);
     }
 
-    public ProjectContext(Project project, ModPropertyAccess properties, BiConsumer<String, Object> modPropertySetter, Consumer<TaskProvider<?>> dependsOnProperties) {
+    public ProjectContext(Project project, ExecOperations execOps, ModPropertyAccess properties, BiConsumer<String, Object> modPropertySetter, Consumer<TaskProvider<?>> dependsOnProperties) {
         this.project = project;
+        this.execOps = execOps;
         this.properties = properties;
         this.modPropertySetter = modPropertySetter;
         this.dependsOnProperties = dependsOnProperties;
@@ -27,6 +30,10 @@ public sealed class ProjectContext permits ModContext {
 
     public Project project() {
         return this.project;
+    }
+
+    public ExecOperations execOperations() {
+        return this.execOps;
     }
 
     public ModPropertyAccess properties() {

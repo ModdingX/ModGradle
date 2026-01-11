@@ -4,6 +4,7 @@ import groovy.lang.Closure;
 import net.neoforged.gradle.dsl.common.runs.run.Run;
 import net.neoforged.gradle.dsl.common.runs.run.RunManager;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.util.internal.ConfigureUtil;
 import org.moddingx.modgradle.plugins.meta.delegate.ModRunsConfig;
 import org.moddingx.modgradle.util.JavaGradlePluginUtils;
 
@@ -47,7 +48,7 @@ public class ModRunsSetup {
             }
         }
         for (Closure<?> action : actions) {
-            run.configure(action);
+            ConfigureUtil.configureSelf(action, run);
         }
     }
 }

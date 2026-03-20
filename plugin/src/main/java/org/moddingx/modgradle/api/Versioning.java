@@ -78,8 +78,8 @@ public class Versioning {
                         JsonObject versionObj = entry.getValue().getAsJsonObject();
                         
                         int java = versionObj.get("java").getAsInt();
-                        int resource = versionObj.get("resource").getAsInt();
-                        OptionalInt data = versionObj.has("data") ? OptionalInt.of(versionObj.get("data").getAsInt()) : OptionalInt.empty();
+                        int resource = getMajorVersion(versionObj.get("resource"));
+                        OptionalInt data = versionObj.has("data") ? OptionalInt.of(getMajorVersion(versionObj.get("data"))) : OptionalInt.empty();
                         
                         MixinVersion mixin = null;
                         if (versionObj.has("mixin")) {
@@ -183,6 +183,14 @@ public class Versioning {
         
         // New non-minor release, fail here, the data needs to be updated.
         throw new IllegalStateException("Version information missing for " + minecraft);
+    }
+
+    private static int getMajorVersion(JsonElement element) {
+        if (element.isJsonPrimitive()) {
+            return element.getAsInt();
+        }
+
+        return element.getAsJsonObject().get("major").getAsInt();
     }
 
     private record VersionInfo(int java, int resource, OptionalInt data, @Nullable MixinVersion mixin) {}

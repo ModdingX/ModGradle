@@ -16,7 +16,7 @@ repositories {
 dependencies {
     api('jakarta.annotation:jakarta.annotation-api') { version { strictly '[3.0.0,)'; prefer '3.0.0' } }
     api('net.neoforged:srgutils') { version { strictly '[1.0.11,)'; prefer '1.0.11' } }
-    api('net.neoforged.gradle:userdev') { version { strictly "[7.1.20,8.0.0)"; prefer '7.1.20' } }
+    api('net.neoforged.gradle:userdev') { version { strictly "[7.1.21,8.0.0)"; prefer '7.1.21' } }
     api('org.moddingx:LauncherLib') { version { strictly '[2.2.0,2.3.0)'; prefer '2.1.0' } }
     api('com.google.code.gson:gson') { version { strictly '[2.13.2,)'; prefer '2.13.2' } }
     api('commons-io:commons-io') { version { strictly '[2.21.0,)'; prefer '2.21.0' } }

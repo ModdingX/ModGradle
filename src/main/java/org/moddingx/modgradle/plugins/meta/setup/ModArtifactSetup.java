@@ -11,6 +11,9 @@ import org.moddingx.modgradle.plugins.javadoc.JavadocConfigureTask;
 import org.moddingx.modgradle.plugins.meta.delegate.ModArtifactsConfig;
 import org.moddingx.modgradle.util.JavaGradlePluginUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ModArtifactSetup {
 
     public static ConfiguredArtifacts configureBuild(ModContext mod, ModArtifactsConfig config) {
@@ -67,9 +70,19 @@ public class ModArtifactSetup {
                 }
             }
         });
-        return new ConfiguredArtifacts(jar, sourceArtifact, javadocArtifact);
+        List<BuildableArtifact> extraArtifacts = new ArrayList<>();
+        for (ModArtifactsConfig.ExtraArtifactConfig extra : config.extras) {
+            TaskProvider<AbstractArchiveTask> extraTask = mod.project().getTasks().named(extra.taskName, AbstractArchiveTask.class);
+            if (extra.classifier != null) {
+                String classifier = extra.classifier;
+                extraTask.configure(task -> task.getArchiveClassifier().set(classifier));
+            }
+            build.configure(task -> task.dependsOn(extraTask));
+            extraArtifacts.add(new BuildableArtifact(extraTask, extra.publishToRepositories, extra.uploadToModHostingSites));
+        }
+        return new ConfiguredArtifacts(jar, sourceArtifact, javadocArtifact, extraArtifacts);
     }
 
-    public record ConfiguredArtifacts(TaskProvider<Jar> jar, @Nullable BuildableArtifact sources, @Nullable BuildableArtifact javadoc) {}
+    public record ConfiguredArtifacts(TaskProvider<Jar> jar, @Nullable BuildableArtifact sources, @Nullable BuildableArtifact javadoc, List<BuildableArtifact> extras) {}
     public record BuildableArtifact(TaskProvider<? extends AbstractArchiveTask> task, boolean publish, boolean upload) {}
 }

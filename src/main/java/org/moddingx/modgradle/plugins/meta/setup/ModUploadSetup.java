@@ -38,6 +38,9 @@ public class ModUploadSetup {
                 if (artifacts.javadoc() != null && artifacts.javadoc().upload()) {
                     files.add(mainFile.withAdditionalFile(artifacts.javadoc().task()));
                 }
+                for (ModArtifactSetup.BuildableArtifact extra : artifacts.extras()) {
+                    if (extra.upload()) files.add(mainFile.withAdditionalFile(extra.task()));
+                }
 
                 if (config.curseforge.inferDefaultVersions) {
                     mainFile.addModLoader("NeoForge");
@@ -83,6 +86,9 @@ public class ModUploadSetup {
             }
             if (artifacts.javadoc() != null && artifacts.javadoc().upload()) {
                 ext.getAdditionalFiles().add(artifacts.javadoc().task());
+            }
+            for (ModArtifactSetup.BuildableArtifact extra : artifacts.extras()) {
+                if (extra.upload()) ext.getAdditionalFiles().add(extra.task());
             }
             ext.getChangelog().set(changelog);
             ext.getVersionType().set(config.modrinth.type.name().toLowerCase(Locale.ROOT));

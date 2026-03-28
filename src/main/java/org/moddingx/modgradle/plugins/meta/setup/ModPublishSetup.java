@@ -24,6 +24,9 @@ public class ModPublishSetup {
                 if (artifacts.javadoc() != null && artifacts.javadoc().publish()) {
                     pub.artifact(artifacts.javadoc().task());
                 }
+                for (ModArtifactSetup.BuildableArtifact extra : artifacts.extras()) {
+                    if (extra.publish()) pub.artifact(extra.task());
+                }
                 pub.pom(pom -> {
                     pom.licenses(licenses -> licenses.license(license -> license.getName().set(mod.license())));
                     if (git.url != null || git.clone != null) {

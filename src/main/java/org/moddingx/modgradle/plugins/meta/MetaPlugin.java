@@ -17,6 +17,10 @@ public abstract class MetaPlugin implements Plugin<Project> {
     public void apply(@Nonnull Project project) {
         ModGradle.init(project);
         this.setupRepositories(project);
+        // Apply userdev early (plugin phase); applying it late from mod.configure breaks NeoGradle's
+        // repository setup on a cold cache ("Cannot mutate content repository descriptor 'MavenRepo'").
+        project.getPlugins().apply("java-library");
+        project.getPlugins().apply("net.neoforged.gradle.userdev");
         project.getExtensions().create("mod", ModExtension.class, project, this.getExecOperations());
     }
     

@@ -21,9 +21,7 @@ public class ModBuildSetup {
         if (config.git.url != null) ctx.modProperty("source_url", config.git.url);
         if (config.git.issues != null) ctx.modProperty("issue_url", config.git.issues);
 
-        mod.project().getPlugins().apply("java-library");
-        mod.project().getPlugins().apply("net.neoforged.gradle.userdev");
-
+        // java-library and net.neoforged.gradle.userdev are applied early in MetaPlugin.apply().
         JavaGradlePluginUtils.getJavaExtension(ctx.project()).get().getToolchain().getLanguageVersion().set(JavaLanguageVersion.of(mod.java()));
 
         System.out.println("Java: " + System.getProperty("java.version") + "   JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ")   Arch: " + System.getProperty("os.arch"));

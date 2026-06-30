@@ -1,5 +1,6 @@
 package org.moddingx.modgradle.plugins.meta.setup;
 
+import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
@@ -9,7 +10,6 @@ import org.gradle.plugins.ide.idea.model.IdeaModel;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 public class ModIntegrationSetup {
 
@@ -26,16 +26,15 @@ public class ModIntegrationSetup {
 
         // Jar manifest
         mod.project().getTasks().named("jar", Jar.class).configure(jar -> {
-            jar.getManifest().getAttributes().putAll(Map.of(
-                    "Specification-Title", mod.modid(),
-                    "Specification-Version", "1",
-                    "Implementation-Title", mod.project().getName(),
-                    "Implementation-Version", mod.version()
-            ));
+            Attributes attributes = jar.getManifest().getAttributes();
+            attributes.put("Specification-Title", mod.modid());
+            attributes.put("Specification-Version", "1");
+            attributes.put("Implementation-Title", mod.project().getName());
+            attributes.put("Implementation-Version", mod.version());
             if (mod.timestamp() != null) {
-                jar.getManifest().getAttributes().put("Implementation-Timestamp", mod.timestamp());
+                attributes.put("Implementation-Timestamp", mod.timestamp());
             }
-            jar.getManifest().getAttributes().put("Automatic-Module-Name", "mcmods." + mod.modid());
+            attributes.put("Automatic-Module-Name", "mcmods." + mod.modid());
         });
 
         // Explicitly set charset and make reproducible jars

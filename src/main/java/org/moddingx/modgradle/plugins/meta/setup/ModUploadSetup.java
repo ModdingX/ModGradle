@@ -52,6 +52,11 @@ public class ModUploadSetup {
                 for (String version : config.curseforge.versions) {
                     mainFile.addGameVersion(version);
                 }
+                switch(config.curseforge.environmentType) {
+                    case CLIENT_ONLY -> mainFile.addEnvironment("Client");
+                    case SERVER_ONLY -> mainFile.addEnvironment("Server");
+                    default -> mainFile.addEnvironment("Client", "Server"); // optionals are treated as "supported"
+                }
 
                 for (UploadArtifact file : files) {
                     file.releaseType = config.curseforge.type.name().toLowerCase(Locale.ROOT);
@@ -100,6 +105,7 @@ public class ModUploadSetup {
             for (String version : config.modrinth.versions) {
                 ext.getGameVersions().add(version);
             }
+            // todo setting environment type currently not supported by Minotaur
 
             for (String dependency : config.modrinth.requirements) ext.getRequired().project(dependency);
             for (String dependency : config.modrinth.optionals) ext.getOptional().project(dependency);

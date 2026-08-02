@@ -21,7 +21,7 @@ dependencies {
     api('com.google.code.gson:gson') { version { strictly '[2.13.2,)'; prefer '2.13.2' } }
     api('commons-io:commons-io') { version { strictly '[2.21.0,)'; prefer '2.21.0' } }
     api('org.apache.maven:maven-repository-metadata') { version { strictly '[3.9.12,)'; prefer '3.9.12' } }
-    implementation('net.darkhax.curseforgegradle:CurseForgeGradle') { version { strictly '[1.1.28,)'; prefer '1.1.28' } }
+    implementation('net.darkhax.curseforgegradle:CurseForgeGradle') { version { strictly '[1.3.33,)'; prefer '1.3.33' } }
     implementation('com.modrinth.minotaur:Minotaur') { version { strictly '[2.8.10,)'; prefer '2.8.10' } }
 }
 

@@ -34,6 +34,7 @@ public class ModUploadsConfig {
     public static class ModUploadConfig {
         
         public ReleaseType type = ReleaseType.ALPHA;
+        public EnvironmentType environmentType = EnvironmentType.CLIENT_AND_SERVER;
         public boolean inferDefaultVersions = true;
         public final Set<String> versions = new HashSet<>();
         public final Set<String> requirements = new HashSet<>();
@@ -47,6 +48,14 @@ public class ModUploadsConfig {
                     ModUploadConfig.this.type = ReleaseType.valueOf(type.toUpperCase(Locale.ROOT));
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("Invalid release type: " + type, e);
+                }
+            }
+
+            public void environmentType(String environmentType) {
+                try {
+                    ModUploadConfig.this.environmentType = EnvironmentType.valueOf(environmentType.toUpperCase(Locale.ROOT));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid environment type: " + environmentType, e);
                 }
             }
             
@@ -124,5 +133,14 @@ public class ModUploadsConfig {
     
     public enum ReleaseType {
         ALPHA, BETA, RELEASE
+    }
+
+    public enum EnvironmentType {
+        CLIENT_AND_SERVER, // required on client and server
+        CLIENT_ONLY, // only client supported, server unsupported
+        SERVER_ONLY, // only server supported, client unsupported
+        CLIENT_OPTIONAL, // required on server, optional on client
+        SERVER_OPTIONAL, // required on client, optional on server
+        CLIENT_AND_SERVER_OPTIONAL // optional on client and server
     }
 }
